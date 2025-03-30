@@ -1,0 +1,683 @@
+/* styles/PatternMatrixTest.module.css */
+.container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    background-color: #f8f9fa;
+  }
+  
+  .testContainer {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    padding: 1rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+  }
+  
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding: 0.5rem;
+  }
+  
+  .title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #0070f3;
+    margin: 0;
+  }
+  
+  .gameMetrics {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+  }
+  
+  .levelIndicator, .scoreIndicator, .timerIndicator {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #666;
+  }
+  
+  .metricValue {
+    font-weight: 700;
+    color: #0070f3;
+  }
+  
+  .timeWarning {
+    color: #e53935;
+    animation: pulse 1s infinite;
+  }
+  
+  .iconButton {
+    background: none;
+    border: none;
+    color: #666;
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+  }
+  
+  .iconButton:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+    color: #0070f3;
+  }
+  
+  .iconButton:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  
+  .gameArea {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    position: relative;
+    padding: 1rem;
+  }
+  
+  /* Welcome Card */
+  .welcomeCard {
+    background-color: white;
+    border-radius: 15px;
+    padding: 2rem;
+    max-width: 600px;
+    width: 100%;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+    z-index: 10;
+  }
+  
+  .welcomeCard h2 {
+    margin-top: 0;
+    color: #0070f3;
+    margin-bottom: 1.5rem;
+  }
+  
+  .welcomeCard p {
+    margin-bottom: 1.5rem;
+    line-height: 1.6;
+    color: #444;
+  }
+  
+  .buttonContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+    width: 100%;
+  }
+  
+  .primaryButton, .secondaryButton {
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+  }
+  
+  .primaryButton {
+    background-color: #0070f3;
+    color: white;
+  }
+  
+  .primaryButton:hover {
+    background-color: #0051a8;
+    transform: translateY(-1px);
+    box-shadow: 0 5px 15px rgba(0, 112, 243, 0.15);
+  }
+  
+  .secondaryButton {
+    background-color: #f0f0f0;
+    color: #333;
+  }
+  
+  .secondaryButton:hover {
+    background-color: #e0e0e0;
+    transform: translateY(-1px);
+  }
+  
+  .linkContainer {
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+  }
+  
+  .link {
+    color: #0070f3;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s ease;
+  }
+  
+  .link:hover {
+    color: #0051a8;
+    text-decoration: underline;
+  }
+  
+  /* Test Board */
+  .testBoard {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2rem;
+    width: 100%;
+    max-width: min(80vw, 80vh);
+  }
+  
+  /* Matrix Grid */
+  .matrixGrid {
+    display: grid;
+    grid-gap: 10px;
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    width: 100%;
+  }
+  
+  .matrix2 {
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(2, 1fr);
+  }
+  
+  .matrix3 {
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+  }
+  
+  .matrixCell {
+    aspect-ratio: 1/1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    padding: 10px;
+    transition: all 0.2s ease;
+  }
+  
+  .missingCell {
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: #ccc;
+    border: 2px dashed #ccc;
+    border-radius: 8px;
+  }
+  
+  /* Shapes */
+  .shapeContainer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+  }
+  
+  .circle {
+    border-radius: 50%;
+  }
+  
+  .square {
+    border-radius: 4px;
+  }
+  
+/* In the PatternMatrixTest.module.css file, update the triangle styles */
+.triangle {
+  width: 0 !important;
+  height: 0 !important;
+  border-left: calc(var(--size, 40px) / 2) solid transparent;
+  border-right: calc(var(--size, 40px) / 2) solid transparent;
+  border-bottom: var(--size, 40px) solid currentColor;
+  background-color: transparent !important;
+  /* Add these properties to center triangles better */
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -40%); /* Slight offset to account for triangle visual weight */
+}
+  
+  .diamond {
+    transform: rotate(45deg);
+    border-radius: 4px;
+  }
+  
+  .hexagon {
+    position: relative;
+    width: 100%;
+    height: 60%;
+    background-color: currentColor;
+    border-radius: 4px;
+  }
+  
+  .hexagon:before,
+  .hexagon:after {
+    content: "";
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-color: inherit;
+    border-radius: inherit;
+  }
+  
+  .hexagon:before {
+    transform: rotate(60deg);
+  }
+  
+  .hexagon:after {
+    transform: rotate(-60deg);
+  }
+  
+  /* Options */
+  .optionsGrid {
+    width: 100%;
+  }
+  
+  .optionsLabel {
+    text-align: center;
+    margin-bottom: 1rem;
+    font-weight: 500;
+    color: #666;
+  }
+  
+  .options {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-gap: 15px;
+  }
+  
+  .optionButton {
+    background-color: white;
+    border: 2px solid #eaeaea;
+    border-radius: 10px;
+    padding: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    aspect-ratio: 1/1;
+  }
+  
+  .optionButton:hover {
+    border-color: #0070f3;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  }
+  
+  .selectedOption {
+    border-color: #0070f3;
+    background-color: rgba(0, 112, 243, 0.05);
+  }
+  
+  /* Countdown */
+  .countdownOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+  }
+  
+  .countdownContent {
+    text-align: center;
+    color: white;
+  }
+  
+  .countdownContent h2 {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+  }
+  
+  .countdownNumber {
+    font-size: 8rem;
+    font-weight: bold;
+    color: #0070f3;
+    animation: pulse 1s infinite;
+    margin: 1rem 0;
+    line-height: 1;
+  }
+  
+  /* Message Overlay */
+  .messageOverlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 50;
+    animation: fadeInOut 1.5s ease;
+    pointer-events: none;
+  }
+  
+  .message {
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    font-size: 1.5rem;
+    font-weight: 600;
+    padding: 1rem 2rem;
+    border-radius: 30px;
+    max-width: 90%;
+    text-align: center;
+  }
+  
+  /* Results */
+  .resultsCard {
+    background-color: white;
+    border-radius: 15px;
+    padding: 2rem;
+    width: 100%;
+    max-width: 800px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+    z-index: 10;
+    overflow: auto;
+    max-height: 80vh;
+  }
+  
+  .resultsCard h2 {
+    text-align: center;
+    color: #0070f3;
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+  }
+  
+  .resultsSummary {
+    display: flex;
+    justify-content: center;
+    gap: 3rem;
+    margin-bottom: 2rem;
+  }
+  
+  .resultStat {
+    text-align: center;
+  }
+  
+  .statLabel {
+    font-size: 1rem;
+    color: #666;
+    margin-bottom: 0.5rem;
+  }
+  
+  .statValue {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #0070f3;
+  }
+  
+  .statDetail {
+    font-size: 0.9rem;
+    color: #888;
+    margin-top: 0.25rem;
+  }
+  
+  .detailedResults {
+    background-color: #f8f9fa;
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  
+  .detailedResults h3 {
+    margin-top: 0;
+    color: #333;
+    margin-bottom: 1rem;
+  }
+  
+  .resultsList {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .resultItem {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    background-color: white;
+  }
+  
+  .correctResult {
+    border-left: 4px solid #2e7d32;
+  }
+  
+  .incorrectResult {
+    border-left: 4px solid #c62828;
+  }
+  
+  .resultProblem {
+    font-weight: 500;
+  }
+  
+  .resultStatus {
+    font-weight: 600;
+  }
+  
+  .correctResult .resultStatus {
+    color: #2e7d32;
+  }
+  
+  .incorrectResult .resultStatus {
+    color: #c62828;
+  }
+  
+  .resultTime {
+    color: #666;
+    font-size: 0.9rem;
+  }
+  
+  .interpretation {
+    background-color: white;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-top: 1.5rem;
+  }
+  
+  .interpretation h3 {
+    margin-top: 0;
+    color: #333;
+    margin-bottom: 1rem;
+  }
+  
+  .interpretation p {
+    margin: 0;
+    color: #555;
+    line-height: 1.6;
+  }
+  
+  /* Footer */
+  .footer {
+    padding: 1rem;
+    text-align: center;
+    font-size: 0.9rem;
+    color: #666;
+    margin-top: 2rem;
+  }
+  
+  .footerLink {
+    color: #0070f3;
+    margin-left: 0.5rem;
+    text-decoration: none;
+  }
+  
+  .footerLink:hover {
+    text-decoration: underline;
+  }
+  
+  /* Animations */
+  @keyframes pulse {
+    0% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.1);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+  
+  @keyframes fadeInOut {
+    0% { opacity: 0; }
+    20% { opacity: 1; }
+    80% { opacity: 1; }
+    100% { opacity: 0; }
+  }
+  
+  @keyframes appear {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  /* Apply animations */
+  .welcomeCard, .resultsCard {
+    animation: appear 0.5s ease;
+  }
+  
+  /* Media Queries */
+  @media (min-width: 768px) {
+    .title {
+      font-size: 2rem;
+    }
+    
+    .buttonContainer {
+      flex-direction: row;
+    }
+    
+    .primaryButton, .secondaryButton {
+      flex: 1;
+    }
+    
+    .options {
+      grid-template-columns: repeat(6, 1fr);
+    }
+  }
+  
+  @media (max-width: 600px) {
+    .header {
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+    }
+    
+    .gameMetrics {
+      width: 100%;
+      justify-content: space-between;
+      flex-wrap: wrap;
+    }
+    
+    .resultsCard {
+      padding: 1.5rem;
+    }
+    
+    .resultsSummary {
+      gap: 1.5rem;
+    }
+    
+    .statValue {
+      font-size: 2rem;
+    }
+    
+    .countdownNumber {
+      font-size: 6rem;
+    }
+    
+    .message {
+      font-size: 1.2rem;
+      padding: 0.75rem 1.5rem;
+    }
+    
+    .options {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  
+  /* Accessibility focus styles */
+  .optionButton:focus, .primaryButton:focus, .secondaryButton:focus, .link:focus, .iconButton:focus {
+    outline: 3px solid #0070f3;
+    outline-offset: 3px;
+  }
+
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .container {
+    background-color: #121212;
+  }
+  
+  .welcomeCard, .resultsCard, .board {
+    background-color: #1e1e1e;
+    border-color: #333;
+  }
+  
+  .welcomeCard h2, .resultsCard h2, .title {
+    color: #4da3ff;
+  }
+  
+  .welcomeCard p, .statLabel {
+    color: #bbb;
+  }
+  
+  .secondaryButton {
+    background-color: #333;
+    color: #fff;
+  }
+  
+  .secondaryButton:hover {
+    background-color: #444;
+  }
+  
+  .progressIndicator {
+    background-color: #1e1e1e;
+    color: #bbb;
+  }
+  
+  .footer {
+    color: #999;
+  }
+  
+  .footerLink, .link {
+    color: #4da3ff;
+  }
+  
+  .metricValue, .statValue {
+    color: #4da3ff;
+  }
+}

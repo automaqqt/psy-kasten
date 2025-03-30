@@ -1,0 +1,556 @@
+/* styles/CorsiTest.module.css */
+.container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    background-color: #f8f9fa;
+  }
+  
+  .testContainer {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    padding: 1rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+    height: 90%;
+  }
+  
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding: 0.5rem;
+  }
+  
+  .title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #0070f3;
+    margin: 0;
+  }
+  
+  .gameMetrics {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+  }
+  
+  .levelIndicator, .scoreIndicator {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #666;
+  }
+  
+  .metricValue {
+    font-weight: 700;
+    color: #0070f3;
+  }
+  
+  .iconButton {
+    background: none;
+    border: none;
+    color: #666;
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+  }
+  
+  .iconButton:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+    color: #0070f3;
+  }
+  
+  .iconButton:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  
+  .gameArea {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    position: relative;
+    padding: 1rem;
+  }
+  
+  /* Welcome Card */
+  .welcomeCard {
+    background-color: white;
+    border-radius: 15px;
+    padding: 2rem;
+    max-width: 600px;
+    width: 100%;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+    z-index: 10;
+  }
+  
+  .welcomeCard h2 {
+    margin-top: 0;
+    color: #0070f3;
+    margin-bottom: 1.5rem;
+  }
+  
+  .welcomeCard p {
+    margin-bottom: 1.5rem;
+    line-height: 1.6;
+    color: #444;
+  }
+  
+  .buttonContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+    width: 100%;
+  }
+  
+  .primaryButton, .secondaryButton {
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+  }
+  
+  .primaryButton {
+    background-color: #0070f3;
+    color: white;
+  }
+  
+  .primaryButton:hover {
+    background-color: #0051a8;
+    transform: translateY(-1px);
+    box-shadow: 0 5px 15px rgba(0, 112, 243, 0.15);
+  }
+  
+  .secondaryButton {
+    background-color: #f0f0f0;
+    color: #333;
+  }
+  
+  .secondaryButton:hover {
+    background-color: #e0e0e0;
+    transform: translateY(-1px);
+  }
+  
+  .linkContainer {
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+  }
+  
+  .link {
+    color: #0070f3;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s ease;
+  }
+  
+  .link:hover {
+    color: #0051a8;
+    text-decoration: underline;
+  }
+  
+  /* Board */
+  .boardContainer {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+  
+  .board {
+    background-color: rgba(255, 255, 255, 0.7);
+    border-radius: 10px;
+    position: relative;
+    aspect-ratio: 1 / 1;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    transition: box-shadow 0.3s ease;
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(255, 255, 255, 0.8);
+    max-width: min(80vw, 80vh);
+    width: 100%;
+    height: auto;
+  }
+  
+  .board:hover {
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+  }
+  
+  .block {
+    width: 15%;
+    height: 15%;
+    background-color: var(--block-color, #4a6fa5);
+    border-radius: 12px;
+    position: absolute;
+    transition: all 0.2s ease, transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+  }
+  
+  .block:hover {
+    transform: scale(1.05);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  }
+  
+  .active {
+    background-color: var(--highlight-color, #ffcb05);
+    transform: scale(1.1);
+    box-shadow: 0 0 25px rgba(255, 203, 5, 0.8);
+  }
+  
+  .clicked {
+    background-color: #78a5e3;
+    transform: scale(0.95);
+  }
+  
+  .progressIndicator {
+    margin-top: 1rem;
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #666;
+    padding: 0.5rem 1.5rem;
+    background-color: white;
+    border-radius: 20px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  }
+  
+  /* Countdown */
+  .countdownOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+  }
+  
+  .countdownContent {
+    text-align: center;
+    color: white;
+  }
+  
+  .countdownContent h2 {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+  }
+  
+  .countdownNumber {
+    font-size: 8rem;
+    font-weight: bold;
+    color: #0070f3;
+    animation: pulse 1s infinite;
+    margin: 1rem 0;
+    line-height: 1;
+  }
+  
+  @keyframes pulse {
+    0% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.1);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+  
+  /* Message Overlay */
+  .messageOverlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 50;
+    animation: fadeInOut 1.5s ease;
+    pointer-events: none;
+  }
+  
+  @keyframes fadeInOut {
+    0% { opacity: 0; }
+    20% { opacity: 1; }
+    80% { opacity: 1; }
+    100% { opacity: 0; }
+  }
+  
+  .message {
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    font-size: 1.5rem;
+    font-weight: 600;
+    padding: 1rem 2rem;
+    border-radius: 30px;
+    max-width: 90%;
+    text-align: center;
+  }
+  
+  /* Results */
+  .resultsCard {
+    background-color: white;
+    border-radius: 15px;
+    padding: 2rem;
+    width: 100%;
+    max-width: 800px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+    z-index: 10;
+    overflow: auto;
+    max-height: 80vh;
+  }
+  
+  .resultsCard h2 {
+    text-align: center;
+    color: #0070f3;
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+  }
+  
+  .resultsSummary {
+    display: flex;
+    justify-content: center;
+    gap: 3rem;
+    margin-bottom: 2rem;
+  }
+  
+  .resultStat {
+    text-align: center;
+  }
+  
+  .statLabel {
+    font-size: 1rem;
+    color: #666;
+    margin-bottom: 0.5rem;
+  }
+  
+  .statValue {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #0070f3;
+  }
+  
+  .footer {
+    padding: 1rem;
+    text-align: center;
+    font-size: 0.9rem;
+    color: #666;
+    margin-top: 2rem;
+  }
+  
+  .footerLink {
+    color: #0070f3;
+    margin-left: 0.5rem;
+    text-decoration: none;
+  }
+  
+  .footerLink:hover {
+    text-decoration: underline;
+  }
+  
+  /* Media Queries */
+  @media (min-width: 768px) {
+    .title {
+      font-size: 2rem;
+    }
+    
+    .buttonContainer {
+      flex-direction: row;
+    }
+    
+    .primaryButton, .secondaryButton {
+      flex: 1;
+    }
+  }
+  
+  @media (max-width: 600px) {
+    .header {
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+    }
+    
+    .gameMetrics {
+      width: 100%;
+      justify-content: space-between;
+    }
+    
+    .resultsCard {
+      padding: 1.5rem;
+    }
+    
+    .resultsSummary {
+      gap: 1.5rem;
+    }
+    
+    .statValue {
+      font-size: 2rem;
+    }
+    
+    .countdownNumber {
+      font-size: 6rem;
+    }
+    
+    .message {
+      font-size: 1.2rem;
+      padding: 0.75rem 1.5rem;
+    }
+  }
+  
+  /* Animations */
+  @keyframes appear {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  @keyframes glow {
+    0% {
+      box-shadow: 0 0 5px rgba(0, 112, 243, 0.5);
+    }
+    50% {
+      box-shadow: 0 0 20px rgba(0, 112, 243, 0.8);
+    }
+    100% {
+      box-shadow: 0 0 5px rgba(0, 112, 243, 0.5);
+    }
+  }
+  
+  @keyframes wiggle {
+    0% { transform: rotate(0deg); }
+    25% { transform: rotate(1deg); }
+    50% { transform: rotate(0deg); }
+    75% { transform: rotate(-1deg); }
+    100% { transform: rotate(0deg); }
+  }
+  
+  /* Apply animations */
+  .welcomeCard, .resultsCard {
+    animation: appear 0.5s ease;
+  }
+  
+  .block.active {
+    animation: glow 0.8s ease-in-out;
+  }
+  
+  .block:active {
+    animation: wiggle 0.3s ease;
+  }
+  
+  /* Accessibility focus styles */
+  .block:focus {
+    outline: 3px solid #0070f3;
+    outline-offset: 3px;
+  }
+  
+  .primaryButton:focus, .secondaryButton:focus, .link:focus, .iconButton:focus {
+    outline: 3px solid #0070f3;
+    outline-offset: 3px;
+  }
+  
+  
+  
+  /* Responsive block size adjustment */
+  @media (max-width: 480px) {
+    .block {
+      width: 18%;
+      height: 18%;
+    }
+  }
+  
+  /* Performance optimization */
+  .board, .block, .messageOverlay, .countdownOverlay {
+    will-change: transform, opacity;
+  }
+  
+  /* Print styles */
+  @media print {
+    .welcomeCard, .iconButton, .buttonContainer, .linkContainer, .footer {
+      display: none;
+    }
+    
+    .resultsCard {
+      box-shadow: none;
+      padding: 0;
+    }
+    
+    .container {
+      background-color: white;
+    }
+  }
+
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+    .container {
+      background-color: #121212;
+    }
+    
+    .welcomeCard, .resultsCard, .board {
+      background-color: #1e1e1e;
+      border-color: #333;
+    }
+    
+    .welcomeCard h2, .resultsCard h2, .title {
+      color: #4da3ff;
+    }
+    
+    .welcomeCard p, .statLabel {
+      color: #bbb;
+    }
+    
+    .secondaryButton {
+      background-color: #333;
+      color: #fff;
+    }
+    
+    .secondaryButton:hover {
+      background-color: #444;
+    }
+    
+    .progressIndicator {
+      background-color: #1e1e1e;
+      color: #bbb;
+    }
+    
+    .footer {
+      color: #999;
+    }
+    
+    .footerLink, .link {
+      color: #4da3ff;
+    }
+    
+    .metricValue, .statValue {
+      color: #4da3ff;
+    }
+  }

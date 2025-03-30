@@ -1,0 +1,202 @@
+/* styles/Results.module.css */
+.detailedResults {
+    background: white;
+    border-radius: 10px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+  
+  .resultsTitle {
+    margin-top: 0;
+    color: #0070f3;
+    text-align: center;
+  }
+  
+  .metricsGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(175px, 1fr));
+    gap: 1rem;
+    margin: 2rem 0;
+  }
+  
+  .metricCard {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 1rem;
+    text-align: center;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  }
+  
+  .metricCard h3 {
+    font-size: 0.9rem;
+    margin-top: 0;
+    margin-bottom: 0.5rem;
+    color: #666;
+  }
+  
+  .metricValue {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #0070f3;
+  }
+  
+  .metricSubtext {
+    font-size: 0.8rem;
+    color: #999;
+    margin-top: 0.2rem;
+  }
+  
+  .resultsTabs {
+    margin-top: 2rem;
+  }
+  
+  .roundsList {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin: 1rem 0;
+    max-height: 200px;
+    overflow-y: auto;
+    border: 1px solid #eaeaea;
+    border-radius: 5px;
+    padding: 0.5rem;
+  }
+  
+  .roundItem {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+  }
+  
+  .roundItem:hover {
+    background-color: #f0f0f0;
+  }
+  
+  .selected {
+    background-color: #e6f7ff;
+    border-left: 3px solid #0070f3;
+  }
+  
+  .success {
+    border-left: 3px solid #28a745;
+  }
+  
+  .failure {
+    border-left: 3px solid #dc3545;
+  }
+  
+  .roundDetails {
+    margin-top: 1.5rem;
+    padding: 1rem;
+    border-radius: 5px;
+    background-color: #f8f9fa;
+  }
+  
+  .roundDetails h4 {
+    margin-top: 0;
+    color: #333;
+  }
+  
+  .detailsGrid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    margin: 1rem 0;
+  }
+  
+  .detailItem {
+    display: flex;
+    align-items: center;
+  }
+  
+  .detailLabel {
+    font-size: 0.9rem;
+    color: #666;
+    margin-right: 0.5rem;
+  }
+  
+  .detailValue {
+    font-weight: 600;
+    color: #333;
+  }
+  
+  .successText {
+    color: #28a745;
+  }
+  
+  .failureText {
+    color: #dc3545;
+  }
+  
+  .timingTable {
+    border: 1px solid #eaeaea;
+    border-radius: 5px;
+    overflow: hidden;
+    margin: 1rem 0;
+  }
+  
+  .timingHeader {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    background: #f0f0f0;
+    font-weight: 600;
+    padding: 0.5rem;
+  }
+  
+  .timingRow {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    padding: 0.5rem;
+    border-top: 1px solid #eaeaea;
+  }
+  
+  .sequenceComparison {
+    margin: 1rem 0;
+  }
+  
+  .sequenceLabel {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+  }
+  
+  .sequenceDots {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
+  
+  .sequenceDot {
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #0070f3;
+    color: white;
+    font-weight: 600;
+    border-radius: 50%;
+  }
+  
+  .wrongDot {
+    background: #dc3545;
+  }
+  
+  @media (max-width: 600px) {
+    .detailsGrid {
+      grid-template-columns: 1fr;
+    }
+    
+    .timingHeader, .timingRow {
+      grid-template-columns: 1fr 1fr;
+    }
+    
+    .timingHeader div:last-child, .timingRow div:last-child {
+      display: none;
+    }
+  }

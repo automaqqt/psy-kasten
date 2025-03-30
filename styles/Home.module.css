@@ -1,0 +1,249 @@
+/* styles/Home.module.css */
+.container {
+    min-height: 100vh;
+    padding: 0 1rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: #f8f9fa;
+    color: #333;
+  }
+  
+  .main {
+    padding: 2rem 0;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    max-width: 800px;
+    width: 100%;
+  }
+  
+  .title {
+    margin: 0 0 2rem;
+    line-height: 1.15;
+    font-size: 2.5rem;
+    text-align: center;
+    color: #0070f3;
+  }
+  
+  .card {
+    background: white;
+    border-radius: 10px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    max-width: 600px;
+    margin: 0 auto;
+    width: 100%;
+  }
+  
+  .button {
+    background-color: #0070f3;
+    color: white;
+    font-weight: 600;
+    border: none;
+    border-radius: 5px;
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-top: 1rem;
+    width: 100%;
+  }
+  
+  .button:hover {
+    background-color: #0051a8;
+  }
+  
+  .board {
+    width: 350px;
+    height: 350px;
+    background-color: #e0e0e0;
+    border-radius: 10px;
+    position: relative;
+    margin: 2rem 0;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .block {
+    width: 60px;
+    height: 60px;
+    background-color: var(--block-color, #4a6fa5);
+    border-radius: 8px;
+    position: absolute;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  }
+  
+  .active {
+    background-color: var(--highlight-color, #ffcb05);
+    transform: scale(1.1);
+    box-shadow: 0 0 15px rgba(255, 203, 5, 0.7);
+  }
+  
+  .clicked {
+    background-color: #78a5e3;
+  }
+  
+  .countdown {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 2rem 0;
+  }
+  
+  .countdownNumber {
+    font-size: 6rem;
+    font-weight: bold;
+    color: #0070f3;
+    animation: pulse 1s infinite;
+  }
+  
+  @keyframes pulse {
+    0% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.1);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+  
+  .gameInfo {
+    display: flex;
+    justify-content: space-between;
+    width: 350px;
+    margin-bottom: 1rem;
+  }
+  
+  .levelIndicator, .scoreIndicator {
+    font-size: 1.2rem;
+    font-weight: 600;
+  }
+  
+  .smallText {
+    font-size: 0.8rem;
+    font-weight: normal;
+    color: #666;
+  }
+  
+  .instructions {
+    text-align: center;
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+    min-height: 1.6rem;
+  }
+  
+  .feedback {
+    margin-top: 1rem;
+    font-weight: 600;
+    text-align: center;
+    min-height: 1.5rem;
+    color: #0070f3;
+  }
+  
+  .progress {
+    margin-top: 1rem;
+    font-size: 0.9rem;
+    color: #666;
+  }
+  
+  .resultsCard {
+    background: white;
+    border-radius: 10px;
+    padding: 2rem;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 500px;
+    text-align: center;
+  }
+  
+  .resultsScore {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #0070f3;
+    margin: 1rem 0;
+  }
+  
+  .resultsList {
+    text-align: left;
+    margin: 1.5rem 0;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+  }
+  
+  .resultItem {
+    margin: 0.5rem 0;
+    display: flex;
+    justify-content: space-between;
+  }
+  
+  .success {
+    color: #28a745;
+    font-weight: bold;
+  }
+  
+  .failure {
+    color: #dc3545;
+    font-weight: bold;
+  }
+  
+  .infoText {
+    font-style: italic;
+    color: #666;
+    margin: 1rem 0;
+  }
+  
+  .link {
+    color: #0070f3;
+    text-decoration: underline;
+    font-weight: 500;
+  }
+  
+  .secondaryButton {
+    background-color: #6c757d;
+    margin-top: 0.5rem;
+  }
+  
+  .secondaryButton:hover {
+    background-color: #5a6268;
+  }
+  
+  .footer {
+    width: 100%;
+    height: 60px;
+    border-top: 1px solid #eaeaea;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    font-size: 0.8rem;
+    color: #666;
+  }
+  
+  /* Responsive adjustments */
+  @media (max-width: 600px) {
+    .title {
+      font-size: 1.8rem;
+    }
+    
+    .board {
+      width: 300px;
+      height: 300px;
+    }
+    
+    .block {
+      width: 60px;
+      height: 60px;
+    }
+    
+    .gameInfo {
+      width: 300px;
+    }
+  }

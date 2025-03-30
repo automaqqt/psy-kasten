@@ -1,0 +1,315 @@
+/* styles/PVT.module.css */
+.pvtContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+  
+  .pvtHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 1rem;
+    padding: 0.5rem 1rem;
+    background-color: #f8f9fa;
+    border-radius: 5px;
+  }
+  
+  .pvtTimer, .pvtTrials {
+    font-size: 1rem;
+    font-weight: 600;
+  }
+  
+  .pvtStimulus {
+    width: 300px;
+    height: 300px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: white;
+    border-radius: 10px;
+    margin: 2rem 0;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s ease;
+  }
+  
+  .pvtInstructions {
+    font-size: 1.5rem;
+    text-align: center;
+    color: #333;
+  }
+  
+  .pvtFooter {
+    text-align: center;
+    margin-top: 1rem;
+  }
+  
+  .pvtElapsed {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #0070f3;
+    margin-top: 1rem;
+  }
+  
+  .stopButton {
+    color: #dc3545;
+  }
+  
+  .pvtSummary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+    margin: 2rem 0;
+  }
+  
+  .pvtStat {
+    text-align: center;
+    padding: 1.5rem 1rem;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  }
+  
+  .pvtStat h3 {
+    margin: 0 0 0.5rem;
+    font-size: 0.9rem;
+    color: #666;
+  }
+  
+  .pvtStat p {
+    margin: 0;
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: #0070f3;
+  }
+  
+  /* Results specific styles */
+  .warningText {
+    color: #ffc107;
+    font-weight: 600;
+  }
+  
+  .percentilesChart {
+    position: relative;
+    margin: 3rem 0;
+    padding: 0 1rem;
+  }
+  
+  .percentileLine {
+    position: relative;
+    height: 4px;
+    background-color: #ddd;
+    margin: 2rem 0;
+  }
+  
+  .percentileStart, .percentileEnd {
+    position: absolute;
+    bottom: -25px;
+    font-size: 0.9rem;
+    color: #666;
+    transform: translateX(-50%);
+  }
+  
+  .percentileStart {
+    left: 0;
+  }
+  
+  .percentileEnd {
+    right: 0;
+    transform: translateX(50%);
+  }
+  
+  .percentileMarkers {
+    position: relative;
+    height: 40px;
+  }
+  
+  .percentileMarker {
+    position: absolute;
+    transform: translateX(-50%);
+  }
+  
+  .markerLine {
+    height: 10px;
+    width: 2px;
+    background-color: #0070f3;
+    margin: 0 auto;
+  }
+  
+  .markerLabel {
+    text-align: center;
+    font-size: 0.8rem;
+    margin-top: 5px;
+  }
+  
+  .markerValue {
+    font-weight: 600;
+    color: #0070f3;
+  }
+  
+  .markerPercentile {
+    color: #666;
+  }
+  
+  .keyMetrics {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 2rem;
+  }
+  
+  .keyMetric {
+    text-align: center;
+    padding: 1rem;
+    background-color: #f0f0f0;
+    border-radius: 5px;
+    flex: 1;
+    margin: 0 0.5rem;
+  }
+  
+  .metricLabel {
+    font-size: 0.9rem;
+    color: #666;
+    margin-bottom: 0.5rem;
+  }
+  
+  .metricValue {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #0070f3;
+  }
+  
+  .distributionGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .histogramCard, .percentileCard {
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  }
+  
+  .histogramCard h3, .percentileCard h3 {
+    margin-top: 0;
+    margin-bottom: 1rem;
+    font-size: 1.2rem;
+    color: #333;
+  }
+  
+  .summaryStats {
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-top: 1.5rem;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  }
+  
+  .summaryStats h3 {
+    margin-top: 0;
+    margin-bottom: 1rem;
+    font-size: 1.2rem;
+    color: #333;
+  }
+  
+  .statsGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+  }
+  
+  .statItem {
+    background-color: white;
+    padding: 1rem;
+    border-radius: 6px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    text-align: center;
+  }
+  
+  .statLabel {
+    font-size: 0.9rem;
+    color: #666;
+    margin-bottom: 0.5rem;
+  }
+  
+  .statValue {
+    font-size: 1.3rem;
+    font-weight: bold;
+    color: #0070f3;
+  }
+  
+  .interpretationCard {
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-top: 2rem;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  }
+  
+  .interpretationCard h4 {
+    margin-top: 0;
+    margin-bottom: 1rem;
+    font-size: 1.2rem;
+    color: #333;
+  }
+  
+  .interpretationGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+  }
+  
+  .interpretationItem h4 {
+    margin-top: 0;
+    margin-bottom: 0.5rem;
+    font-size: 1rem;
+  }
+  
+  .interpretationItem p {
+    margin: 0;
+    color: #555;
+    font-size: 0.9rem;
+  }
+  
+  .falseStartsInfo {
+    background-color: #fff3cd;
+    border-left: 4px solid #ffc107;
+    padding: 1rem;
+    margin-top: 1.5rem;
+    border-radius: 0 5px 5px 0;
+  }
+  
+  .falseStartsInfo h4 {
+    margin-top: 0;
+    color: #856404;
+  }
+  
+  .falseStartsInfo p {
+    margin-bottom: 0;
+    color: #856404;
+  }
+  
+  @media (max-width: 768px) {
+    .distributionGrid {
+      grid-template-columns: 1fr;
+    }
+    
+    .interpretationGrid {
+      grid-template-columns: 1fr;
+    }
+    
+    .keyMetrics {
+      flex-direction: column;
+      gap: 1rem;
+    }
+    
+    .keyMetric {
+      margin: 0;
+    }
+  }
