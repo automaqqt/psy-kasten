@@ -18,14 +18,23 @@ export default function Home() {
       tags: ['Memory', 'Visual-Spatial', 'Sequential']
     },
     {
+      id: 'pvt',
+      title: 'Psychomotor Vigilance Test',
+      description: 'Measures reaction time and vigilance. Respond as quickly as possible to visual stimuli.',
+      route: '/pvt',
+      color: '#e91e63',
+      icon: '⏱️',
+      tags: ['Reaction Time', 'Alertness', 'Vigilance']
+    },
+    {
       id: 'cpm',
       title: 'Colored Progressive Matrices',
       description: 'Measures your nonverbal intelligence. Try to match Matrices.',
       route: '/cpm',
-      color: '#4a6fa5',
+      color: '#228B22',
       icon: '🔤',
       tags: ['Inteligence', 'Non-Verbal', 'Sequential']
-    },
+    }/* ,
     {
       id: 'corsi-backward',
       title: 'Backward Corsi Block Test',
@@ -43,16 +52,7 @@ export default function Home() {
       color: '#9c27b0',
       icon: '🔤',
       tags: ['Attention', 'Inhibition', 'Vigilance']
-    },
-    {
-      id: 'pvt',
-      title: 'Psychomotor Vigilance Test',
-      description: 'Measures reaction time and vigilance. Respond as quickly as possible to visual stimuli.',
-      route: '/pvt',
-      color: '#e91e63',
-      icon: '⏱️',
-      tags: ['Reaction Time', 'Alertness', 'Vigilance']
-    }
+    } */
   ];
 
   const handleCardHover = (id) => {

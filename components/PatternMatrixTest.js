@@ -554,9 +554,6 @@ export default function PatternMatrixTest() {
                 </button>
               </div>
               <div className={styles.linkContainer}>
-                <Link href="/corsi">
-                  <a className={styles.link}>Try Corsi Block Test</a>
-                </Link>
                 <Link href="/">
                   <a className={styles.link}>Back to Home</a>
                 </Link>

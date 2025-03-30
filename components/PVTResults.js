@@ -1,610 +1,327 @@
 // components/PVTResults.js
-import React, { useState } from 'react';
-import styles from '../styles/Results.module.css';
+import { useState, useEffect, useRef } from 'react';
+import styles from '../styles/PVTResults.module.css';
 
-const PVTResults = ({ trials, falseStarts }) => {
-  const [currentTab, setCurrentTab] = useState('performance');
-  const [sortBy, setSortBy] = useState('time');
-  const [sortDirection, setSortDirection] = useState('asc');
-  const [pageSize, setPageSize] = useState(10);
-  const [currentPage, setCurrentPage] = useState(0);
+export default function PVTResults({ trials, falseStarts }) {
+  const [selectedTab, setSelectedTab] = useState('graph');
+  const [chartData, setChartData] = useState({ labels: [], datasets: [] });
+  const chartRef = useRef(null);
+  const chartInstance = useRef(null);
   
-  // Function to handle sort changes
-  const handleSort = (field) => {
-    if (sortBy === field) {
-      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
-    } else {
-      setSortBy(field);
-      setSortDirection('asc');
-    }
-  };
-  
-  // Filter valid trials (not false starts)
-  const validTrials = trials.filter(t => !t.falseStart);
-  
-  // Function to sort trials
-  const sortTrials = (trialsToSort) => {
-    return [...trialsToSort].sort((a, b) => {
-      let aValue, bValue;
-      
-      switch (sortBy) {
-        case 'time':
-          aValue = a.startTime;
-          bValue = b.startTime;
-          break;
-        case 'rt':
-          // For trials without RT, put them at the end
-          if (!a.reactionTime) return sortDirection === 'asc' ? 1 : -1;
-          if (!b.reactionTime) return sortDirection === 'asc' ? -1 : 1;
-          aValue = a.reactionTime;
-          bValue = b.reactionTime;
-          break;
-        case 'interval':
-          aValue = a.intervalTime || 0;
-          bValue = b.intervalTime || 0;
-          break;
-        default:
-          aValue = a.startTime;
-          bValue = b.startTime;
-      }
-      
-      // Perform the comparison
-      if (aValue < bValue) return sortDirection === 'asc' ? -1 : 1;
-      if (aValue > bValue) return sortDirection === 'asc' ? 1 : -1;
-      return 0;
+  // Prepare data for visualization
+  useEffect(() => {
+    const validTrials = trials.filter(t => t.reactionTime && !t.falseStart);
+    
+    if (validTrials.length === 0) return;
+    
+    // Create chart data
+    const labels = validTrials.map(t => t.trialNumber);
+    const reactionTimes = validTrials.map(t => t.reactionTime);
+    
+    setChartData({
+      labels,
+      datasets: [
+        {
+          label: 'Reaction Time (ms)',
+          data: reactionTimes,
+          borderColor: '#4a6fdc',
+          backgroundColor: 'rgba(74, 111, 220, 0.2)',
+          borderWidth: 2,
+          pointRadius: 4,
+          pointBackgroundColor: '#4a6fdc',
+          tension: 0.2
+        }
+      ]
     });
-  };
+  }, [trials]);
   
-  // Get sorted and paginated trials
-  const sortedTrials = sortTrials(validTrials);
-  const paginatedTrials = sortedTrials.slice(
-    currentPage * pageSize, 
-    (currentPage + 1) * pageSize
-  );
-  
-  // Calculate max pages
-  const maxPages = Math.ceil(validTrials.length / pageSize);
-  
-  // Format time in ms to seconds with 2 decimal places
-  const formatTime = (ms) => {
-    return (ms / 1000).toFixed(3) + 's';
-  };
-  
-  // Format time since start in ms to mm:ss format
-  const formatTimeSinceStart = (ms) => {
-    const totalSeconds = Math.floor(ms / 1000);
-    const minutes = Math.floor(totalSeconds / 60);
-    const seconds = totalSeconds % 60;
-    return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
-  };
-
-  // Calculate summary statistics
-  const calculateStats = () => {
-    if (validTrials.length === 0) {
-      return {
-        meanRT: 0,
-        medianRT: 0,
-        minRT: 0,
-        maxRT: 0,
-        stdDevRT: 0,
-        totalTrials: 0,
-        lapses: 0, // RT > 500ms
-        falseStarts: falseStarts
-      };
-    }
+  // Draw chart when data or tab changes
+  useEffect(() => {
+    if (selectedTab !== 'graph' || !chartRef.current || chartData.labels.length === 0) return;
     
-    const reactionTimes = validTrials.map(t => t.reactionTime).filter(rt => rt !== null && rt !== undefined);
-    
-    if (reactionTimes.length === 0) {
-      return {
-        meanRT: 0,
-        medianRT: 0,
-        minRT: 0,
-        maxRT: 0,
-        stdDevRT: 0,
-        totalTrials: validTrials.length,
-        lapses: 0,
-        falseStarts: falseStarts
-      };
-    }
-    
-    // Calculate basic statistics
-    const meanRT = reactionTimes.reduce((sum, rt) => sum + rt, 0) / reactionTimes.length;
-    const sortedRTs = [...reactionTimes].sort((a, b) => a - b);
-    const medianRT = sortedRTs[Math.floor(sortedRTs.length / 2)];
-    const minRT = sortedRTs[0];
-    const maxRT = sortedRTs[sortedRTs.length - 1];
-    
-    // Calculate standard deviation
-    const variance = reactionTimes.reduce((sum, rt) => sum + Math.pow(rt - meanRT, 2), 0) / reactionTimes.length;
-    const stdDevRT = Math.sqrt(variance);
-    
-    // Count lapses (RT > 500ms)
-    const lapses = reactionTimes.filter(rt => rt > 500).length;
-    
-    return {
-      meanRT,
-      medianRT,
-      minRT,
-      maxRT,
-      stdDevRT,
-      totalTrials: validTrials.length,
-      lapses,
-      falseStarts
+    const drawChart = async () => {
+      try {
+        // Dynamic import for client-side only
+        const { Chart, LineElement, PointElement, LinearScale, Title, CategoryScale, Tooltip, Legend } = await import('chart.js');
+        Chart.register(LineElement, PointElement, LinearScale, Title, CategoryScale, Tooltip, Legend);
+        
+        // Clear previous chart if it exists
+        if (chartInstance.current) {
+          chartInstance.current.destroy();
+        }
+        
+        // Create new chart
+        const ctx = chartRef.current.getContext('2d');
+        chartInstance.current = new Chart(ctx, {
+          type: 'line',
+          data: chartData,
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                position: 'top',
+              },
+              title: {
+                display: true,
+                text: 'Reaction Times by Trial',
+                font: {
+                  size: 16
+                }
+              },
+              tooltip: {
+                callbacks: {
+                  label: function(context) {
+                    return `RT: ${context.parsed.y} ms`;
+                  }
+                }
+              }
+            },
+            scales: {
+              y: {
+                beginAtZero: false,
+                title: {
+                  display: true,
+                  text: 'Reaction Time (ms)'
+                }
+              },
+              x: {
+                title: {
+                  display: true,
+                  text: 'Trial Number'
+                }
+              }
+            }
+          }
+        });
+      } catch (error) {
+        console.error('Error loading Chart.js:', error);
+      }
     };
-  };
-  
-  const stats = calculateStats();
-  
-  // Calculate performance over time
-  const calculatePerformanceData = () => {
-    // Skip if not enough trials
-    if (validTrials.length < 5) return [];
     
-    // Group trials into blocks of appropriate size
-    const blockSize = Math.max(5, Math.floor(validTrials.length / 10));
-    const blocks = [];
+    drawChart();
     
-    for (let i = 0; i < validTrials.length; i += blockSize) {
-      const blockTrials = validTrials.slice(i, i + blockSize);
-      if (blockTrials.length < 3) continue; // Skip blocks that are too small
-      
-      const blockRTs = blockTrials.map(t => t.reactionTime).filter(rt => rt !== null && rt !== undefined);
-      if (blockRTs.length === 0) continue;
-      
-      const blockMeanRT = blockRTs.reduce((sum, rt) => sum + rt, 0) / blockRTs.length;
-      const blockLapses = blockRTs.filter(rt => rt > 500).length;
-      
-      blocks.push({
-        blockNumber: blocks.length + 1,
-        startTime: blockTrials[0]?.startTime || 0,
-        endTime: blockTrials[blockTrials.length - 1]?.startTime || 0,
-        meanRT: blockMeanRT,
-        lapses: blockLapses,
-        trialCount: blockTrials.length
+    // Cleanup function
+    return () => {
+      if (chartInstance.current) {
+        chartInstance.current.destroy();
+      }
+    };
+  }, [selectedTab, chartData]);
+  
+  // Calculate distribution data
+  const calculateDistribution = () => {
+    const validTrials = trials.filter(t => t.reactionTime && !t.falseStart);
+    if (validTrials.length === 0) return [];
+    
+    // Sort reaction times
+    const sortedRTs = validTrials.map(t => t.reactionTime).sort((a, b) => a - b);
+    
+    // Calculate percentiles
+    const getPercentile = (arr, p) => {
+      const index = Math.floor(arr.length * (p / 100));
+      return arr[index];
+    };
+    
+    // Create bins for histogram (10 bins)
+    const min = Math.floor(sortedRTs[0] / 50) * 50; // Round to nearest 50ms below
+    const max = Math.ceil(sortedRTs[sortedRTs.length - 1] / 50) * 50; // Round to nearest 50ms above
+    const range = max - min;
+    const binSize = Math.max(Math.ceil(range / 10), 50); // At least 50ms bins
+    
+    const bins = [];
+    for (let i = min; i < max; i += binSize) {
+      bins.push({
+        label: `${i}-${i + binSize}ms`,
+        count: sortedRTs.filter(rt => rt >= i && rt < i + binSize).length,
+        start: i,
+        end: i + binSize
       });
     }
     
-    return blocks;
+    return {
+      percentiles: {
+        min: sortedRTs[0],
+        p25: getPercentile(sortedRTs, 25),
+        median: getPercentile(sortedRTs, 50),
+        p75: getPercentile(sortedRTs, 75),
+        max: sortedRTs[sortedRTs.length - 1]
+      },
+      histogram: bins
+    };
   };
   
-  const performanceData = calculatePerformanceData();
-  
-  // Calculate percentiles for response time distribution
-  const calculatePercentiles = () => {
-    const reactionTimes = validTrials.map(t => t.reactionTime).filter(rt => rt !== null && rt !== undefined);
-    if (reactionTimes.length === 0) return [];
-    
-    const sortedRTs = [...reactionTimes].sort((a, b) => a - b);
-    
-    return [
-      { label: '10th', value: sortedRTs[Math.floor(sortedRTs.length * 0.1)] },
-      { label: '25th', value: sortedRTs[Math.floor(sortedRTs.length * 0.25)] },
-      { label: '50th', value: sortedRTs[Math.floor(sortedRTs.length * 0.5)] },
-      { label: '75th', value: sortedRTs[Math.floor(sortedRTs.length * 0.75)] },
-      { label: '90th', value: sortedRTs[Math.floor(sortedRTs.length * 0.9)] }
-    ];
+  // Format milliseconds with appropriate precision
+  const formatMs = (ms) => {
+    return ms ? Math.round(ms) : 'N/A';
   };
   
-  const percentiles = calculatePercentiles();
-  
-  // Create buckets for RT histogram
-  const createRTHistogram = () => {
-    const reactionTimes = validTrials.map(t => t.reactionTime).filter(rt => rt !== null && rt !== undefined);
-    if (reactionTimes.length === 0) return [];
-    
-    // Create bins from 100-1000ms in steps of 50ms
-    const bins = Array(18).fill().map((_, i) => ({ 
-      min: i * 50 + 100, 
-      max: (i + 1) * 50 + 100, 
-      count: 0 
-    }));
-    
-    // Count RTs in each bin
-    reactionTimes.forEach(rt => {
-      const binIndex = Math.min(17, Math.max(0, Math.floor((rt - 100) / 50)));
-      bins[binIndex].count++;
-    });
-    
-    return bins;
-  };
-  
-  const histogramData = createRTHistogram();
+  const distribution = calculateDistribution();
   
   return (
-    <div className={styles.detailedResults}>
-      <div className={styles.resultsTabs}>
-        <div className={styles.tabsHeader}>
-          <button 
-            className={`${styles.tabButton} ${currentTab === 'performance' ? styles.activeTab : ''}`}
-            onClick={() => setCurrentTab('performance')}
-          >
-            Performance
-          </button>
-          <button 
-            className={`${styles.tabButton} ${currentTab === 'distribution' ? styles.activeTab : ''}`}
-            onClick={() => setCurrentTab('distribution')}
-          >
-            RT Distribution
-          </button>
-          <button 
-            className={`${styles.tabButton} ${currentTab === 'trials' ? styles.activeTab : ''}`}
-            onClick={() => setCurrentTab('trials')}
-          >
-            Trial Data
-          </button>
-        </div>
+    <div className={styles.resultsContainer}>
+      <div className={styles.tabsContainer}>
+        <button 
+          className={`${styles.tabButton} ${selectedTab === 'graph' ? styles.activeTab : ''}`} 
+          onClick={() => setSelectedTab('graph')}
+        >
+          Reaction Time Graph
+        </button>
+        <button 
+          className={`${styles.tabButton} ${selectedTab === 'distribution' ? styles.activeTab : ''}`} 
+          onClick={() => setSelectedTab('distribution')}
+        >
+          RT Distribution
+        </button>
+        <button 
+          className={`${styles.tabButton} ${selectedTab === 'data' ? styles.activeTab : ''}`} 
+          onClick={() => setSelectedTab('data')}
+        >
+          Raw Data
+        </button>
+      </div>
+      
+      <div className={styles.tabContent}>
+        {selectedTab === 'graph' && (
+          <div className={styles.graphContainer}>
+            {trials.filter(t => t.reactionTime && !t.falseStart).length > 0 ? (
+              <canvas ref={chartRef} height="300" />
+            ) : (
+              <div className={styles.emptyState}>
+                <p>No reaction time data available</p>
+              </div>
+            )}
+          </div>
+        )}
         
-        {currentTab === 'performance' && (
-          <div className={styles.tabContent}>
-            <h3>Vigilance Over Time</h3>
-            
-            {performanceData.length > 0 ? (
-              <div className={styles.performanceChart}>
-                <div className={styles.chartLegend}>
-                  <div className={styles.legendItem}>
-                    <span className={styles.legendColor} style={{ backgroundColor: '#0070f3' }}></span>
-                    <span>Mean Reaction Time (ms)</span>
-                  </div>
-                  <div className={styles.legendItem}>
-                    <span className={styles.legendColor} style={{ backgroundColor: '#ff6b6b' }}></span>
-                    <span>Lapses (RT 500ms)</span>
-                  </div>
+        {selectedTab === 'distribution' && (
+          <div className={styles.distributionContainer}>
+            {trials.filter(t => t.reactionTime && !t.falseStart).length > 0 ? (
+              <>
+                <div className={styles.percentileTable}>
+                  <h3>Reaction Time Percentiles (ms)</h3>
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Min</th>
+                        <th>25%</th>
+                        <th>Median</th>
+                        <th>75%</th>
+                        <th>Max</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>{formatMs(distribution.percentiles?.min)}</td>
+                        <td>{formatMs(distribution.percentiles?.p25)}</td>
+                        <td>{formatMs(distribution.percentiles?.median)}</td>
+                        <td>{formatMs(distribution.percentiles?.p75)}</td>
+                        <td>{formatMs(distribution.percentiles?.max)}</td>
+                      </tr>
+                    </tbody>
+                  </table>
                 </div>
                 
-                <div className={styles.chartContainer}>
-                  {/* RT Bars */}
-                  <div className={styles.chartBars}>
-                    {performanceData.map((block, index) => {
-                      // Scale RT to fit in the chart (150-500ms)
-                      const rtHeight = Math.min(100, Math.max(0, (block.meanRT - 150) / 3.5));
-                      
-                      return (
-                        <div key={`rt-${index}`} className={styles.chartBarGroup}>
-                          <div 
-                            className={styles.chartBar} 
-                            style={{ 
-                              height: `${rtHeight}%`,
-                              backgroundColor: '#0070f3'
-                            }}
-                            title={`Block ${block.blockNumber}: ${Math.round(block.meanRT)}ms mean RT`}
-                          ></div>
-                          <div className={styles.chartBarLabel}>{block.blockNumber}</div>
+                <div className={styles.histogramContainer}>
+                  <h3>Reaction Time Distribution</h3>
+                  <div className={styles.histogram}>
+                    {distribution.histogram?.map((bin, index) => (
+                      <div 
+                        key={index} 
+                        className={styles.histogramBar}
+                        style={{ 
+                          height: `${(bin.count / Math.max(...distribution.histogram.map(b => b.count))) * 100}%`,
+                        }}
+                      >
+                        <div className={styles.histogramTooltip}>
+                          {bin.label}: {bin.count} trials
                         </div>
-                      );
-                    })}
-                  </div>
-                  
-                  {/* Lapses Line */}
-                  <div className={styles.chartLines}>
-                    {performanceData.map((block, index) => {
-                      // Scale lapses to fit in chart (0-5 lapses)
-                      const lapseHeight = Math.min(100, Math.max(0, (block.lapses / block.trialCount) * 100));
-                      
-                      return (
-                        <div key={`lapse-${index}`} className={styles.chartPoint} style={{ 
-                          left: `${(index / (performanceData.length - 1)) * 100}%`,
-                          bottom: `${lapseHeight}%`
-                        }}>
-                          <div 
-                            className={styles.dataPoint}
-                            style={{ backgroundColor: '#ff6b6b' }}
-                            title={`Block ${block.blockNumber}: ${block.lapses} lapses`}
-                          ></div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-                
-                <div className={styles.blockDetails}>
-                  <h4>Block Details</h4>
-                  <div className={styles.blockTable}>
-                    <div className={styles.blockTableHeader}>
-                      <div>Block</div>
-                      <div>Time</div>
-                      <div>Mean RT</div>
-                      <div>Lapses</div>
-                      <div>Trials</div>
-                    </div>
-                    {performanceData.map((block, index) => (
-                      <div key={index} className={styles.blockTableRow}>
-                        <div>#{block.blockNumber}</div>
-                        <div>{formatTimeSinceStart(block.startTime)}</div>
-                        <div>{Math.round(block.meanRT)}ms</div>
-                        <div>{block.lapses}</div>
-                        <div>{block.trialCount}</div>
                       </div>
                     ))}
                   </div>
+                  <div className={styles.histogramLabels}>
+                    {distribution.histogram?.map((bin, index) => (
+                      <div key={index} className={styles.histogramLabel}>
+                        {bin.start}
+                      </div>
+                    ))}
+                    <div className={styles.histogramLabel}>
+                      {distribution.histogram[distribution.histogram.length - 1]?.end}
+                    </div>
+                  </div>
+                  <div className={styles.histogramAxisLabel}>Reaction Time (ms)</div>
                 </div>
-              </div>
+              </>
             ) : (
-              <p className={styles.noDataMessage}>Not enough trials to show performance data</p>
-            )}
-            
-            <div className={styles.interpretationCard}>
-              <h4>Performance Interpretation</h4>
-              <div className={styles.interpretationGrid}>
-                <div className={styles.interpretationItem}>
-                  <h4>Mean Reaction Time: {Math.round(stats.meanRT)}ms</h4>
-                  <p>
-                    {stats.meanRT < 200
-                      ? 'Very fast responses, indicating excellent alertness.'
-                      : stats.meanRT < 300
-                        ? 'Good reaction time, indicating normal alertness.'
-                        : stats.meanRT < 400
-                          ? 'Moderate reaction time, indicating some fatigue or decreased vigilance.'
-                          : 'Slow reaction time, indicating significant fatigue or low vigilance.'}
-                  </p>
-                </div>
-                
-                <div className={styles.interpretationItem}>
-                  <h4>Lapses: {stats.lapses} ({stats.totalTrials > 0 ? Math.round((stats.lapses / stats.totalTrials) * 100) : 0}%)</h4>
-                  <p>
-                    {stats.lapses === 0
-                      ? 'No lapses in attention detected.'
-                      : stats.lapses < 3
-                        ? 'Minimal lapses in attention, indicating good sustained vigilance.'
-                        : stats.lapses < 10
-                          ? 'Moderate number of lapses, indicating some difficulty maintaining vigilance.'
-                          : 'High number of lapses, indicating significant difficulty maintaining vigilance.'}
-                  </p>
-                </div>
-                
-                <div className={styles.interpretationItem}>
-                  <h4>False Starts: {stats.falseStarts}</h4>
-                  <p>
-                    {stats.falseStarts === 0
-                      ? 'No false starts, indicating good inhibitory control.'
-                      : stats.falseStarts < 3
-                        ? 'Few false starts, indicating normal inhibitory control.'
-                        : 'Multiple false starts, indicating possible impulsivity or decreased inhibitory control.'}
-                  </p>
-                </div>
-                
-                <div className={styles.interpretationItem}>
-                  <h4>Variability: {Math.round(stats.stdDevRT)}ms</h4>
-                  <p>
-                    {stats.stdDevRT < 50
-                      ? 'Very consistent reaction times, indicating stable attention.'
-                      : stats.stdDevRT < 100
-                        ? 'Normal variability in reaction times.'
-                        : 'High variability in reaction times, indicating fluctuating attention levels.'}
-                  </p>
-                </div>
+              <div className={styles.emptyState}>
+                <p>No reaction time data available</p>
               </div>
-            </div>
+            )}
           </div>
         )}
         
-        {currentTab === 'distribution' && (
-          <div className={styles.tabContent}>
-            <div className={styles.distributionGrid}>
-              <div className={styles.histogramCard}>
-                <h3>Reaction Time Distribution</h3>
-                
-                {histogramData.length > 0 ? (
-                  <div className={styles.rtHistogram}>
-                    {histogramData.map((bin, index) => {
-                      const maxCount = Math.max(...histogramData.map(b => b.count));
-                      const height = maxCount > 0 ? (bin.count / maxCount) * 100 : 0;
-                      
-                      return (
-                        <div key={index} className={styles.histogramBar}>
-                          <div 
-                            className={styles.bar}
-                            style={{ height: `${height}%` }}
-                          >
-                            <span className={styles.barCount}>{bin.count}</span>
-                          </div>
-                          <div className={styles.barLabel}>
-                            {bin.min}-{bin.max}
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
+        {selectedTab === 'data' && (
+          <div className={styles.dataTableContainer}>
+            <table className={styles.dataTable}>
+              <thead>
+                <tr>
+                  <th>Trial #</th>
+                  <th>Type</th>
+                  <th>Reaction Time (ms)</th>
+                  <th>Interval (ms)</th>
+                </tr>
+              </thead>
+              <tbody>
+                {trials.length > 0 ? (
+                  trials.map((trial, index) => (
+                    <tr key={index} className={trial.falseStart ? styles.falseStartRow : ''}>
+                      <td>{trial.trialNumber}</td>
+                      <td>{trial.falseStart ? 'False Start' : 'Valid'}</td>
+                      <td>{trial.reactionTime ? formatMs(trial.reactionTime) : '-'}</td>
+                      <td>{trial.intervalTime || '-'}</td>
+                    </tr>
+                  ))
                 ) : (
-                  <p className={styles.noDataMessage}>Not enough data to display histogram</p>
+                  <tr>
+                    <td colSpan="4" className={styles.emptyState}>No trials recorded</td>
+                  </tr>
                 )}
-              </div>
-              
-              <div className={styles.percentileCard}>
-                <h3>Reaction Time Percentiles</h3>
-                
-                {percentiles.length > 0 ? (
-                  <div className={styles.percentilesChart}>
-                    <div className={styles.percentileLine}>
-                      <div className={styles.percentileStart}>{Math.round(stats.minRT)}ms</div>
-                      <div className={styles.percentileEnd}>{Math.round(stats.maxRT)}ms</div>
-                    </div>
-                    
-                    <div className={styles.percentileMarkers}>
-                      {percentiles.map((percentile, index) => {
-                        // Calculate position along the line
-                        const position = (percentile.value - stats.minRT) / (stats.maxRT - stats.minRT) * 100;
-                        
-                        return (
-                          <div 
-                            key={index} 
-                            className={styles.percentileMarker}
-                            style={{ left: `${position}%` }}
-                          >
-                            <div className={styles.markerLine}></div>
-                            <div className={styles.markerLabel}>
-                              <div className={styles.markerValue}>{Math.round(percentile.value)}ms</div>
-                              <div className={styles.markerPercentile}>{percentile.label}</div>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                ) : (
-                  <p className={styles.noDataMessage}>Not enough data to calculate percentiles</p>
-                )}
-                
-                <div className={styles.keyMetrics}>
-                  <div className={styles.keyMetric}>
-                    <div className={styles.metricLabel}>Fastest 10%</div>
-                    <div className={styles.metricValue}>{percentiles[0] ? Math.round(percentiles[0].value) : 0}ms</div>
-                  </div>
-                  <div className={styles.keyMetric}>
-                    <div className={styles.metricLabel}>Median</div>
-                    <div className={styles.metricValue}>{percentiles[2] ? Math.round(percentiles[2].value) : 0}ms</div>
-                  </div>
-                  <div className={styles.keyMetric}>
-                    <div className={styles.metricLabel}>Slowest 10%</div>
-                    <div className={styles.metricValue}>{percentiles[4] ? Math.round(percentiles[4].value) : 0}ms</div>
-                  </div>
-                </div>
-              </div>
-            </div>
+              </tbody>
+            </table>
             
-            <div className={styles.summaryStats}>
-              <h3>Summary Statistics</h3>
-              <div className={styles.statsGrid}>
-                <div className={styles.statItem}>
-                  <div className={styles.statLabel}>Mean RT</div>
-                  <div className={styles.statValue}>{Math.round(stats.meanRT)}ms</div>
-                </div>
-                <div className={styles.statItem}>
-                  <div className={styles.statLabel}>Median RT</div>
-                  <div className={styles.statValue}>{Math.round(stats.medianRT)}ms</div>
-                </div>
-                <div className={styles.statItem}>
-                  <div className={styles.statLabel}>Minimum RT</div>
-                  <div className={styles.statValue}>{Math.round(stats.minRT)}ms</div>
-                </div>
-                <div className={styles.statItem}>
-                  <div className={styles.statLabel}>Maximum RT</div>
-                  <div className={styles.statValue}>{Math.round(stats.maxRT)}ms</div>
-                </div>
-                <div className={styles.statItem}>
-                  <div className={styles.statLabel}>Standard Deviation</div>
-                  <div className={styles.statValue}>{Math.round(stats.stdDevRT)}ms</div>
-                </div>
-                <div className={styles.statItem}>
-                  <div className={styles.statLabel}>Lapses (500ms)</div>
-                  <div className={styles.statValue}>{stats.lapses}</div>
-                </div>
-              </div>
+            <div className={styles.dataExport}>
+              <button 
+                className={styles.exportButton}
+                onClick={() => {
+                  // Generate CSV data
+                  const headers = ['Trial Number', 'Type', 'Reaction Time (ms)', 'Interval (ms)'];
+                  const csvContent = [
+                    headers.join(','),
+                    ...trials.map(trial => [
+                      trial.trialNumber,
+                      trial.falseStart ? 'False Start' : 'Valid',
+                      trial.reactionTime || '',
+                      trial.intervalTime || ''
+                    ].join(','))
+                  ].join('\n');
+                  
+                  // Create download link
+                  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                  const url = URL.createObjectURL(blob);
+                  const link = document.createElement('a');
+                  link.setAttribute('href', url);
+                  link.setAttribute('download', `pvt-results-${new Date().toISOString().split('T')[0]}.csv`);
+                  document.body.appendChild(link);
+                  link.click();
+                  document.body.removeChild(link);
+                }}
+              >
+                Export Data (CSV)
+              </button>
             </div>
-          </div>
-        )}
-        
-        {currentTab === 'trials' && (
-          <div className={styles.tabContent}>
-            <div className={styles.tableControls}>
-              <div className={styles.sortControls}>
-                <span>Sort by:</span>
-                <button 
-                  className={`${styles.sortButton} ${sortBy === 'time' ? styles.activeSort : ''}`}
-                  onClick={() => handleSort('time')}
-                >
-                  Time {sortBy === 'time' && (sortDirection === 'asc' ? '↑' : '↓')}
-                </button>
-                <button 
-                  className={`${styles.sortButton} ${sortBy === 'rt' ? styles.activeSort : ''}`}
-                  onClick={() => handleSort('rt')}
-                >
-                  RT {sortBy === 'rt' && (sortDirection === 'asc' ? '↑' : '↓')}
-                </button>
-                <button 
-                  className={`${styles.sortButton} ${sortBy === 'interval' ? styles.activeSort : ''}`}
-                  onClick={() => handleSort('interval')}
-                >
-                  Interval {sortBy === 'interval' && (sortDirection === 'asc' ? '↑' : '↓')}
-                </button>
-              </div>
-              
-              <div className={styles.paginationControls}>
-                <select 
-                  value={pageSize} 
-                  onChange={(e) => {
-                    setPageSize(Number(e.target.value));
-                    setCurrentPage(0);
-                  }}
-                  className={styles.pageSizeSelect}
-                >
-                  <option value={10}>10 per page</option>
-                  <option value={20}>20 per page</option>
-                  <option value={50}>50 per page</option>
-                  <option value={100}>100 per page</option>
-                </select>
-                
-                <div className={styles.pagination}>
-                  <button 
-                    onClick={() => setCurrentPage(Math.max(0, currentPage - 1))}
-                    disabled={currentPage === 0}
-                    className={styles.pageButton}
-                  >
-                    &lt;
-                  </button>
-                  <span className={styles.pageInfo}>
-                    Page {currentPage + 1} of {Math.max(1, maxPages)}
-                  </span>
-                  <button 
-                    onClick={() => setCurrentPage(Math.min(maxPages - 1, currentPage + 1))}
-                    disabled={currentPage >= maxPages - 1}
-                    className={styles.pageButton}
-                  >
-                    &gt;
-                  </button>
-                </div>
-              </div>
-            </div>
-            
-            <div className={styles.trialsTable}>
-              <div className={styles.trialTableHeader}>
-                <div>#</div>
-                <div>Time</div>
-                <div>Wait Interval</div>
-                <div>Reaction Time</div>
-                <div>Status</div>
-              </div>
-              
-              {paginatedTrials.map((trial, index) => {
-                const trialNumber = currentPage * pageSize + index + 1;
-                let statusClass = '';
-                let statusText = 'Normal';
-                
-                if (trial.reactionTime > 500) {
-                  statusClass = styles.failureText;
-                  statusText = 'Lapse';
-                } else if (trial.reactionTime < 150) {
-                  statusClass = styles.warningText;
-                  statusText = 'Anticipatory';
-                }
-                
-                return (
-                  <div key={index} className={styles.trialTableRow}>
-                    <div>{trialNumber}</div>
-                    <div>{formatTimeSinceStart(trial.startTime)}</div>
-                    <div>{trial.intervalTime ? `${(trial.intervalTime / 1000).toFixed(1)}s` : '-'}</div>
-                    <div>{trial.reactionTime ? `${Math.round(trial.reactionTime)}ms` : '-'}</div>
-                    <div className={statusClass}>{statusText}</div>
-                  </div>
-                );
-              })}
-              
-              {paginatedTrials.length === 0 && (
-                <div className={styles.noDataRow}>No trial data available</div>
-              )}
-            </div>
-            
-            {falseStarts > 0 && (
-              <div className={styles.falseStartsInfo}>
-                <h4>False Starts: {falseStarts}</h4>
-                <p>There were {falseStarts} occasions when you responded before the stimulus appeared.</p>
-              </div>
-            )}
           </div>
         )}
       </div>
     </div>
   );
-};
-
-export default PVTResults;
+}

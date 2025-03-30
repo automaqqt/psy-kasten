@@ -46,6 +46,47 @@ const DetailedResults = ({ roundData, calculateCorsiSpan }) => {
     ? roundData.reduce((sum, round) => sum + round.avgClickInterval, 0) / roundData.length 
     : 0;
   
+  // Generate and download CSV of results
+  const exportResultsToCSV = () => {
+    // Create headers for the CSV
+    const headers = [
+      'Round',
+      'Level',
+      'Success',
+      'Total Response Time (ms)',
+      'Average Click Interval (ms)',
+      'Target Sequence',
+      'User Sequence'
+    ];
+    
+    // Create row data
+    const rows = roundData.map((round, index) => [
+      index + 1,
+      round.level,
+      round.success ? 'Success' : 'Failure',
+      Math.round(round.totalResponseTime),
+      Math.round(round.avgClickInterval || 0),
+      round.sequence.map(id => id + 1).join('-'),
+      round.userSequence.map(id => id + 1).join('-')
+    ]);
+    
+    // Create CSV content
+    const csvContent = [
+      headers.join(','),
+      ...rows.map(row => row.join(','))
+    ].join('\n');
+    
+    // Create and trigger download
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', `corsi-results-${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+  
   return (
     <div className={styles.detailedResults}>
       <h2 className={styles.resultsTitle}>Detailed Performance Analysis</h2>
@@ -55,12 +96,6 @@ const DetailedResults = ({ roundData, calculateCorsiSpan }) => {
           <h3>Corsi Span</h3>
           <div className={styles.metricValue}>{calculateCorsiSpan()}</div>
           <div className={styles.metricSubtext}>blocks</div>
-        </div>
-        
-        <div className={styles.metricCard}>
-          <h3>Highest Level</h3>
-          <div className={styles.metricValue}>{lastLevel}</div>
-          <div className={styles.metricSubtext}>attempted</div>
         </div>
         
         <div className={styles.metricCard}>
@@ -74,6 +109,16 @@ const DetailedResults = ({ roundData, calculateCorsiSpan }) => {
           <div className={styles.metricValue}>{formatTime(averageClickInterval)}</div>
           <div className={styles.metricSubtext}>between clicks</div>
         </div>
+      </div>
+      
+      <div className={styles.exportContainer}>
+        <button 
+          className={styles.exportButton} 
+          onClick={exportResultsToCSV}
+          disabled={roundData.length === 0}
+        >
+          Export Results (CSV)
+        </button>
       </div>
       
       <div className={styles.resultsTabs}>

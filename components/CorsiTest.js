@@ -365,9 +365,6 @@ export default function CorsiTest() {
                 </button>
               </div>
               <div className={styles.linkContainer}>
-                <Link href="/backward">
-                  <a className={styles.link}>Try Backward Version</a>
-                </Link>
                 <Link href="/">
                   <a className={styles.link}>Back to Home</a>
                 </Link>

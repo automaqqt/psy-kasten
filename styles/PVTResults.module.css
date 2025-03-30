@@ -1,0 +1,280 @@
+/* styles/PVTResults.module.css */
+.resultsContainer {
+    margin-top: 2rem;
+    background-color: #f8f8f8;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  }
+  
+  .tabsContainer {
+    display: flex;
+    border-bottom: 1px solid #e0e0e0;
+    background-color: #f0f0f0;
+  }
+  
+  .tabButton {
+    padding: 1rem 1.5rem;
+    background: none;
+    border: none;
+    border-right: 1px solid #e0e0e0;
+    font-weight: 500;
+    color: #666;
+    cursor: pointer;
+    transition: background-color 0.2s, color 0.2s;
+    flex: 1;
+    text-align: center;
+  }
+  
+  .tabButton:hover {
+    background-color: #e8e8e8;
+    color: #333;
+  }
+  
+  .activeTab {
+    background-color: #fff;
+    color: #4a6fdc;
+    border-bottom: 3px solid #4a6fdc;
+  }
+  
+  .tabContent {
+    padding: 1.5rem;
+    min-height: 300px;
+    background-color: white;
+  }
+  
+  /* Graph Tab */
+  .graphContainer {
+    height: 400px;
+    position: relative;
+  }
+  
+  /* Distribution Tab */
+  .distributionContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+  
+  .percentileTable {
+    margin-bottom: 1rem;
+  }
+  
+  .percentileTable h3 {
+    margin-top: 0;
+    margin-bottom: 0.75rem;
+    font-size: 1.1rem;
+    color: #333;
+  }
+  
+  .percentileTable table {
+    width: 100%;
+    border-collapse: collapse;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  }
+  
+  .percentileTable th, .percentileTable td {
+    padding: 0.75rem;
+    text-align: center;
+    border: 1px solid #e0e0e0;
+  }
+  
+  .percentileTable th {
+    background-color: #f5f5f5;
+    font-weight: 500;
+    color: #333;
+  }
+  
+  .percentileTable td {
+    font-weight: bold;
+    color: #4a6fdc;
+  }
+  
+  .histogramContainer {
+    margin-top: 1rem;
+  }
+  
+  .histogramContainer h3 {
+    margin-top: 0;
+    margin-bottom: 0.75rem;
+    font-size: 1.1rem;
+    color: #333;
+  }
+  
+  .histogram {
+    display: flex;
+    align-items: flex-end;
+    height: 200px;
+    padding: 0 1rem;
+    gap: 4px;
+    margin-bottom: 0.5rem;
+  }
+  
+  .histogramBar {
+    flex: 1;
+    background-color: #4a6fdc;
+    border-radius: 4px 4px 0 0;
+    position: relative;
+    min-height: 4px;
+    transition: height 0.3s;
+  }
+  
+  .histogramBar:hover {
+    background-color: #3a5dba;
+  }
+  
+  .histogramTooltip {
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 0.5rem;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 0.2s;
+    pointer-events: none;
+    z-index: 1;
+  }
+  
+  .histogramBar:hover .histogramTooltip {
+    opacity: 1;
+  }
+  
+  .histogramLabels {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 0.5rem;
+    padding: 0 1rem;
+    font-size: 0.8rem;
+    color: #666;
+  }
+  
+  .histogramLabel {
+    text-align: center;
+    max-width: 60px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  .histogramAxisLabel {
+    text-align: center;
+    margin-top: 0.5rem;
+    font-size: 0.9rem;
+    color: #333;
+  }
+  
+  /* Data Tab */
+  .dataTableContainer {
+    max-height: 400px;
+    overflow-y: auto;
+  }
+  
+  .dataTable {
+    width: 100%;
+    border-collapse: collapse;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  }
+  
+  .dataTable th, .dataTable td {
+    padding: 0.75rem;
+    text-align: left;
+    border-bottom: 1px solid #e0e0e0;
+  }
+  
+  .dataTable th {
+    position: sticky;
+    top: 0;
+    background-color: #f5f5f5;
+    font-weight: 500;
+    color: #333;
+    z-index: 1;
+  }
+  
+  .falseStartRow {
+    background-color: rgba(255, 204, 0, 0.1);
+  }
+  
+  .falseStartRow td {
+    color: #cc8800;
+  }
+  
+  .dataExport {
+    margin-top: 1.5rem;
+    display: flex;
+    justify-content: flex-end;
+  }
+  
+  .exportButton {
+    padding: 0.5rem 1rem;
+    background-color: #f0f0f0;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    color: #333;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+  
+  .exportButton:hover {
+    background-color: #e0e0e0;
+  }
+  
+  .emptyState {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 200px;
+    color: #999;
+    font-style: italic;
+    text-align: center;
+  }
+  
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    .tabButton {
+      padding: 0.75rem 0.5rem;
+      font-size: 0.9rem;
+    }
+    
+    .tabContent {
+      padding: 1rem;
+    }
+    
+    .graphContainer {
+      height: 300px;
+    }
+    
+    .histogram {
+      height: 150px;
+    }
+    
+    .percentileTable th, .percentileTable td, 
+    .dataTable th, .dataTable td {
+      padding: 0.5rem;
+      font-size: 0.9rem;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .tabsContainer {
+      flex-direction: column;
+    }
+    
+    .tabButton {
+      border-right: none;
+      border-bottom: 1px solid #e0e0e0;
+    }
+    
+    .dataTable th, .dataTable td {
+      padding: 0.5rem 0.3rem;
+      font-size: 0.8rem;
+    }
+    
+    .histogramLabels {
+      font-size: 0.7rem;
+    }
+  }
