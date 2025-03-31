@@ -1,6 +1,6 @@
 // components/DetailedResults.js
 import React, { useState } from 'react';
-import styles from '../styles/Results.module.css';
+import styles from '../../styles/Results.module.css';
 
 const DetailedResults = ({ roundData, calculateCorsiSpan }) => {
   const [selectedRound, setSelectedRound] = useState(null);

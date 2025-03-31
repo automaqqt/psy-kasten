@@ -1,6 +1,6 @@
 // pages/corsi.js
 import Head from 'next/head';
-import PatternMatrixTest from '../components/PatternMatrixTest';
+import PatternMatrixTest from '../components/tests/cpm';
 
 export default function CorsiPage() {
   return (

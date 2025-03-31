@@ -1,9 +1,9 @@
 // components/CorsiTest.js
 import { useState, useEffect, useCallback, useRef } from 'react';
 import Link from 'next/link';
-import styles from '../styles/CorsiTest.module.css';
-import SettingsPanel from './SettingsPanel';
-import DetailedResults from './DetailedResults';
+import styles from '../../styles/CorsiTest.module.css';
+import SettingsPanel from '../settings/corsi';
+import DetailedResults from '../results/corsi';
 
 export default function CorsiTest() {
   const [blocks, setBlocks] = useState([]);

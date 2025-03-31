@@ -1,6 +1,6 @@
 // pages/corsi.js
 import Head from 'next/head';
-import CorsiTest from '../components/CorsiTest';
+import CorsiTest from '../components/tests/corsi';
 
 export default function CorsiPage() {
   return (

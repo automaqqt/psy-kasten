@@ -1,6 +1,6 @@
 // components/PVTResults.js
 import { useState, useEffect, useRef } from 'react';
-import styles from '../styles/PVTResults.module.css';
+import styles from '../../styles/PVTResults.module.css';
 
 export default function PVTResults({ trials, falseStarts }) {
   const [selectedTab, setSelectedTab] = useState('graph');

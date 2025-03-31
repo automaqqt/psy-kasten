@@ -3,8 +3,8 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
 import styles from '../styles/Home.module.css';
-import SettingsPanel from '../components/SettingsPanel';
-import CPTResults from '../components/CPTResults';
+import SettingsPanel from '../components/settings/corsi';
+import CPTResults from '../components/results/cpt';
 
 export default function CPT() {
   // State management

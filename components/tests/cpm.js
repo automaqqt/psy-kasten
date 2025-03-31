@@ -1,8 +1,8 @@
 // components/PatternMatrixTest.js
 import { useState, useEffect, useCallback, useRef } from 'react';
 import Link from 'next/link';
-import styles from '../styles/PatternMatrixTest.module.css';
-import SettingsPanel from './SettingsPanel';
+import styles from '../../styles/PatternMatrixTest.module.css';
+import SettingsPanel from '../settings/corsi';
 
 export default function PatternMatrixTest() {
   const [gameState, setGameState] = useState('welcome'); // welcome, settings, test, results
@@ -699,9 +699,6 @@ export default function PatternMatrixTest() {
         <footer className={styles.footer}>
           <p>
             The Pattern Matrix Test measures abstract reasoning and fluid intelligence through visual pattern recognition.
-            <Link href="/about-matrices">
-              <a className={styles.footerLink}>Learn more</a>
-            </Link>
           </p>
         </footer>
       </div>

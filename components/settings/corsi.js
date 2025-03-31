@@ -1,6 +1,5 @@
-// components/SettingsPanel.js
 import React, { useEffect, useRef } from 'react';
-import styles from '../styles/Settings.module.css';
+import styles from '../../styles/Settings.module.css';
 
 const SettingsPanel = ({ settings, setSettings, onClose, isCPT = false, isPVT = false }) => {
   const panelRef = useRef(null);
