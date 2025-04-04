@@ -1,11 +1,11 @@
 // components/CorsiTest.js
 import { useState, useEffect, useCallback, useRef } from 'react';
 import Link from 'next/link';
-import styles from '../../styles/CorsiTest.module.css';
-import SettingsPanel from '../settings/corsi';
-import DetailedResults from '../results/corsi';
+import styles from '../../../styles/CorsiTest.module.css';
+import SettingsPanel from '../../settings/corsi';
+import DetailedResults from '../../results/corsi';
 
-export default function CorsiTest() {
+export default function CorsiTest({ assignmentId, onComplete, isStandalone }) {
   const [blocks, setBlocks] = useState([]);
   const [sequence, setSequence] = useState([]);
   const [userSequence, setUserSequence] = useState([]);
@@ -30,7 +30,6 @@ export default function CorsiTest() {
   const [message, setMessage] = useState('');
   const boardRef = useRef(null);
   const canvasSize = useRef(null);
-  
   // Calculate optimal canvas size based on viewport
   useEffect(() => {
     const updateCanvasSize = () => {
@@ -269,7 +268,9 @@ export default function CorsiTest() {
     };
     
     // Add this round's data to round history
-    setRoundData(prevData => [...prevData, roundResults]);
+    const updatedRoundData = [...roundData, roundResults];
+    setRoundData(updatedRoundData);
+
     
     if (isCorrect) {
       showOverlayMessage('Correct! Level up!', 1200);
@@ -284,6 +285,24 @@ export default function CorsiTest() {
     } else {
       showOverlayMessage('Incorrect sequence. Game over.', 1500);
       setFeedback('Incorrect sequence. Game over.');
+      if (assignmentId) {
+        console.log("Test finished, attempting submission.");
+        const finalTestData = {
+          corsiSpan: calculateCorsiSpan(updatedRoundData),
+          totalScore: score, // Final score *before* the failed attempt
+          rounds: updatedRoundData,
+          settingsUsed: { ...settings },
+          // Add any other summary info
+      };
+        onComplete(finalTestData);
+        // Don't immediately set gameState to finished here, wait for parent ack?
+        // Or assume parent shows loading/completion state.
+        // For simplicity, we can set internal state now, parent handles overlay msgs
+      } else {
+          console.log("Test finished (Standalone), showing results locally.");
+      }
+      
+
       setResults(prev => [...prev, { level, success: false, responseTime: totalResponseTime }]);
       
       setTimeout(() => {
@@ -366,7 +385,7 @@ export default function CorsiTest() {
               </div>
               <div className={styles.linkContainer}>
                 <Link href="/">
-                  <a className={styles.link}>Back to Home</a>
+                  <div className={styles.link}>Back to Home</div>
                 </Link>
               </div>
             </div>
@@ -444,9 +463,9 @@ export default function CorsiTest() {
                 </button>
                 
                 <Link href="/">
-                  <a className={styles.secondaryButton}>
+                  <div className={styles.secondaryButton}>
                     Back to Home
-                  </a>
+                  </div>
                 </Link>
               </div>
             </div>

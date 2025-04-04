@@ -1,0 +1,113 @@
+/* styles/GNGTest.module.css */
+.container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    background-color: #f8f9fa; /* Match Corsi */
+  }
+  
+  .testContainer {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    padding: 1rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+    height:90%;
+  }border-bo
+.header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; padding-bottom: 1rem;  flex-wrap: wrap; gap: 0.5rem;}
+.title { font-size: 1.4rem; font-weight: 600; color: #333; margin: 0; }
+.progressInfo { font-size: 0.9rem; color: #555; background-color: #e9ecef; padding: 0.2rem 0.6rem; border-radius: 10px;}
+.settingsButton { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #666; padding: 5px; }
+.settingsButton:hover { color: #007bff; }
+.settingsButton:disabled { color: #ccc; cursor: not-allowed;}
+
+.gameArea { display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; min-height: 400px; /* Ensure minimum height */ }
+
+/* Welcome */
+.welcomeCard { text-align: center; padding: 2rem; max-width: 600px; }
+.welcomeCard h2 { color: #007bff; margin-bottom: 1rem; }
+.welcomeCard p { margin-bottom: 1rem; line-height: 1.6; color: #444; }
+.welcomeCard span[style] { font-weight: bold; padding: 0 2px; } /* Highlight stimuli mentions */
+.buttonContainer { display: flex; flex-direction: row; gap: 0.75rem; margin-top: 1.5rem; width: 100%; align-items: center; }
+.primaryButton, .secondaryButton { padding: 0.8rem 1.6rem; border-radius: 6px; font-weight: 600; font-size: 1rem; cursor: pointer; transition: all 0.3s ease; border: none; text-decoration: none; width: 80%; max-width: 250px; text-align: center; }
+.primaryButton { background-color: #007bff; color: white; }
+.primaryButton:hover { background-color: #0056b3; }
+.secondaryButton { background-color: #e9ecef; color: #333; }
+.secondaryButton:hover { background-color: #ced4da; }
+
+/* Playing Area */
+.stimulusContainer { width: 100%; height: 200px; /* Fixed height for stimulus area */ display: flex; justify-content: center; align-items: center; margin-bottom: 1rem; }
+.fixationCross { font-size: 3rem; font-weight: bold; color: #6c757d; }
+.stimulusArea { width: 150px; height: 150px; display: flex; justify-content: center; align-items: center; position: relative; /* For potential overlay */ }
+.stimulusShape { width: 100px; height: 100px; /* Base size */ background-color: #ccc; /* Default */ transition: border-color 0.1s ease, border-width 0.1s ease; /* Smooth stop signal transition */ }
+.stopOverlay { position: absolute; font-size: 5rem; font-weight: bold; opacity: 0.9; pointer-events: none; }
+
+/* Footer */
+.footer { padding: 1rem; text-align: center; font-size: 0.8rem; color: #666; margin-top: 2rem; }
+
+ /* Dark mode support */
+ @media (prefers-color-scheme: dark) {
+    .container {
+      background-color: #121212;
+    }
+    
+    .welcomeCard, .resultsCard, .board {
+      background-color: #1e1e1e;
+      border-color: #333;
+    }
+    
+    .welcomeCard h2, .resultsCard h2, .title {
+      color: #4da3ff;
+    }
+    
+    .welcomeCard p, .statLabel {
+      color: #bbb;
+    }
+    
+    .secondaryButton {
+      background-color: #333;
+      color: #fff;
+    }
+    
+    .secondaryButton:hover {
+      background-color: #444;
+    }
+    
+    .progressIndicator {
+      background-color: #1e1e1e;
+      color: #bbb;
+    }
+    
+    .footer {
+      color: #999;
+    }
+    
+    .footerLink, .link {
+      color: #4da3ff;
+    }
+    
+    .metricValue, .statValue {
+      color: #4da3ff;
+    }
+  }
+
+  .linkContainer {
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+  }
+  
+  .link {
+    color: #0070f3;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s ease;
+  }
+  
+  .link:hover {
+    color: #0051a8;
+    text-decoration: underline;
+  }

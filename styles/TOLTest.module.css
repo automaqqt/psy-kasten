@@ -1,0 +1,372 @@
+/* styles/TOLTest.module.css */
+.container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    background-color: #f8f9fa; /* Match Corsi */
+  }
+  
+  .testContainer {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    padding: 1rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+    height:90%;
+  }
+  
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding: 0.5rem;
+    flex-wrap: wrap; /* Allow wrap on small screens */
+  }
+  
+  .title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #0070f3; /* Match Corsi */
+    margin: 0 0 0.5rem 0; /* Adjust margin for wrapping */
+  }
+  
+  .gameInfo {
+    display: flex;
+    align-items: center;
+    gap: 1rem; /* Reduce gap slightly */
+    font-size: 0.9rem;
+    color: #555;
+    flex-wrap: wrap; /* Allow info items to wrap */
+  }
+  
+  .gameInfo span {
+     white-space: nowrap; /* Prevent individual items from breaking */
+     margin-right: 0.5rem; /* Ensure spacing when wrapped */
+  }
+  
+  
+  .gameArea {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center; /* Align top */
+    flex: 1;
+    position: relative;
+    padding: 1rem;
+  }
+  
+  /* Welcome Card Styles (reuse from Corsi if identical) */
+  .welcomeCard {
+    background-color: white;
+    border-radius: 15px;
+    padding: 2rem;
+    max-width: 600px;
+    width: 100%;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+    z-index: 10;
+    text-align: center;
+  }
+  
+  .welcomeCard h2 {
+    color: #0070f3;
+    margin-bottom: 1rem;
+  }
+  
+  .welcomeCard p {
+    margin-bottom: 1rem;
+    line-height: 1.6;
+    color: #444;
+  }
+  
+  .buttonContainer {
+    display: flex;
+    flex-direction: row;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+    width: 100%;
+    align-items: center;
+  }
+  
+  .primaryButton, .secondaryButton {
+    padding: 0.75rem 1.5rem; /* Consistent padding */
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    text-decoration: none; /* For Link 'a' tag */
+    width: 80%; /* Max width for buttons */
+    max-width: 250px;
+  }
+  /* Reuse primary/secondary styles from Corsi */
+  .primaryButton { background-color: #0070f3; color: white; }
+  .primaryButton:hover { background-color: #0051a8; transform: translateY(-1px); }
+  .secondaryButton { background-color: #f0f0f0; color: #333; }
+  .secondaryButton:hover { background-color: #e0e0e0; transform: translateY(-1px); }
+  
+  /* Playing Area */
+  .playingArea {
+    display: flex;
+    flex-direction: column; /* Stack board and goal */
+    align-items: center;
+    width: 100%;
+    gap: 2rem;
+  }
+  
+  .board {
+    background-color: #f0e6d2; /* Wood-like base color */
+    border: 3px solid #8b4513; /* Darker wood border */
+    border-radius: 5px;
+    width: 90%;
+    max-width: 450px;
+    height: 150px; /* Adjust height as needed */
+    display: flex;
+    justify-content: space-around; /* Distribute pegs */
+    align-items: flex-end; /* Align pegs to bottom */
+    padding: 1rem 1rem 0 1rem; /* Padding bottom 0 */
+    position: relative;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+  }
+  
+  .peg {
+    display: flex;
+    flex-direction: column-reverse; /* Stack balls from bottom up */
+    align-items: center;
+    height: 100%; /* Peg takes full height of board for alignment */
+    width: 30%; /* Width for clicking area */
+    position: relative; /* For positioning the post */
+    cursor: pointer; /* Indicate clickable peg for placing */
+  }
+  
+  .pegPost {
+    background-color: #cd853f; /* Lighter wood color for peg */
+    border: 1px solid #8b4513;
+    border-bottom: none; /* No border at the base */
+    width: 15px; /* Peg thickness */
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 0; /* Behind balls */
+    border-radius: 3px 3px 0 0; /* Rounded top */
+  }
+  /* Heights based on paper description ratio (5, 9.5, 13.5) scaled */
+  .pegPost1 { height: 40%; max-height: 40px; } /* Shortest */
+  .pegPost2 { height: 70%; max-height: 70px;}
+  .pegPost3 { height: 100%; max-height: 100px;} /* Tallest */
+  
+  .pegBalls {
+    display: flex;
+    flex-direction: column-reverse; /* Stack from bottom */
+    align-items: center;
+    width: 100%;
+    z-index: 1; /* Balls are above peg post */
+    padding-bottom: 5px; /* Space above the base */
+  }
+  
+  .ball {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin-bottom: -5px; /* Slight overlap */
+    cursor: pointer;
+    border: 2px solid rgba(0,0,0,0.2);
+    box-shadow: inset 0 -2px 4px rgba(0,0,0,0.3), 0 2px 3px rgba(0,0,0,0.2);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    font-weight: bold;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+  }
+  
+  .ball:hover {
+    transform: scale(1.05);
+    box-shadow: inset 0 -2px 4px rgba(0,0,0,0.3), 0 4px 6px rgba(0,0,0,0.3);
+  }
+  
+  .heldBallFloating {
+    position: absolute;
+    top: -60px; /* Position above the board */
+    left: 50%;
+    transform: translateX(-50%) scale(1.1);
+    width: 42px; /* Slightly larger */
+    height: 42px;
+    border-radius: 50%;
+    border: 2px solid white;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.4);
+    z-index: 100;
+    pointer-events: none; /* Don't interfere with clicks */
+    font-weight: bold;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+  }
+  
+  /* Goal Display */
+  .goalContainer {
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 1rem;
+    background-color: #fff;
+    width: 90%;
+    max-width: 400px;
+    text-align: center;
+    margin-top: 1rem;
+  }
+  .goalContainer h4 {
+    margin-top: 0;
+    margin-bottom: 1rem;
+    color: #333;
+  }
+  
+  .goalBoard {
+    background-color: #eee;
+    border-radius: 5px;
+    width: 100%;
+    height: 100px; /* Smaller goal display */
+    display: flex;
+    justify-content: space-around;
+    align-items: flex-end;
+    padding: 0.5rem 0.5rem 0 0.5rem;
+    position: relative;
+  }
+  
+  .goalPeg {
+    display: flex;
+    flex-direction: column-reverse;
+    align-items: center;
+    height: 100%;
+    width: 30%;
+    position: relative;
+  }
+  .goalPegBalls {
+     display: flex;
+     flex-direction: column-reverse;
+     align-items: center;
+     width: 100%;
+     z-index: 1;
+     padding-bottom: 3px;
+  }
+  .goalBall {
+    width: 25px; /* Smaller balls for goal */
+    height: 25px;
+    border-radius: 50%;
+    margin-bottom: -3px;
+    border: 1px solid rgba(0,0,0,0.1);
+    box-shadow: inset 0 -1px 2px rgba(0,0,0,0.2);
+  }
+  /* Reuse peg post styles */
+  .goalPeg .pegPost {
+     width: 8px; /* Thinner post */
+     border-radius: 2px 2px 0 0;
+  }
+  
+  
+  .feedbackArea {
+    margin-top: 1.5rem;
+    text-align: center;
+    min-height: 2em; /* Reserve space for feedback */
+  }
+  
+  .feedbackText {
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: #0070f3;
+  }
+  
+  .footer {
+    padding: 1rem;
+    text-align: center;
+    font-size: 0.8rem;
+    color: #666;
+    margin-top: 2rem;
+  }
+  
+  /* Responsive */
+  @media (max-width: 600px) {
+    .header { flex-direction: column; align-items: center; gap: 0.5rem; }
+    .gameInfo { justify-content: center; gap: 0.8rem;}
+    .board { height: 120px; max-width: 320px; }
+    .ball { width: 30px; height: 30px; }
+    .heldBallFloating { width: 32px; height: 32px; top: -50px;}
+    .goalBoard { height: 80px; }
+    .goalBall { width: 20px; height: 20px; }
+    .pegPost { width: 10px; }
+    .goalPeg .pegPost { width: 6px; }
+  }
+
+  /* Dark mode support */
+@media (prefers-color-scheme: dark) {
+    .container {
+      background-color: #121212;
+    }
+    
+    .welcomeCard, .resultsCard, .board {
+      background-color: #1e1e1e;
+      border-color: #333;
+    }
+    
+    .welcomeCard h2, .resultsCard h2, .title {
+      color: #4da3ff;
+    }
+    
+    .welcomeCard p, .statLabel {
+      color: #bbb;
+    }
+    
+    .secondaryButton {
+      background-color: #333;
+      color: #fff;
+    }
+    
+    .secondaryButton:hover {
+      background-color: #444;
+    }
+    
+    .progressIndicator {
+      background-color: #1e1e1e;
+      color: #bbb;
+    }
+    
+    .footer {
+      color: #999;
+    }
+    
+    .footerLink, .link {
+      color: #4da3ff;
+    }
+    
+    .metricValue, .statValue {
+      color: #4da3ff;
+    }
+  }
+
+  .linkContainer {
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+  }
+  
+  .link {
+    color: #0070f3;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s ease;
+  }
+  
+  .link:hover {
+    color: #0051a8;
+    text-decoration: underline;
+  }

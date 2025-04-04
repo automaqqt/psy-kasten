@@ -1,0 +1,28 @@
+/* styles/GNGResults.module.css */
+.resultsCard { background-color: white; border-radius: 15px; padding: 1.5rem 2rem; width: 100%; max-width: 900px; box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1); margin: 1rem auto; }
+.resultsCard h2 { text-align: center; color: #007bff; margin-top: 0; margin-bottom: 1.5rem; }
+
+.metricsGrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem; margin-bottom: 1.5rem; }
+.metricCard { background-color: #f8f9fa; border-radius: 8px; padding: 1rem 1.5rem; }
+.metricCard h3 { font-size: 1.1rem; margin-top: 0; margin-bottom: 0.8rem; color: #333; border-bottom: 1px solid #eee; padding-bottom: 0.5rem; }
+.metricCard div { margin-bottom: 0.4rem; font-size: 0.95rem; }
+.metricCard .note { font-size: 0.8rem; color: #6c757d; font-style: italic; margin-top: 0.5rem; }
+
+.exportContainer { display: flex; justify-content: flex-end; margin-bottom: 1.5rem; }
+.exportButton { background-color: #6c757d; color: white; border: none; padding: 0.6rem 1.2rem; font-size: 0.9rem; font-weight: 500; border-radius: 4px; cursor: pointer; }
+.exportButton:hover { background-color: #5a6268; }
+
+/* Buttons */
+.buttonContainer { display: flex; justify-content: center; gap: 1rem; margin-top: 2rem; }
+.primaryButton, .secondaryButton { padding: 0.8rem 1.6rem; border-radius: 6px; font-weight: 600; font-size: 1rem; cursor: pointer; transition: all 0.3s ease; border: none; text-decoration: none; }
+.primaryButton { background-color: #007bff; color: white; }
+.primaryButton:hover { background-color: #0056b3; }
+.secondaryButton { background-color: #e9ecef; color: #333; }
+.secondaryButton:hover { background-color: #ced4da; }
+
+@media (max-width: 600px) {
+  .metricsGrid { grid-template-columns: 1fr; } /* Stack metrics on small screens */
+  .resultsCard { padding: 1rem; }
+  .buttonContainer { flex-direction: column; align-items: center;}
+  .primaryButton, .secondaryButton { width: 80%; max-width: 250px;}
+}

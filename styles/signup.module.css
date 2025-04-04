@@ -1,0 +1,112 @@
+/* styles/signup.module.css */
+
+/* Reuse many styles from signin.module.css */
+.signupContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 80vh;
+    padding: 2rem;
+    background-color: #f8f9fa;
+  }
+  
+  .signupBox {
+      background-color: #fff;
+      padding: 2rem 2.5rem;
+      border-radius: 8px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 450px; /* Slightly wider maybe */
+      text-align: center;
+  }
+  
+  .signupBox h1 {
+      margin-top: 0;
+      margin-bottom: 0.5rem;
+      color: #333;
+      font-size: 1.8rem;
+  }
+  .signupBox p:first-of-type { /* Target the subtitle */
+      margin-bottom: 1.5rem;
+      color: #666;
+  }
+  
+  
+  .errorMessage, .successMessage { /* Style for success too */
+      color: #dc3545;
+      background-color: #f8d7da;
+      border: 1px solid #f5c6cb;
+      padding: 0.8rem;
+      border-radius: 4px;
+      margin-bottom: 1rem;
+      font-size: 0.9rem;
+  }
+  .successMessage {
+      color: #155724;
+      background-color: #d4edda;
+      border-color: #c3e6cb;
+  }
+  
+  
+  .formGroup {
+    margin-bottom: 1.2rem;
+    text-align: left;
+  }
+  
+  .formGroup label {
+    display: block;
+    margin-bottom: 0.4rem;
+    font-weight: 500;
+    font-size: 0.9rem;
+  }
+  
+  .formGroup input {
+    width: 100%;
+    padding: 0.7rem 0.9rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1rem;
+  }
+  .formGroup input:disabled {
+      background-color: #e9ecef;
+      cursor: not-allowed;
+  }
+  
+  
+  .submitButton {
+    width: 100%;
+    padding: 0.8rem;
+    background-color: #28a745; /* Green for signup */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease, opacity 0.2s ease;
+    margin-top: 0.5rem;
+  }
+  
+  .submitButton:hover {
+    background-color: #218838;
+  }
+  .submitButton:disabled {
+      background-color: #94d3a2;
+      cursor: not-allowed;
+  }
+  
+  .signInLink {
+    margin-top: 1.5rem;
+    font-size: 0.9rem;
+  }
+  
+  .signInLink a {
+    color: #007bff;
+    text-decoration: none;
+    font-weight: 500;
+  }
+  
+  .signInLink a:hover {
+    text-decoration: underline;
+  }

@@ -1,0 +1,101 @@
+/* styles/DashboardLayout.module.css */
+.dashboardContainer {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    background-color: #f4f7f9; /* Light background */
+  }
+  
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.8rem 1.5rem;
+    background-color: #ffffff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  
+  .logoArea a {
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: #007bff;
+    text-decoration: none;
+  }
+  
+  .nav {
+    display: flex;
+    gap: 1.5rem;
+  }
+  
+  .nav a {
+    text-decoration: none;
+    color: #555;
+    font-weight: 500;
+    padding: 0.5rem 0;
+    border-bottom: 2px solid transparent;
+    transition: color 0.2s ease, border-color 0.2s ease;
+  }
+  
+  .nav a:hover {
+    color: #007bff;
+  }
+  
+  .nav a.activeLink {
+    color: #007bff;
+    border-bottom-color: #007bff;
+  }
+  
+  .userArea {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  
+  .userArea span {
+    font-size: 0.9rem;
+    color: #444;
+  }
+  
+  .logoutButton {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    padding: 0.4rem 0.8rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: background-color 0.2s ease;
+  }
+  
+  .logoutButton:hover {
+    background-color: #c82333;
+  }
+  
+  .mainContent {
+    flex: 1;
+    padding: 1.5rem;
+    max-width: 1200px; /* Limit content width */
+    width: 100%;
+    margin: 0 auto; /* Center content */
+  }
+  
+  .footer {
+    text-align: center;
+    padding: 1rem;
+    margin-top: 2rem;
+    font-size: 0.85rem;
+    color: #888;
+    background-color: #e9ecef;
+  }
+  
+  .loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 80vh;
+    font-size: 1.2rem;
+    color: #666;
+  }

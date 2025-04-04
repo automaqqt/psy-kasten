@@ -436,7 +436,7 @@ export default function PVTTest() {
               </div>
               <div className={styles.linkContainer}>
                 <Link href="/">
-                  <a className={styles.link}>Back to home</a>
+                  <div className={styles.link}>Back to home</div>
                 </Link>
               </div>
             </div>
@@ -536,9 +536,9 @@ export default function PVTTest() {
                 </button>
                 
                 <Link href="/">
-                  <a className={styles.secondaryButton}>
+                  <div className={styles.secondaryButton}>
                     Back to Home
-                  </a>
+                  </div>
                 </Link>
               </div>
             </div>

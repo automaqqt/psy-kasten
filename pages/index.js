@@ -3,57 +3,12 @@ import { useState, useEffect } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
 import styles from '../styles/Landing.module.css';
+import { TEST_TYPES } from '../lib/testConfig';
 
 export default function Home() {
   const [hoveredCard, setHoveredCard] = useState(null);
 
-  const cognitiveTests = [
-    {
-      id: 'corsi',
-      title: 'Corsi Block-Tapping Test',
-      description: 'Measures your visuo-spatial short-term working memory. Remember and repeat sequences of blocks.',
-      route: '/corsi',
-      color: '#4a6fa5',
-      icon: '🧩',
-      tags: ['Memory', 'Visual-Spatial', 'Sequential']
-    },
-    {
-      id: 'pvt',
-      title: 'Psychomotor Vigilance Test',
-      description: 'Measures reaction time and vigilance. Respond as quickly as possible to visual stimuli.',
-      route: '/pvt',
-      color: '#e91e63',
-      icon: '⏱️',
-      tags: ['Reaction Time', 'Alertness', 'Vigilance']
-    },
-    {
-      id: 'cpm',
-      title: 'Colored Progressive Matrices',
-      description: 'Measures your nonverbal intelligence. Try to match Matrices.',
-      route: '/cpm',
-      color: '#228B22',
-      icon: '🔤',
-      tags: ['Inteligence', 'Non-Verbal', 'Sequential']
-    }/* ,
-    {
-      id: 'corsi-backward',
-      title: 'Backward Corsi Block Test',
-      description: 'Tests your ability to manipulate spatial information in working memory by repeating sequences in reverse order.',
-      route: '/backward',
-      color: '#3b5998',
-      icon: '🔄',
-      tags: ['Memory', 'Visual-Spatial', 'Executive Function']
-    },
-    {
-      id: 'cpt',
-      title: 'Continuous Performance Test',
-      description: 'Assesses sustained attention and response inhibition. Respond to non-target letters while inhibiting responses to target letters.',
-      route: '/cpt',
-      color: '#9c27b0',
-      icon: '🔤',
-      tags: ['Attention', 'Inhibition', 'Vigilance']
-    } */
-  ];
+  const cognitiveTests = TEST_TYPES;
 
   const handleCardHover = (id) => {
     if (hoveredCard === id) return;
@@ -83,7 +38,7 @@ export default function Home() {
         <section className={styles.testsGrid}>
           {cognitiveTests.map((test) => (
             <Link href={test.route} key={test.id}>
-              <a className={styles.testLink}>
+              <div className={styles.testLink}>
                 <div 
                   className={`${styles.testCard} ${hoveredCard === test.id ? styles.wiggle : ''}`}
                   style={{ 
@@ -108,7 +63,7 @@ export default function Home() {
                     <span className={styles.arrowIcon}>→</span>
                   </div>
                 </div>
-              </a>
+              </div>
             </Link>
           ))}
         </section>

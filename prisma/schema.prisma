@@ -1,0 +1,142 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+//datasource db {
+//  provider = "postgresql" // Or your chosen DB (mysql, sqlite, etc.)
+//  url      = env("DATABASE_URL")
+//}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+// --- NextAuth Models ---
+// (Refer to NextAuth Prisma Adapter documentation for the exact schema)
+// https://next-auth.js.org/adapters/prisma
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? 
+  access_token      String? 
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? 
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// --- Application Models ---
+
+model User { // Represents a Researcher
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  passwordHash  String?
+
+  accounts      Account[]
+  sessions      Session[]
+  studies       Study[] // Researcher owns studies
+  
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Study {
+  id          String    @id @default(cuid())
+  name        String
+  description String?
+  researcherId String
+  researcher  User      @relation(fields: [researcherId], references: [id], onDelete: Cascade) // Link to researcher
+
+  participants   Participant[] // Study has many participants
+  testAssignments TestAssignment[] // Study has many test assignments (optional but useful)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([researcherId])
+}
+
+model Participant { // Represents a Test Person
+  id          String    @id @default(cuid())
+  // Identifier: Could be email, a generated code, or name. Must be unique *within a study*.
+  // Use a separate 'externalId' or 'code' if you need non-email identifiers.
+  identifier  String
+  studyId     String
+  study       Study     @relation(fields: [studyId], references: [id], onDelete: Cascade)
+
+  assignments TestAssignment[] // Participant has many assignments
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([studyId, identifier]) // Ensure identifier is unique within the context of a study
+  @@index([studyId])
+}
+
+// Represents a specific instance of a test assigned to a participant
+model TestAssignment {
+  id           String   @id @default(cuid())
+  participantId String
+  participant  Participant @relation(fields: [participantId], references: [id], onDelete: Cascade)
+  studyId      String? // Denormalized for easier querying, link to Study model
+  study        Study?    @relation(fields: [studyId], references: [id], onDelete: SetNull) // Optional link
+
+  testType     String   // e.g., 'corsi', 'stroop', 'sart', 'rpm', 'fome', 'gng-sst'
+  accessKey    String   @unique // The unique, secure token for the test link
+  expiresAt    DateTime? // Optional: When the link/key becomes invalid
+  completedAt  DateTime? // Timestamp when the test was completed and results submitted
+
+  result       TestResult? // One-to-one relation with the result
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([participantId])
+  @@index([studyId])
+  @@index([accessKey]) // Important for fast link lookup
+}
+
+// Stores the results of a completed test
+model TestResult {
+  id               String   @id @default(cuid())
+  testAssignmentId String   @unique // Links back to the specific assignment
+  testAssignment   TestAssignment @relation(fields: [testAssignmentId], references: [accessKey], onDelete: Cascade)
+
+  // Flexible JSON field to store test-specific result data
+  // This will contain { totalScore, scoresBySet, meanRT, interference, trialData, etc. }
+  // Structure depends entirely on the 'testType' from the TestAssignment
+  data             Json
+
+  submittedAt    DateTime @default(now()) // Different from TestAssignment.completedAt, marks submission time
+
+  @@index([testAssignmentId])
+}

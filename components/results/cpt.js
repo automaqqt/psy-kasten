@@ -1,6 +1,6 @@
 // components/CPTResults.js
 import React, { useState } from 'react';
-import styles from '../styles/Results.module.css';
+import styles from '../../styles/Results.module.css';
 
 const CPTResults = ({ trials, stats, targetLetter }) => {
   const [currentTab, setCurrentTab] = useState('performance');

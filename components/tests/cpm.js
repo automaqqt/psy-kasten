@@ -555,7 +555,7 @@ export default function PatternMatrixTest() {
               </div>
               <div className={styles.linkContainer}>
                 <Link href="/">
-                  <a className={styles.link}>Back to Home</a>
+                  <div className={styles.link}>Back to Home</div>
                 </Link>
               </div>
             </div>
@@ -670,9 +670,9 @@ export default function PatternMatrixTest() {
                 </button>
                 
                 <Link href="/">
-                  <a className={styles.secondaryButton}>
+                  <div className={styles.secondaryButton}>
                     Back to Home
-                  </a>
+                  </div>
                 </Link>
               </div>
             </div>

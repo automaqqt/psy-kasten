@@ -1,0 +1,230 @@
+/* styles/DashboardPage.module.css */
+.pageHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #e0e0e0;
+  }
+  
+  .pageHeader h1 {
+    margin: 0;
+    font-size: 1.8rem;
+    color: #333;
+  }
+  
+  .primaryButton { /* General button style */
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 0.6rem 1.2rem;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.95rem;
+    font-weight: 500;
+    transition: background-color 0.2s ease;
+  }
+  
+  .primaryButton:hover {
+    background-color: #0056b3;
+  }
+  
+  .loadingText, .errorText {
+    text-align: center;
+    margin-top: 2rem;
+    color: #666;
+    font-style: italic;
+  }
+  
+  .errorText {
+    color: #dc3545;
+    font-weight: bold;
+  }
+  
+  .listContainer {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* Responsive grid */
+  }
+  
+  .listItem {
+    background-color: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    transition: box-shadow 0.2s ease;
+  }
+  
+  .listItem:hover {
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+  }
+  
+  .listItemLink {
+    display: block;
+    padding: 1rem 1.2rem;
+    text-decoration: none;
+    color: inherit;
+  }
+  
+  .listItem h3 {
+    margin-top: 0;
+    margin-bottom: 0.5rem;
+    color: #0056b3;
+    font-size: 1.2rem;
+  }
+  
+  .listItem p {
+    font-size: 0.9rem;
+    color: #555;
+    margin-bottom: 1rem;
+    line-height: 1.5;
+  }
+  
+  .listItemMeta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.8rem;
+    color: #777;
+    border-top: 1px dashed #eee;
+    padding-top: 0.75rem;
+    flex-wrap: wrap; /* Wrap if needed */
+    gap: 0.5rem;
+  }
+  
+  /* --- Modal Styles --- */
+  .modalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000; /* Ensure it's above layout header */
+    padding: 1rem;
+  }
+  
+  .modalContent {
+    background-color: white;
+    padding: 1.5rem 2rem;
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    max-width: 500px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+  
+  .modalHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #e0e0e0;
+    padding-bottom: 0.8rem;
+    margin-bottom: 1rem;
+  }
+  
+  .modalHeader h2 {
+    margin: 0;
+    font-size: 1.4rem;
+  }
+  
+  .closeButton {
+    background: none;
+    border: none;
+    font-size: 1.8rem;
+    line-height: 1;
+    cursor: pointer;
+    color: #888;
+  }
+  .closeButton:hover {
+    color: #333;
+  }
+  
+  .modalBody {} /* Add padding if needed */
+  
+  .formGroup {
+    margin-bottom: 1.2rem;
+  }
+  
+  .formGroup label {
+    display: block;
+    margin-bottom: 0.4rem;
+    font-weight: 500;
+    font-size: 0.9rem;
+  }
+  
+  .formGroup input[type="text"],
+  .formGroup textarea {
+    width: 100%;
+    padding: 0.6rem 0.8rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1rem;
+  }
+  .formGroup input:disabled,
+  .formGroup textarea:disabled {
+      background-color: #e9ecef;
+      cursor: not-allowed;
+  }
+  
+  .formGroup small {
+      font-size: 0.8rem;
+      color: #666;
+      margin-top: 0.25rem;
+      display: block;
+  }
+  
+  .modalActions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.8rem;
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid #e0e0e0;
+  }
+  
+  .primaryButtonModal, .secondaryButtonModal { /* Specific modal button styles */
+     padding: 0.5rem 1rem;
+     border-radius: 4px;
+     cursor: pointer;
+     font-size: 0.9rem;
+     border: none;
+     transition: background-color 0.2s ease, opacity 0.2s ease;
+  }
+  
+  .primaryButtonModal {
+      background-color: #007bff;
+      color: white;
+  }
+  .primaryButtonModal:hover {
+       background-color: #0056b3;
+  }
+  .primaryButtonModal:disabled {
+      background-color: #a1cfff;
+      cursor: not-allowed;
+  }
+  
+  
+  .secondaryButtonModal {
+      background-color: #6c757d;
+      color: white;
+  }
+  .secondaryButtonModal:hover {
+      background-color: #5a6268;
+  }
+  .secondaryButtonModal:disabled {
+      background-color: #adb5bd;
+       cursor: not-allowed;
+  }
+  
+  
+  .errorTextModal {
+    color: #dc3545;
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+    font-weight: 500;
+  }

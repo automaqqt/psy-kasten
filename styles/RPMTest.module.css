@@ -1,0 +1,340 @@
+/* styles/RPMTest.module.css */
+/* Import or reuse common styles from globals.css or CorsiTest.module.css if applicable */
+.container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    background-color: #f8f9fa;
+  }
+  
+  .testContainer {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    padding: 1rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+    height: 90%;
+  }
+  
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding: 0.5rem;
+  }
+  
+  .title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #0070f3;
+    margin: 0;
+  }
+  
+  .timer {
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: #e74c3c; /* Red timer */
+    background-color: rgb(224, 155, 201);
+    padding: 0.25rem 0.75rem;
+    border-radius: 4px;
+  }
+  
+  .progressIndicator {
+    font-size: 0.9rem;
+    color: #666;
+    background-color: #e9ecef;
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+  }
+  
+  .settingsButton {
+     background: none;
+     border: none;
+     font-size: 1.5rem;
+     cursor: pointer;
+     color: #666;
+     padding: 5px;
+  }
+  .settingsButton:hover {
+     color: #007bff;
+  }
+  
+  
+  .gameArea {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    position: relative;
+    padding: 1rem;
+  }
+  /* Welcome Card */
+  .welcomeCard {
+    background-color: white;
+    border-radius: 15px;
+    padding: 2rem;
+    max-width: 600px;
+    width: 100%;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+    z-index: 10;
+  }
+  
+  .welcomeCard h2 { color: #007bff; margin-bottom: 1rem; }
+  .welcomeCard p { margin-bottom: 1rem; line-height: 1.6; color: #444; }
+  .buttonContainer { /* Adapt from Corsi/TOL */
+     display: flex;
+     flex-direction: row;
+     gap: 0.75rem;
+     margin-top: 1.5rem;
+     width: 100%;
+     align-items: center;
+  }
+  .primaryButton, .secondaryButton { /* Reuse styles */
+     padding: 0.8rem 1.6rem; border-radius: 6px; font-weight: 600; font-size: 1rem; cursor: pointer; transition: all 0.3s ease; border: none; text-decoration: none; width: 80%; max-width: 250px; text-align: center;
+  }
+  .primaryButton { background-color: #007bff; color: white; }
+  .primaryButton:hover { background-color: #0056b3; }
+  .secondaryButton { background-color: #e9ecef; color: #333; }
+  .secondaryButton:hover { background-color: #ced4da; }
+  .copyrightNotice {
+     margin-top: 2rem;
+     font-size: 0.8rem;
+     color: #dc3545; /* Red warning */
+     font-weight: bold;
+     border: 1px solid #f5c6cb;
+     background-color: #f8d7da;
+     padding: 0.5rem;
+     border-radius: 4px;
+  }
+  
+  
+  /* Playing Area */
+  .playingArea {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+  }
+  
+  .matrixContainer {
+    width: 100%;
+    max-width: 600px; /* Adjust as needed */
+    margin-bottom: 2rem;
+    border: 1px solid #ccc;
+    padding: 1rem;
+    background-color: #f8f9fa;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 250px; /* Ensure space */
+  }
+  .optionsContainer {
+    display: grid;
+    /* Adjust columns based on max options (8 for Sets C,D,E) */
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: 1rem;
+    width: 100%;
+    max-width: 800px; /* Allow options grid to be wider */
+  }
+  
+  .optionButton {
+    background-color: #fff;
+    border: 2px solid #ccc;
+    border-radius: 6px;
+    padding: 0.5rem; /* Adjust padding if needed */
+    cursor: pointer;
+    transition: border-color 0.2s ease, transform 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between; /* Pushes label down better */
+    min-height: 120px; /* Increased min-height slightly to give SVG more room */
+    overflow: hidden; /* Prevent content overflow */
+  }
+  
+  .optionButton:hover {
+    border-color: #007bff;
+    transform: translateY(-2px);
+  }
+  
+  .optionButton.selected {
+    border-color: #007bff;
+    background-color: #e7f3ff;
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.5);
+  }
+  
+  .optionButton:focus {
+     outline: 2px solid #0056b3;
+     outline-offset: 2px;
+  }
+  
+  
+  .imagePlaceholder { /* Basic placeholder style */
+    width: 80%;
+    height: 60px; /* Adjust */
+    background-color: #e9ecef;
+    color: #6c757d;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    text-align: center;
+    margin-bottom: 0.5rem; /* Space between placeholder and label */
+    border-radius: 4px;
+  }
+  
+  .matrixContainer .imagePlaceholder {
+     height: 200px; /* Larger placeholder for matrix */
+     width: 90%;
+     font-size: 1rem;
+  }
+  
+  .optionLabel {
+     font-weight: bold;
+     color: #333;
+     margin-top: auto; /* Push label to bottom */
+     background-color: rgba(255, 255, 255, 0.8);
+     padding: 2px 6px;
+     border-radius: 3px;
+  }
+  
+  
+  .footer { /* Basic footer */
+    padding: 1rem;
+    text-align: center;
+    font-size: 0.8rem;
+    color: #666;
+    margin-top: 2rem;
+    border-top: 1px solid #e0e0e0;
+  }
+  
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    .testContainer { padding: 0.5rem; margin: 0.5rem auto;}
+    .title { font-size: 1.3rem; }
+    .header { flex-direction: column; align-items: flex-start; }
+    .optionsContainer { grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); gap: 0.5rem; }
+    .optionButton { min-height: 80px; padding: 0.3rem;}
+    .imagePlaceholder { height: 40px; font-size: 0.7rem;}
+     .matrixContainer .imagePlaceholder { height: 150px; font-size: 0.9rem; }
+     .optionLabel { font-size: 0.9rem; }
+  }
+
+  /* styles/RPMTest.module.css */
+/* Wrapper for the SVG if you used one in React, or target the inner div directly */
+.svgWrapper { /* Or target: .optionButton > div:first-child */
+    width: 90%; /* Use most of the button width */
+    height: 70px; /* Allocate a specific height */
+    display: flex; /* Helps with centering */
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 0.5rem;
+    overflow: hidden; /* Crucial: clip the SVG if it's too big */
+}
+
+/* Target the SVG element itself */
+.svgWrapper svg, /* If using a wrapper */
+.optionButton > div:first-child svg /* If targeting the first div directly */ {
+    display: block; /* Removes extra space below inline SVGs */
+    width: auto;    /* Allow SVG to shrink */
+    height: auto;   /* Allow SVG to shrink */
+    max-width: 100%; /* Don't exceed container width */
+    max-height: 100%;/* Don't exceed container height */
+}
+ .matrixContainer > div { /* Target the div created by dangerouslySetInnerHTML */
+    width: 100%;
+    height: auto; /* Let height be determined by aspect ratio */
+    max-width: 500px; /* Example max size */
+    max-height: 500px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.matrixContainer svg {
+    display: block;
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+}
+
+
+.optionLabel {
+   font-weight: bold;
+   color: #333;
+   margin-top: 0.25rem; /* Small space above label */
+   background-color: rgba(233, 236, 239, 0.7); /* Light bg for label */
+   padding: 2px 6px;
+   border-radius: 3px;
+   font-size: 0.9em;
+}
+
+.linkContainer {
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+  }
+  
+  .link {
+    color: #0070f3;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s ease;
+  }
+  
+  .link:hover {
+    color: #0051a8;
+    text-decoration: underline;
+  }
+
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+    .container {
+      background-color: #121212;
+    }
+    
+    .welcomeCard, .resultsCard, .board {
+      background-color: #1e1e1e;
+      border-color: #333;
+    }
+    
+    .welcomeCard h2, .resultsCard h2, .title {
+      color: #4da3ff;
+    }
+    
+    .welcomeCard p, .statLabel {
+      color: #bbb;
+    }
+    
+    .secondaryButton {
+      background-color: #333;
+      color: #fff;
+    }
+    
+    .secondaryButton:hover {
+      background-color: #444;
+    }
+    
+    .progressIndicator {
+      background-color: #1e1e1e;
+      color: #bbb;
+    }
+    
+    .footer {
+      color: #999;
+    }
+    
+    .footerLink, .link {
+      color: #4da3ff;
+    }
+    
+    .metricValue, .statValue {
+      color: #4da3ff;
+    }
+  }

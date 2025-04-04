@@ -1,0 +1,100 @@
+/* styles/ResultsPage.module.css */
+.pageHeader { /* Reuse style from DashboardPage */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #e0e0e0;
+  }
+  
+  .pageHeader h1 {
+    margin: 0;
+    font-size: 1.8rem;
+    color: #333;
+  }
+  
+  .filters {
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background-color: #f8f9fa;
+    border-radius: 6px;
+    display: flex;
+    gap: 1.5rem;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  
+  .filters label {
+    font-weight: 500;
+    margin-right: 0.5rem;
+    font-size: 0.9rem;
+  }
+  
+  .filterSelect {
+    padding: 0.4rem 0.8rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    min-width: 150px;
+  }
+  
+  .loadingText, .errorText { /* Reuse styles */
+    text-align: center;
+    margin-top: 2rem;
+    color: #666;
+    font-style: italic;
+  }
+  .errorText {
+    color: #dc3545;
+    font-weight: bold;
+  }
+  
+  .resultsTable {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+    background-color: #fff;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    border-radius: 4px; /* Optional: round table corners */
+    overflow: hidden; /* Ensures border radius clips content */
+  }
+  
+  .resultsTable th,
+  .resultsTable td {
+    border: 1px solid #e9ecef;
+    padding: 0.7rem 1rem;
+    text-align: left;
+    font-size: 0.9rem;
+  }
+  
+  .resultsTable th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+  }
+  
+  .resultsTable tbody tr:nth-child(even) {
+    background-color: #fdfdfd;
+  }
+  
+  .resultsTable tbody tr:hover {
+    background-color: #f1f1f1;
+  }
+  
+  
+  .actionButtonView { /* Reuse style from StudyDetailPage */
+      font-size: 0.8rem;
+      padding: 0.3rem 0.6rem;
+      border-radius: 3px;
+      cursor: pointer;
+      border: none;
+      transition: background-color 0.2s ease, opacity 0.2s ease;
+      text-decoration: none;
+      display: inline-block;
+      text-align: center;
+      vertical-align: middle;
+      background-color: #007bff;
+      color: white;
+  }
+  .actionButtonView:hover {
+      background-color: #0056b3;
+  }
