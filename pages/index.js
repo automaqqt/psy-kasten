@@ -29,7 +29,7 @@ export default function Home() {
 
       <main className={styles.main}>
         <div className={styles.header}>
-          <h1 className={styles.title}>Cognitive Assessment Suite</h1>
+          <h1 className={styles.title}>psyKasten</h1>
           <p className={styles.description}>
             A collection of standardized neuropsychological tests for measuring cognitive abilities
           </p>
