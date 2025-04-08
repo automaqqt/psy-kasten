@@ -1,5 +1,5 @@
 import prisma from '../../../lib/prisma'; // Adjust path as needed
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 
 // Basic email validation regex (adjust as needed)
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;

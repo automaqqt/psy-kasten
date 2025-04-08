@@ -1,9 +1,9 @@
 import React from 'react';
-import DashboardLayout from '../../components/layout/DashboardLayout'; // Assuming admin uses same layout
-import ProposalList from '../../components/admin/ProposalList'; // Import the list component
+import DashboardLayout from '../../components/layouts/DashboardLayout'; // Assuming admin uses same layout
+import ProposalList from '../../components/ui/proposalList'; // Import the list component
 import { useSession } from 'next-auth/react';
 import { UserRole } from '@prisma/client'; // Import enum
-import styles from '../../styles/AdminPage.module.css'; // Create styles for admin pages
+//import styles from '../../styles/AdminPage.module.css'; // Create styles for admin pages
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'; // For layout translations
 import { getSession } from 'next-auth/react'; // Use standard getSession for getServerSideProps
 

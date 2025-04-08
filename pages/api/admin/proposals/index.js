@@ -1,7 +1,7 @@
 // pages/api/admin/proposals.js
 import { getSession } from 'next-auth/react'; // or getServerSession
-import prisma from '../../../lib/prisma';
-import { authOptions } from '../auth/[...nextauth]';
+import prisma from '../../../../lib/prisma';
+import { authOptions } from '../../auth/[...nextauth]';
 import { getServerSession } from "next-auth/next";
 import fs from 'fs';
 import path from 'path';
