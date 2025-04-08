@@ -1,0 +1,98 @@
+.listContainer {
+    background-color: #fff;
+    padding: 1.5rem 2rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    margin: 2rem 0; /* Add margin if used on a dashboard page */
+}
+
+.listContainer h2 {
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 0.5rem;
+}
+
+.filterToggle {
+    margin-bottom: 1.5rem;
+    display: flex;
+    gap: 0.5rem;
+    border-bottom: 2px solid #eee;
+}
+
+.filterToggle button {
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    font-size: 1rem;
+    color: #666;
+    margin-bottom: -2px; /* Overlap container border */
+    transition: color 0.2s, border-color 0.2s;
+}
+.filterToggle button:hover {
+    color: #333;
+}
+
+.filterToggle button.activeFilter {
+    color: #007bff;
+    border-bottom-color: #007bff;
+    font-weight: 600;
+}
+
+.errorText {
+    color: #dc3545;
+    font-weight: bold;
+}
+
+.proposalTable {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+
+.proposalTable th,
+.proposalTable td {
+    border: 1px solid #e9ecef;
+    padding: 0.7rem 1rem;
+    text-align: left;
+    vertical-align: top; /* Align content top for notes */
+}
+
+.proposalTable th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+}
+
+.notesCell {
+    max-width: 250px; /* Limit notes width */
+    white-space: pre-wrap; /* Allow wrapping */
+    word-break: break-word;
+    font-size: 0.85rem;
+    color: #555;
+}
+
+.actionsCell {
+    white-space: nowrap;
+    text-align: right;
+}
+
+.actionButtonDownload, .actionButtonReview {
+    font-size: 0.8rem;
+    padding: 0.35rem 0.7rem;
+    border-radius: 4px;
+    cursor: pointer;
+    border: none;
+    margin-left: 0.5rem;
+    transition: background-color 0.2s ease;
+    text-decoration: none;
+    display: inline-block;
+    vertical-align: middle;
+    color: white;
+}
+.actionButtonDownload { background-color: #17a2b8; }
+.actionButtonDownload:hover { background-color: #138496; }
+
+.actionButtonReview { background-color: #28a745; }
+.actionButtonReview:hover { background-color: #218838; }

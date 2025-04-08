@@ -1,21 +1,21 @@
 /* styles/Landing.module.css */
 .container {
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    background-color: #f9fafc;
-    color: #333;
-  }
-  
-  .main {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    max-width: 1200px;
-    width: 100%;
-    margin: 0 auto;
-    padding: 2rem;
-  }
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--bg-primary, #eef2f7);
+}
+
+/* Remove padding-top from mainLanding if Hero section handles spacing */
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: var(--bg-primary, #eef2f7);
+  /* No top padding here, hero section provides space */
+  /* padding-top: 5rem; */ /* Remove this */
+}
   
   .header {
     text-align: center;
@@ -34,7 +34,6 @@
     font-size: 1.2rem;
     max-width: 600px;
     margin: 0 auto;
-    color: #666;
   }
   
   .testsGrid {
@@ -50,7 +49,7 @@
   }
   
   .testCard {
-    background-color: white;
+    background-color: var(--bg-secondary, #eef2f7);
     border-radius: 15px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
     padding: 1.5rem;
@@ -60,7 +59,7 @@
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     position: relative;
     overflow: hidden;
-    border: 2px solid #fff;
+    border: 2px solid var(--bg-accent, #eef2f7);;
   }
   
   .testCard::before {
@@ -113,12 +112,11 @@
     font-weight: 600;
     z-index: 1;
     position: relative;
-    color: #333;
   }
   
   .cardDescription {
     margin-bottom: 1.5rem;
-    color: #666;
+    color: var(--text-secondary, #eef2f7);
     line-height: 1.6;
     flex: 1;
     z-index: 1;
@@ -230,31 +228,631 @@
     font-size: 0.9rem;
   }
   
-  .footer {
-    background-color: #f0f0f0;
-    padding: 1rem;
-    text-align: center;
-    font-size: 0.9rem;
-    color: #666;
-  }
-  
-  /* Media queries for responsiveness */
-  @media (max-width: 768px) {
-    .main {
-      padding: 1.5rem;
-    }
-    
-    .title {
-      font-size: 2rem;
-    }
-    
-    .description {
-      font-size: 1rem;
-    }
-    
-    .testsGrid {
-      grid-template-columns: 1fr;
-    }
-  }
+  .topBar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background-color: var(--bg-primary, #eef2f7);
+    backdrop-filter: blur(0px);
+    box-shadow: none;
+    z-index: 100;
+    height: 60px; /* Or your desired height */
+    display: flex;
+    justify-content: center;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease, backdrop-filter 0.3s ease;
+}
 
-  
+.topBarScrolled {
+  background-color: var(--bg-secondary, #eef2f7);
+    backdrop-filter: blur(5px);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.topBarContent {
+    max-width: 1200px;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 1rem;
+}
+
+/* NEW: Style for a logo area */
+
+
+/* --- NEW/Modified Logo Styles --- */
+.logoContainer {
+  /* Adjust height to vertically center logo if needed, depends on topBar height */
+  height: 100%;
+  display: flex;
+  align-items: center;
+  /* Fade the logo in/out with scroll */
+  padding-top: 0.25rem;
+  transition: opacity 0.3s ease;
+}
+
+/* Target the link for proper focus/hover */
+.logoLink {
+  display: inline-block; /* Helps with layout */
+  line-height: 0; /* Prevent extra space below image */
+}
+.logoLink:focus-visible { /* Add focus style */
+  outline: 2px solid blue;
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+.topBarScrolled .logoPlaceholder {
+    opacity: 1; /* Fade in when scrolled */
+     color: #007bff; /* Change color on scroll if desired */
+}
+
+.loginButton, .dashboardButton {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    white-space: nowrap;
+}
+
+.loginButton:hover, .dashboardButton:hover {
+    background-color: #0056b3;
+}
+
+/* Optional simple loading spinner */
+.loadingSpinner {
+    border: 3px solid #f3f3f3; /* Light grey */
+    border-top: 3px solid #007bff; /* Blue */
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    animation: spin 1s linear infinite;
+}
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+
+.filtersContainer {
+  background-color: var(--bg-secondary, #eef2f7);
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.07);
+    margin-bottom: 2.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.searchBar {
+    width: 100%;
+    position: relative;
+}
+
+.searchBar input {
+    width: 100%;
+    padding: 0.8rem 1rem;
+    border: 1px solid #ced4da;
+    border-radius: 5px;
+    font-size: 1rem;
+    box-sizing: border-box;
+}
+.searchBar input:focus {
+    border-color: #80bdff;
+    outline: 0;
+    box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+}
+
+.tagFilter {
+  display: flex;
+  flex-direction: column; /* Stack header and list */
+  gap: 0.5rem; /* Reduced gap */
+  /* Remove align-items: center if it was added */
+}
+
+.tagFilterHeader {
+  display: flex;
+  justify-content: space-between; /* Space label and button */
+  align-items: center;
+  width: 100%; /* Take full width */
+}
+
+.filterLabel {
+  font-weight: 500; color: #555; font-size: 0.95rem; white-space: nowrap;
+  align-self: start;
+}
+
+.tagList {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.tagButton {
+    background-color: #e9ecef;
+    color: #495057;
+    border: 1px solid transparent; /* Start transparent */
+    padding: 0.3rem 0.8rem;
+    border-radius: 15px; /* Pill shape */
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+.tagButton:hover {
+    background-color: #ced4da;
+}
+
+.tagButtonActive {
+    background-color: #007bff;
+    color: white;
+    border-color: #0056b3;
+}
+.tagButtonActive:hover {
+    background-color: #0056b3;
+}
+
+.clearTagsButton {
+    background: none;
+    border: none;
+    color: #007bff;
+    text-decoration: underline;
+    font-size: 0.85rem;
+    cursor: pointer;
+    margin-left: 0.5rem; /* Space from tags */
+    padding: 0.3rem 0; /* Align padding vertically */
+}
+.clearTagsButton:hover {
+    color: #0056b3;
+}
+
+/* Highlight selected tags on cards */
+.tagHighlight {
+    background-color: #cfe2ff !important; /* Lighter blue highlight */
+    color: #052c65 !important;
+    font-weight: 500;
+}
+
+.noResults {
+    text-align: center;
+    color: #6c757d;
+    margin-top: 2rem;
+    font-style: italic;
+    width: 100%; /* Ensure it takes full width in the grid */
+}
+
+
+.heroSection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh; /* Keep full height */
+  padding: 3rem 1.5rem;
+  text-align: center;
+  background-color: var(--bg-primary, #eef2f7); /* Use CSS var */
+  box-sizing: border-box;
+  margin-top: 0; /* Adjusted for transparent initial header */
+  position: relative; /* Needed for absolute positioning of floating elements */
+  overflow: hidden; /* Prevent elements floating outside */
+}
+
+.heroContent {
+  max-width: 800px;
+  animation: fadeInHero 1s ease-out;
+  z-index: 2; /* Ensure content is above floating elements */
+  position: relative; /* Needed if floating elements use z-index */
+}
+
+/* ... Keep other hero styles (title, description, buttons) ... */
+
+
+/* --- NEW: Floating Elements Styles --- */
+.floatingElementsContainer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none; /* Prevent interaction with floating items */
+  overflow: hidden;
+  z-index: 1; /* Behind hero text content */
+}
+
+.floatingElement {
+  position: absolute;
+  font-size: 2rem; /* Adjust size of emojis */
+  opacity: 0.15; /* Make them subtle */
+  animation-name: float;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+  /* Prevent selection */
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+
+/* --- Float Animation --- */
+@keyframes float {
+  0% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-15px) rotate(5deg); } /* Move up slightly and rotate */
+  100% { transform: translateY(0px) rotate(0deg); }
+}
+
+/* --- Individual Element Positioning & Animation Delays --- */
+/* Position elements around the hero section using top/left/right/bottom */
+/* Vary animation duration and delay for a more natural effect */
+
+.pencil1 {
+  font-size: 2.5rem;
+  top: 15%;
+  left: 10%;
+  animation-duration: 8s;
+  animation-delay: 0s;
+  transform: rotate(-20deg); /* Initial rotation */
+}
+
+.questionnaire1 {
+  font-size: 3rem;
+  top: 20%;
+  right: 12%;
+  animation-duration: 10s;
+  animation-delay: 1s;
+   transform: rotate(15deg);
+}
+
+.pencil2 {
+  font-size: 2rem;
+  bottom: 25%;
+  left: 20%;
+  animation-duration: 9s;
+  animation-delay: 2.5s;
+   transform: rotate(10deg);
+}
+
+.questionnaire2 {
+  font-size: 2.8rem;
+  bottom: 15%;
+  right: 25%;
+  animation-duration: 7s;
+  animation-delay: 0.5s;
+   transform: rotate(-10deg);
+}
+
+.pencil3 {
+  font-size: 2.2rem;
+  top: 60%;
+  left: 5%;
+  animation-duration: 8.5s;
+  animation-delay: 1.8s;
+  transform: rotate(30deg);
+}
+
+@keyframes fadeInHero {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.heroTitle {
+  font-size: 3rem; /* Larger title */
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  line-height: 1.2;
+  /* Gradient text example */
+  background: linear-gradient(90deg, #0070f3, #5a0fc8);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.heroDescription {
+  font-size: 1.2rem;
+  max-width: 650px;
+  margin: 0 auto 2.5rem auto;
+  color: var(--text-secondary, #eef2f7);
+  line-height: 1.7;
+}
+
+.heroActions {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  flex-wrap: wrap; /* Wrap buttons on smaller screens */
+}
+
+.heroButtonPrimary, .heroButtonSecondary {
+  padding: 0.8rem 2rem;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
+  text-decoration: none; /* For Link */
+}
+.link {
+  color: #0070f3;
+  text-decoration: none;
+  padding-left: 0.3rem;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.link:hover {
+  color: #0051a8;
+  text-decoration: underline;
+}
+.heroButtonPrimary {
+  background-color: #007bff;
+  color: white;
+  box-shadow: 0 4px 10px rgba(0, 123, 255, 0.2);
+}
+.heroButtonPrimary:hover {
+  background-color: #0056b3;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(0, 123, 255, 0.3);
+}
+
+.heroButtonSecondary {
+  background-color: transparent;
+  color: #007bff;
+  border: 2px solid #007bff;
+}
+.heroButtonSecondary:hover {
+  background-color: rgba(0, 123, 255, 0.05);
+  transform: translateY(-2px);
+}
+
+/* --- Tests Overview Section --- */
+.testsOverviewSection {
+  padding: 3rem 1.5rem; /* Add padding around the tests section */
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto; /* Center */
+  scroll-margin-top: 40px; /* Offset for smooth scroll past fixed header */
+}
+
+
+.searchBar {
+  /* width: 100%; */ /* Remove fixed width */
+  flex-grow: 1; /* Allow search bar to grow */
+  min-width: 250px; /* Minimum width */
+  position: relative;
+}
+.searchBar input { /* Keep existing style */ width: 100%; padding: 0.8rem 1rem; border: 1px solid #ced4da; border-radius: 5px; font-size: 1rem; box-sizing: border-box; }
+.searchBar input:focus { /* ... */ }
+
+.tagFilter {
+  display: flex;
+  align-items: center; /* Align label and tags */
+  gap: 0.8rem;
+  flex-wrap: wrap; /* Wrap tags */
+}
+
+
+
+.mobileTagToggle {
+  display: none; /* Hidden by default */
+  background: none;
+  border: 1px solid #007bff;
+  color: #007bff;
+  padding: 0.2rem 0.6rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  margin-left: 1rem; /* Space from label */
+  white-space: nowrap;
+  transition: background-color 0.2s, color 0.2s;
+}
+.mobileTagToggle:hover {
+  background-color: rgba(0, 123, 255, 0.1);
+}
+
+/* Simple Arrows for Toggle Button */
+.mobileTagToggle span {
+  display: inline-block;
+  margin-left: 5px;
+  transition: transform 0.3s ease;
+  font-size: 0.7em; /* Smaller arrow */
+}
+.arrowDown::after { content: '▼'; }
+.arrowUp::after { content: '▲'; }
+.tagListWrapper {
+  /* Desktop: Always visible */
+  max-height: 1000px; /* Large enough height for desktop */
+  overflow: hidden;
+  transition: max-height 0.5s ease-in-out; /* Smooth transition */
+}
+
+.ctaSection {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); /* Example gradient */
+  /* Or a solid color: background-color: #007bff; */
+  color: white;
+  padding: 3rem 1.5rem;
+  margin-top: 4rem; /* Space above the CTA */
+  margin: 4rem; /* Space below before info section */
+  text-align: center;
+  border-radius: 36px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.ctaContent {
+  max-width: 700px; /* Limit content width */
+  margin: 0 auto;
+}
+
+.ctaTitle {
+  font-size: 2rem;
+  font-weight: 600;
+  margin-top: 0;
+  margin-bottom: 1rem;
+  line-height: 1.3;
+}
+
+.ctaText {
+  font-size: 1.1rem;
+  margin-bottom: 2rem;
+  opacity: 0.9;
+  line-height: 1.7;
+}
+
+.ctaButton {
+  background-color: #ffffff;
+  color: #6a61ca; /* Match gradient or primary color */
+  border: none;
+  padding: 0.9rem 2.2rem;
+  border-radius: 30px; /* Pill shape */
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  display: inline-block;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.ctaButton:hover {
+  background-color: #f8f9fa;
+  color: #5a4fbc;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+}
+
+@media (max-width: 768px) {
+.heroSection { min-height: 100vh; padding: 2rem 1rem;}
+.heroTitle { font-size: 2.2rem; }
+.heroDescription { font-size: 1rem; }
+.testsOverviewSection { padding: 2rem 1rem; scroll-margin-top: 70px;}
+.filtersContainer { flex-direction: column; align-items: stretch; }
+.tagFilter { flex-direction: column; align-items: flex-start; }
+.title {
+  font-size: 2rem;
+}
+
+.description {
+  font-size: 1rem;
+}
+
+.testsGrid {
+  grid-template-columns: 1fr;
+}
+.mobileTagToggle {
+  display: inline-flex; /* Show the button on mobile */
+  align-items: center; /* Align text and arrow */
+}
+
+/* Styles for the COLLAPSED state on mobile */
+.tagListWrapper {
+  max-height: 0; /* Collapsed by default on mobile */
+  /* overflow: hidden; Added above */
+  /* transition: max-height 0.5s ease-in-out; Added above */
+}
+
+/* --- ADDED THIS RULE --- */
+/* Styles for the EXPANDED state on mobile */
+.tagListWrapperExpanded {
+  max-height: 300px; /* Or enough height to show tags, adjust as needed */
+  /* Optional: Add some padding/margin when expanded if desired */
+  /* margin-top: 0.5rem; */
+}
+.ctaSection {  margin: 1rem;margin-top: 3rem; }
+    .ctaTitle { font-size: 1.6rem; }
+    .ctaText { font-size: 1rem; }
+    .ctaButton { padding: 0.8rem 1.8rem; font-size: 0.95rem;}
+}
+
+.topBarControls {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem; /* Space between icons and login button */
+}
+
+/* --- NEW: Icon Button Styles --- */
+.iconButton {
+  background: none;
+  border: none;
+  padding: 0.5rem; /* Padding around icon */
+  margin: 0;
+  cursor: pointer;
+  color: var(--text-secondary, #eef2f7); /* Icon color */
+  display: flex; /* For centering icon */
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%; /* Circular background on hover */
+  transition: background-color 0.2s ease, color 0.2s ease;
+  font-size: 1.3rem; /* Icon size */
+  line-height: 1; /* Prevent extra height */
+}
+
+.iconButton:hover {
+  background-color: rgba(0, 0, 0, 0.05); /* Subtle hover background */
+  color: #007bff;
+}
+.topBarScrolled .iconButton {
+  /* Optional: change color slightly when bar is opaque */
+  /* color: #333; */
+}
+.topBarScrolled .iconButton:hover {
+   background-color: rgba(0, 0, 0, 0.08);
+   color: #0056b3;
+}
+
+
+/* --- NEW: Locale Switcher --- */
+.localeSwitcherContainer {
+  position: relative; /* For dropdown positioning */
+}
+
+.localeDropdown {
+  position: absolute;
+  top: calc(100% + 5px); /* Position below the button */
+  right: 0;
+  background-color: white;
+  border-radius: 6px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+  padding: 0.5rem 0;
+  margin: 0;
+  list-style: none;
+  min-width: 100px; /* Minimum width */
+  z-index: 110; /* Above topBar content */
+  animation: fadeInDropdown 0.2s ease-out;
+}
+
+@keyframes fadeInDropdown {
+from { opacity: 0; transform: translateY(-5px); }
+to { opacity: 1; transform: translateY(0); }
+}
+
+
+.localeDropdown li {}
+
+.localeDropdown button {
+  background: none;
+  border: none;
+  padding: 0.6rem 1.2rem;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  font-size: 0.9rem;
+  color: var(--text-secondary, #eef2f7);
+  white-space: nowrap;
+  transition: background-color 0.2s ease;
+}
+
+.localeDropdown button:hover {
+  background-color: #f0f0f0;
+}
+
+.localeDropdown button.activeLocale {
+  font-weight: bold;
+  color: #007bff;
+  background-color: #e7f3ff;
+}

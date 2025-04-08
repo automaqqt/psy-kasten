@@ -23,3 +23,49 @@ h1, h2, h3, h4, h5, h6 {
 p {
   line-height: 1.6;
 }
+
+:root {
+  /* Light Theme Variables (Default) */
+  --bg-primary: #f9fafc;
+  --bg-secondary: #ffffff;
+  --bg-accent: #eef2f7;
+  --text-primary: #333;
+  --text-secondary: #555;
+  --border-color: #e0e0e0;
+  --link-color: #007bff;
+  --link-hover-color: #0056b3;
+  --shadow-color: rgba(0, 0, 0, 0.05);
+  --card-bg: #ffffff;
+  --topbar-bg: rgba(255, 255, 255, 0);
+  --topbar-scrolled-bg: rgba(255, 255, 255, 0.95);
+  --icon-color: #555;
+  --icon-hover-bg: rgba(0, 0, 0, 0.05);
+  /* ... other variables */
+}
+
+/* Dark Theme Variables */
+/* Apply when html element has data-theme="dark" */
+html[data-theme="dark"] {
+  --bg-primary: #1a1a1a;
+  --bg-secondary: #2a2a2a;
+  --bg-accent: #333333;
+  --text-primary: #e0e0e0;
+  --text-secondary: #b0b0b0;
+  --border-color: #444444;
+  --link-color: #58a6ff;
+  --link-hover-color: #80bfff;
+  --shadow-color: rgba(255, 255, 255, 0.05);
+  --card-bg: #2c2c2c;
+  --topbar-bg: rgba(30, 30, 30, 0);
+  --topbar-scrolled-bg: rgba(30, 30, 30, 0.95);
+  --icon-color: #b0b0b0;
+  --icon-hover-bg: rgba(255, 255, 255, 0.08);
+   /* ... other variables */
+}
+
+/* Apply variables */
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  transition: background-color 0.3s ease, color 0.3s ease; /* Smooth theme transition */
+}

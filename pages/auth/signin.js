@@ -3,6 +3,7 @@ import { getProviders, signIn, getCsrfToken, getSession } from 'next-auth/react'
 import { useRouter } from 'next/router';
 import { useState } from 'react';
 import Link from 'next/link'; // Import Link
+import Image from 'next/image';
 import styles from '../../styles/signin.module.css'; // Import the CSS module
 
 // Function to map NextAuth error codes to user-friendly messages
@@ -53,6 +54,16 @@ console.log(result)
   return (
     <div className={styles.signInContainer} >
       <div className={styles.signInBox}>
+      <Link href="/" passHref>
+                          <div className={styles.logoLink}> {/* Link wrapping the image */}
+                                <Image
+                                    src="/logo.png" // Path relative to the public folder
+                                    alt={'CogniSuite Logo'} // Add alt text key
+                                    width={160}     // Specify width (adjust as needed)
+                                    height={160}    // Specify height (adjust aspect ratio)
+                                />
+                            </div>
+                        </Link>
         <h1>Sign In</h1>
 
         {error && <div className={styles.errorMessage}>{error}</div>}

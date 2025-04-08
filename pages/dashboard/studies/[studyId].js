@@ -26,7 +26,7 @@ const ParticipantList = ({ participants, onAssignTestClick, onDeleteParticipant 
                 {participants.map(p => (
                     <tr key={p.id}>
                         <td>{p.identifier}</td>
-                        <td>{p._count?.assignments ?? 0}</td>
+                        <td>{p.assignments.length ?? 0}</td>
                         <td>{new Date(p.createdAt).toLocaleDateString()}</td>
                         <td>
                             <button onClick={() => onAssignTestClick(p)} className={styles.actionButtonAssign}>Assign Test</button>
@@ -259,7 +259,7 @@ export default function StudyDetailPage() {
                         className={styles.selectInput}
                     >
                          {TEST_TYPES.map(test => (
-                             <option key={test.id} value={test.id}>{test.title}</option>
+                             <option key={test.id} value={test.id}>{test.titleKey.slice(0,test.titleKey.length-6)}</option>
                          ))}
                      </select>
                  </div>

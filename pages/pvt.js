@@ -1,6 +1,6 @@
 // pages/corsi.js
 import Head from 'next/head';
-import PVTTest from '../components/tests/pvt';
+import PVTTest from '../components/tests/pvt/test';
 
 export default function PVTPage() {
   return (

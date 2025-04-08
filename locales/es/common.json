@@ -1,0 +1,20 @@
+{
+    "back_to_home": "Volver al Inicio",
+    "settings": "Ajustes",
+    "error": "Error",
+    "loading": "Cargando...",
+    "thank_you": "¡Gracias!",
+    "results_submitted": "Los resultados de tu prueba han sido registrados.",
+    "results_not_saved_standalone": "(Resultados no guardados en modo independiente)",
+    "session_complete": "Tu sesión de prueba está completa.",
+    "close_window": "Puedes cerrar esta ventana.",
+    "try_again": "Intentar de Nuevo",
+    "submitting": "Enviando resultados...",
+    "submission_error": "Error de Envío",
+    "test_already_submitted": "Los resultados para esta prueba ya han sido enviados.",
+    "failed_to_submit": "Error al enviar los resultados.",
+    "page_not_found": "Página No Encontrada",
+    "test_completed_redirect": "Prueba Completada",
+    "test_expired_redirect": "Enlace de Prueba Expirado",
+    "invalid_test_redirect": "Enlace de Prueba Inválido"
+  }

@@ -1,0 +1,26 @@
+/* styles/Footer.module.css */
+.footer {
+    text-align: center;
+    padding: 1.5rem 1rem; /* Slightly more padding */
+    
+    font-size: 0.9rem;
+    color: var(--text-secondary, #eef2f7); /* Slightly darker grey */
+    background-color: var(--bg-primary, #eef2f7); /* Light background */
+    border-top: 1px solid var(--bg-primary, #eef2f7); /* Subtle top border */
+    display:flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.link {
+  color: #007bff; /* Standard link blue */
+  text-decoration: none; /* No underline by default */
+  font-weight: 500; /* Slightly bolder */
+  padding-left: 0.2rem;
+  transition: color 0.2s ease, text-decoration 0.2s ease;
+}
+
+.link:hover {
+  color: #0056b3; /* Darker blue on hover */
+  text-decoration: underline; /* Underline on hover */
+}

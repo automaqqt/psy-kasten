@@ -1,0 +1,55 @@
+.proposalContainer {
+    max-width: 700px;
+    margin: 1rem auto;
+    padding: 1.5rem;
+    background-color: #fff; /* Optional background */
+    border-radius: 8px; /* Optional */
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08); /* Optional */
+}
+
+.proposalContainer h1 {
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+    text-align: center;
+    color: #333;
+}
+
+.loadingText {
+    text-align: center;
+    color: #666;
+    padding: 2rem;
+}
+
+.errorText {
+    color: #dc3545;
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    padding: 0.8rem;
+    border-radius: 4px;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.infoBox {
+    margin-top: 2.5rem;
+    padding: 1rem 1.5rem;
+    background-color: #e7f3ff;
+    border: 1px solid #b8dfff;
+    border-left-width: 4px;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    color: #004085;
+}
+.infoBox h4 {
+    margin-top: 0;
+    margin-bottom: 0.5rem;
+    color: #004085;
+}
+.infoBox p {
+    margin-bottom: 0.5rem;
+    line-height: 1.6;
+}
+.infoBox p:last-child {
+    margin-bottom: 0;
+}

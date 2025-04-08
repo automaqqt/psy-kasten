@@ -3,7 +3,8 @@ import GoogleProvider from 'next-auth/providers/google';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { PrismaAdapter } from '@next-auth/prisma-adapter';
 import prisma from '../../../lib/prisma';
-import { compare } from 'bcrypt'; // <-- Import compare
+import { UserRole } from '@prisma/client';
+import { compare } from 'bcryptjs'; // <-- Import compare
 
 export const authOptions = {
   adapter: PrismaAdapter(prisma),
@@ -71,15 +72,34 @@ export const authOptions = {
     error: '/auth/error', // Good to have an error page
   },
   callbacks: {
-    async jwt({ token, user }) {
-      if (user) token.id = user.id;
-      return token;
+    async jwt({ token, user, account, profile, trigger, session: updateSessionData }) {
+        // Add user ID and ROLE on initial sign in
+        if (user) {
+            token.id = user.id;
+            // Fetch role during sign-in / token creation if not directly on user object from authorize/profile
+             const dbUser = await prisma.user.findUnique({
+                 where: { id: user.id },
+                 select: { role: true }
+             });
+             token.role = dbUser?.role || UserRole.RESEARCHER; // Default to RESEARCHER if not found
+        }
+         // Example: Handle session updates if needed (e.g., update name)
+         // if (trigger === "update" && updateSessionData?.name) {
+         //   token.name = updateSessionData.name;
+         // }
+        return token;
     },
-    async session({ session, token }) {
-      if (token?.id && session.user) session.user.id = token.id;
-      return session;
+    async session({ session, token, user }) {
+        // Add user ID and ROLE from token to the session object
+        if (token?.id && session.user) {
+            session.user.id = token.id;
+        }
+         if (token?.role && session.user) {
+            session.user.role = token.role; // Add role here!
+        }
+        return session;
     },
-  },
+},
   debug: process.env.NODE_ENV === 'development',
 };
 

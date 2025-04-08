@@ -1,41 +1,59 @@
 import { withAuth } from "next-auth/middleware";
 import { NextResponse } from "next/server";
+import { UserRole } from '@prisma/client';
 
 export default withAuth(
-  // `withAuth` augments your `Request` with the user's token.
   function middleware(req) {
-    // console.log("Middleware token:", req.nextauth.token); // Debugging: view token data
+    const { token } = req.nextauth;
+    const { pathname } = req.nextUrl;
 
-    // Example: Redirect based on role if you add roles later
-    // if (req.nextUrl.pathname.startsWith("/admin") && req.nextauth.token?.role !== "admin") {
-    //   return NextResponse.rewrite(new URL("/denied", req.url));
-    // }
+    // Check for ADMIN role for /admin paths
+    if (pathname.startsWith("/admin") && token?.role !== UserRole.ADMIN) {
+        console.warn(`Middleware: Admin access denied for ${token?.email} to ${pathname}`);
+        // Redirect to dashboard or a generic forbidden page
+        return NextResponse.redirect(new URL('/dashboard?error=forbidden', req.url));
+        // Alternatively return NextResponse.rewrite(new URL('/403', req.url));
+    }
 
-    // If accessing dashboard and not logged in, `withAuth` handles redirect automatically
-    // based on `pages.signIn` in authOptions.
-     return NextResponse.next(); // Allow request to proceed if authenticated
+    // Allow request if authenticated for dashboard/protected API or if admin access granted
+    return NextResponse.next();
   },
   {
     callbacks: {
-      authorized: ({ token }) => !!token, // If there is a token, the user is authorized
+        // Role needs to be added to token in [...nextauth].js callbacks.jwt
+      authorized: ({ token, req }) => {
+          const { pathname } = req.nextUrl;
+           // Allow access to API submit/download if token exists, further checks in API
+           if (pathname.startsWith('/api/proposals/upload') || pathname.startsWith('/api/proposals/mine')) {
+               return !!token; // Must be logged in
+           }
+          // Admin API routes need stricter check, handled by middleware function above
+           if (pathname.startsWith('/api/admin')) {
+               return !!token; // Let middleware function handle role check
+           }
+          // Dashboard/Admin pages also handled by middleware function or require token
+          if (pathname.startsWith('/dashboard') || pathname.startsWith('/admin')) {
+              return !!token;
+          }
+          // Allow access to other pages (or define stricter rules)
+          return true;
+      },
     },
-    pages: {
-      signIn: "/auth/signin", // Redirect here if unauthorized
-      error: "/auth/error", // Redirect here on error
-    },
+     pages: { signIn: "/auth/signin", error: "/auth/error" },
   }
 );
 
-// Apply the middleware to specific paths
+// Update Matcher
 export const config = {
   matcher: [
-      "/dashboard/:path*", // Protect all dashboard routes
-      "/api/studies/:path*", // Protect relevant API routes (can be more granular)
+      "/dashboard/:path*",
+      "/admin/:path*", // Protect admin UI pages
+      "/api/studies/:path*",
       "/api/participants/:path*",
       "/api/assignments/:path*",
-      // Exclude public API routes like /api/results (POST) and /api/test-session/[key]
-      // You can use negative lookaheads in matcher if needed, or handle auth within the API route itself for more control.
-      // For API routes called by the server (getServerSideProps), checking the session there is often sufficient.
-      // For API routes called by the client dashboard, middleware protection is good.
+      "/api/proposals/upload", // Protect researcher upload route
+      "/api/proposals/mine",   // Protect researcher status route
+      "/api/admin/:path*",    // Protect ALL admin API routes
+      // Exclude public routes like /api/auth, /api/results (POST), /api/test-session
     ],
 };

@@ -50,7 +50,8 @@ export default async function handler(req, res) {
              where: { id: studyId },
              include: {
                  participants: { // Include participants of this study
-                     orderBy: { createdAt: 'desc'}
+                     orderBy: { createdAt: 'desc'},
+                     include: {assignments:true}
                  },
                  // Optionally include testAssignments count etc.
                  _count: {

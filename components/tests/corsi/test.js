@@ -1,11 +1,13 @@
 // components/CorsiTest.js
 import { useState, useEffect, useCallback, useRef } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import styles from '../../../styles/CorsiTest.module.css';
 import SettingsPanel from '../../settings/corsi';
 import DetailedResults from '../../results/corsi';
+import Footer from '../../ui/footer';
 
-export default function CorsiTest({ assignmentId, onComplete, isStandalone }) {
+export default function CorsiTest({ assignmentId, onComplete, isStandalone, t }) {
   const [blocks, setBlocks] = useState([]);
   const [sequence, setSequence] = useState([]);
   const [userSequence, setUserSequence] = useState([]);
@@ -30,6 +32,7 @@ export default function CorsiTest({ assignmentId, onComplete, isStandalone }) {
   const [message, setMessage] = useState('');
   const boardRef = useRef(null);
   const canvasSize = useRef(null);
+  const translate = t || ((key) => key);
   // Calculate optimal canvas size based on viewport
   useEffect(() => {
     const updateCanvasSize = () => {
@@ -108,21 +111,18 @@ export default function CorsiTest({ assignmentId, onComplete, isStandalone }) {
   }, [level]);
 
   // Show a message overlay with fade in/out
-  const showOverlayMessage = useCallback((text, duration = 1500) => {
-    setMessage(text);
+  const showOverlayMessage = useCallback((textKey, duration = 1500) => {
+    setMessage(translate(textKey)); // Use translation key
     setShowMessage(true);
-    
-    setTimeout(() => {
-      setShowMessage(false);
-    }, duration);
-  }, []);
+    setTimeout(() => setShowMessage(false), duration);
+  }, [translate]);
 
   // Show the sequence to the user
   const displaySequence = useCallback(async (seq) => {
     setShowingSequence(true);
     
     // Show brief message
-    showOverlayMessage('Watch carefully...', 1000);
+    showOverlayMessage('watch_carefully', 1000);
     
     // Create a promise that resolves after showing the full sequence
     return new Promise((resolve) => {
@@ -133,7 +133,7 @@ export default function CorsiTest({ assignmentId, onComplete, isStandalone }) {
             setGameState('input');
             setRoundStartTime(Date.now()); // Start timing for user input
             setClickTimes([]);
-            showOverlayMessage('Your turn!', 800);
+            showOverlayMessage('your_turn', 800);
             resolve();
           }, 500);
           return;
@@ -162,7 +162,7 @@ export default function CorsiTest({ assignmentId, onComplete, isStandalone }) {
       
       showBlock(0);
     });
-  }, [settings.blockHighlightDuration, settings.intervalBetweenBlocks, showOverlayMessage]);
+  }, [settings.blockHighlightDuration, settings.intervalBetweenBlocks, showOverlayMessage, translate]);
 
   // Start a new round
   const startGame = useCallback(async () => {
@@ -273,9 +273,9 @@ export default function CorsiTest({ assignmentId, onComplete, isStandalone }) {
 
     
     if (isCorrect) {
-      showOverlayMessage('Correct! Level up!', 1200);
-      setFeedback('Correct! Moving to next level.');
+      setFeedback(translate('correct_feedback'));
       setScore(prevScore => prevScore + level);
+      showOverlayMessage('correct_feedback', 1200);
       setResults(prev => [...prev, { level, success: true, responseTime: totalResponseTime }]);
       
       setTimeout(() => {
@@ -283,8 +283,11 @@ export default function CorsiTest({ assignmentId, onComplete, isStandalone }) {
         startGame();
       }, 1500);
     } else {
-      showOverlayMessage('Incorrect sequence. Game over.', 1500);
-      setFeedback('Incorrect sequence. Game over.');
+      const finishMessage = `${translate('incorrect_feedback')} ${translate('test_finished')}`;
+       // Construct message for overlay
+       const overlayMsg = isStandalone ? `${finishMessage} (${translate('common:results_not_saved_standalone')})` : `${finishMessage} (${translate('common:submitting')})`;
+      showOverlayMessage(overlayMsg, 2000); // Show combined message
+      setFeedback(finishMessage); // Set feedback state
       if (assignmentId) {
         console.log("Test finished, attempting submission.");
         const finalTestData = {
@@ -330,77 +333,63 @@ export default function CorsiTest({ assignmentId, onComplete, isStandalone }) {
   return (
     <div className={styles.container}>
       <div className={styles.testContainer}>
-        <div className={styles.header}>
-          <h1 className={styles.title}>Corsi Block-Tapping Test</h1>
-          
-          {(gameState === 'showing' || gameState === 'input') && (
-            <div className={styles.gameMetrics}>
-              <div className={styles.levelIndicator}>
-                Level: <span className={styles.metricValue}>{level}</span>
-              </div>
-              <div className={styles.scoreIndicator}>
-                Score: <span className={styles.metricValue}>{score}</span>
-              </div>
-              <button 
-                className={styles.iconButton}
-                onClick={() => {
-                  if (gameState === 'input' && !showingSequence) {
-                    setShowSettings(true);
-                  }
-                }}
-                disabled={gameState === 'showing' || showingSequence}
-                title="Adjust settings"
-                aria-label="Settings"
-              >
-                <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" strokeWidth="2" fill="none">
-                  <path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" />
-                  <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1Z" />
-                </svg>
-              </button>
-            </div>
-          )}
+      <div className={styles.header}>
+      <Link href="/" passHref>
+                          <div className={styles.logoLink}> {/* Link wrapping the image */}
+                                <Image
+                                    src="/logo.png" // Path relative to the public folder
+                                    alt={'psykasten Logo'} // Add alt text key
+                                    width={50}     // Specify width (adjust as needed)
+                                    height={50}    // Specify height (adjust aspect ratio)
+                                />
+                            </div>
+                        </Link>
+           {(gameState === 'showing' || gameState === 'input') && (
+               <div className={styles.gameMetrics}>
+                   <div className={styles.levelIndicator}>{translate('level')}: <span className={styles.metricValue}>{level}</span></div>
+                   <div className={styles.scoreIndicator}>{translate('score')}: <span className={styles.metricValue}>{score}</span></div>
+               </div>
+           )}
         </div>
         
         <div className={styles.gameArea}>
-          {/* Welcome screen */}
-          {gameState === 'welcome' && (
-            <div className={styles.welcomeCard}>
-              <h2>Welcome to the Corsi Block-Tapping Test</h2>
-              <p>
-                This test assesses your visuo-spatial short-term working memory. You will be shown a sequence of blocks that light up, and you'll need to repeat the sequence by clicking on the blocks in the same order.
-              </p>
-              <p>
-                The test starts with a sequence of 2 blocks and gets progressively harder. Your Corsi Span is the longest sequence you can correctly remember.
-              </p>
-              <div className={styles.buttonContainer}>
-                <button className={styles.primaryButton} onClick={startGame}>
-                  Start Test
-                </button>
-                <button 
-                  className={styles.secondaryButton} 
-                  onClick={() => setShowSettings(true)}
-                >
-                  Adjust Settings
-                </button>
+           {gameState === 'welcome' && (
+              <div className={styles.welcomeCard}>
+                 <h2>{translate('welcome_title')}</h2>
+                 <p>{translate('welcome_p1')}</p>
+                 <p>{translate('welcome_p2')}</p>
+                 <p>{translate('welcome_p3')}</p>
+                 <div className={styles.buttonContainer}>
+                    <button className={styles.primaryButton} onClick={startGame}>
+                    {translate('start_button')}
+                    </button>
+                    <button 
+                      className={styles.secondaryButton} 
+                      onClick={() => setShowSettings(true)}
+                    >
+                      {translate('common:settings')}
+                    </button>
+                  </div>
+                  <div className={styles.linkContainer}>
+                  {isStandalone && (
+                           <Link href="/">
+                           <div className={styles.link}>{translate('common:back_to_home')}</div>
+                         </Link>
+                       )}
+                    
+                  </div>
               </div>
-              <div className={styles.linkContainer}>
-                <Link href="/">
-                  <div className={styles.link}>Back to Home</div>
-                </Link>
-              </div>
-            </div>
-          )}
-          
-          {/* Countdown */}
-          {gameState === 'countdown' && (
-            <div className={styles.countdownOverlay}>
-              <div className={styles.countdownContent}>
-                <h2>Get Ready</h2>
-                <div className={styles.countdownNumber}>{countdown}</div>
-                <p>Watch the sequence carefully</p>
-              </div>
-            </div>
-          )}
+           )}
+
+            {gameState === 'countdown' && (
+                <div className={styles.countdownOverlay}>
+                    <div className={styles.countdownContent}>
+                        <h2>{translate('get_ready')}</h2>
+                        <div className={styles.countdownNumber}>{countdown}</div>
+                        <p>{translate('watch_sequence')}</p>
+                    </div>
+                </div>
+            )}
           
           {/* Game board (visible during 'showing' and 'input' states) */}
           {(gameState === 'showing' || gameState === 'input') && (
@@ -438,46 +427,24 @@ export default function CorsiTest({ assignmentId, onComplete, isStandalone }) {
           )}
           
           {/* Results screen */}
-          {gameState === 'results' && (
-            <div className={styles.resultsCard}>
-              <h2>Test Results</h2>
-              <div className={styles.resultsSummary}>
-                <div className={styles.resultStat}>
-                  <div className={styles.statLabel}>Your Corsi Span</div>
-                  <div className={styles.statValue}>{calculateCorsiSpan()}</div>
+          {gameState === 'results' && isStandalone && roundData && (
+                <DetailedResults
+                    roundData={roundData}
+                    corsiSpan={calculateCorsiSpan}
+                    isStandalone={isStandalone}
+                    t={t} // Pass translation function down to Results
+                />
+           )}
+
+            {/* Message Overlay uses state `message` which is already translated */}
+            {showMessage && (
+                <div className={styles.messageOverlay}>
+                   <div className={styles.message}>{message}</div>
                 </div>
-                <div className={styles.resultStat}>
-                  <div className={styles.statLabel}>Total Score</div>
-                  <div className={styles.statValue}>{score}</div>
-                </div>
-              </div>
-              
-              <DetailedResults 
-                roundData={roundData} 
-                calculateCorsiSpan={calculateCorsiSpan} 
-              />
-              
-              <div className={styles.buttonContainer}>
-                <button className={styles.primaryButton} onClick={resetGame}>
-                  Try Again
-                </button>
-                
-                <Link href="/">
-                  <div className={styles.secondaryButton}>
-                    Back to Home
-                  </div>
-                </Link>
-              </div>
-            </div>
-          )}
-          
-          {/* Message overlay */}
-          {showMessage && (
-            <div className={styles.messageOverlay}>
-              <div className={styles.message}>{message}</div>
-            </div>
-          )}
+            )}
         </div>
+
+         <Footer />
         
         {/* Settings panel */}
         {showSettings && (
@@ -488,12 +455,6 @@ export default function CorsiTest({ assignmentId, onComplete, isStandalone }) {
           />
         )}
         
-        <footer className={styles.footer}>
-          <p>
-            The Corsi block-tapping test was developed in the early 1970s to assess visuo-spatial short term working memory.
-            
-          </p>
-        </footer>
       </div>
     </div>
   );

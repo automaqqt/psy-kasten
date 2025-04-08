@@ -1,9 +1,9 @@
 // components/PVTTest.js
 import { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
-import styles from '../../styles/PVT.module.css';
-import SettingsPanel from '../settings/corsi';
-import DetailedResults from '../results/pvt';
+import styles from '../../../styles/PVT.module.css';
+import SettingsPanel from '../../settings/corsi';
+import DetailedResults from '../../results/pvt';
 
 export default function PVTTest() {
   // Main state management

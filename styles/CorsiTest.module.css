@@ -3,7 +3,7 @@
     display: flex;
     flex-direction: column;
     min-height: 100vh;
-    background-color: #f8f9fa;
+    background-color: var(--bg-primary, #eef2f7);
   }
   
   .testContainer {
@@ -84,7 +84,7 @@
   
   /* Welcome Card */
   .welcomeCard {
-    background-color: white;
+    background-color: var(--bg-secondary, #eef2f7);
     border-radius: 15px;
     padding: 2rem;
     max-width: 600px;
@@ -102,7 +102,6 @@
   .welcomeCard p {
     margin-bottom: 1.5rem;
     line-height: 1.6;
-    color: #444;
   }
   
   .buttonContainer {
@@ -508,49 +507,3 @@
     }
   }
 
-
-/* Dark mode support */
-@media (prefers-color-scheme: dark) {
-    .container {
-      background-color: #121212;
-    }
-    
-    .welcomeCard, .resultsCard, .board {
-      background-color: #1e1e1e;
-      border-color: #333;
-    }
-    
-    .welcomeCard h2, .resultsCard h2, .title {
-      color: #4da3ff;
-    }
-    
-    .welcomeCard p, .statLabel {
-      color: #bbb;
-    }
-    
-    .secondaryButton {
-      background-color: #333;
-      color: #fff;
-    }
-    
-    .secondaryButton:hover {
-      background-color: #444;
-    }
-    
-    .progressIndicator {
-      background-color: #1e1e1e;
-      color: #bbb;
-    }
-    
-    .footer {
-      color: #999;
-    }
-    
-    .footerLink, .link {
-      color: #4da3ff;
-    }
-    
-    .metricValue, .statValue {
-      color: #4da3ff;
-    }
-  }

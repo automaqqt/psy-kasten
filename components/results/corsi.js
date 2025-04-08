@@ -2,9 +2,9 @@
 import React, { useState } from 'react';
 import styles from '../../styles/Results.module.css';
 
-const DetailedResults = ({ roundData, calculateCorsiSpan }) => {
+const DetailedResults = ({ roundData, calculateCorsiSpan, isStandalone, t }) => {
   const [selectedRound, setSelectedRound] = useState(null);
-  
+  const translate = t || ((key) => key);
   // Calculate average response times per level
   const averageResponseTimesByLevel = {};
   roundData.forEach(round => {
@@ -89,27 +89,28 @@ const DetailedResults = ({ roundData, calculateCorsiSpan }) => {
   
   return (
     <div className={styles.detailedResults}>
-      <h2 className={styles.resultsTitle}>Detailed Performance Analysis</h2>
-      
-      <div className={styles.metricsGrid}>
-        <div className={styles.metricCard}>
-          <h3>Corsi Span</h3>
-          <div className={styles.metricValue}>{calculateCorsiSpan()}</div>
-          <div className={styles.metricSubtext}>blocks</div>
+        <h2>{translate('corsi:results_title')}{isStandalone ? translate('corsi:results_title_standalone_suffix', ' (Standalone)') : ''}</h2> {/* Example with suffix key */}
+         {!isStandalone && <p className={styles.submissionInfo}>{translate('common:results_submitted')}</p>}
+         {isStandalone && <p className={styles.submissionInfo}>{translate('common:results_not_saved_standalone')}</p>}
+
+        <div className={styles.metricsGrid}>
+          <div className={styles.metricCard}>
+            <h3>{translate('corsi:corsi_span')}</h3>
+            <div className={styles.metricValue}>{calculateCorsiSpan}</div>
+            <div className={styles.metricSubtext}>{translate('corsi:blocks')}</div>
+          </div>
+           <div className={styles.metricCard}>
+                <h3>{translate('corsi:avg_response_time')}</h3>
+                <div className={styles.metricValue}>{formatTime(averageResponseTime)}</div>
+                <div className={styles.metricSubtext}>{translate('corsi:per_sequence')}</div>
+            </div>
+            <div className={styles.metricCard}>
+                <h3>{translate('corsi:avg_click_interval')}</h3>
+                <div className={styles.metricValue}>{formatTime(averageClickInterval)}</div>
+                 <div className={styles.metricSubtext}>{translate('corsi:between_clicks')}</div>
+            </div>
+             
         </div>
-        
-        <div className={styles.metricCard}>
-          <h3>Average Response Time</h3>
-          <div className={styles.metricValue}>{formatTime(averageResponseTime)}</div>
-          <div className={styles.metricSubtext}>per sequence</div>
-        </div>
-        
-        <div className={styles.metricCard}>
-          <h3>Average Click Interval</h3>
-          <div className={styles.metricValue}>{formatTime(averageClickInterval)}</div>
-          <div className={styles.metricSubtext}>between clicks</div>
-        </div>
-      </div>
       
       <div className={styles.exportContainer}>
         <button 
@@ -117,12 +118,12 @@ const DetailedResults = ({ roundData, calculateCorsiSpan }) => {
           onClick={exportResultsToCSV}
           disabled={roundData.length === 0}
         >
-          Export Results (CSV)
+          {translate('corsi:export_results')}
         </button>
       </div>
       
       <div className={styles.resultsTabs}>
-        <h3>Round by Round Analysis</h3>
+        <h3>{translate('corsi:round_analysis_title')}</h3>
         
         <div className={styles.roundsList}>
           {roundData.map((round, index) => (

@@ -1,20 +1,35 @@
 // pages/corsi.js
+"use client"
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import CorsiTest from '../components/tests/corsi/test';
 import { submitResults } from '../lib/submitResults';
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'next-i18next'; // Using a library like next-i18next is common
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import styles from '../styles/TestTakePage.module.css'; // Optional common styling
 
-export default function CorsiPage() {
+export async function getStaticProps({ locale }) {
+    console.log(locale);
+    return {
+      props: {
+        // Pass the translations for the current locale to the page
+        // Requires 'common' and 'corsi' namespaces (JSON files)
+        
+        ...(await serverSideTranslations(locale, ['common', 'corsi'])),
+      },
+    };
+  }
+export default function CorsiPage(props) {
+    
     const router = useRouter();
+    const { t } = useTranslation(['corsi', 'common']);
     const [assignmentId, setAssignmentId] = useState(null);
     const [isStandalone, setIsStandalone] = useState(true);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [submitError, setSubmitError] = useState(null);
     const [isCompletedAndSubmitted, setIsCompletedAndSubmitted] = useState(false); // NEW: Track successful *submission*
     const [initialCheckDone, setInitialCheckDone] = useState(false);
-  
      useEffect(() => {
       if (router.isReady) {
          const idFromQuery = router.query.assignmentId;
@@ -33,78 +48,68 @@ export default function CorsiPage() {
   
     // Submission handler - ONLY called by CorsiTest if NOT standalone
     const handleSubmissionAttempt = async (testData) => {
-      // This should only be called if assignmentId is valid, but double-check
-      if (isStandalone || !assignmentId) {
-          console.warn("handleSubmissionAttempt called unexpectedly in standalone mode or without assignmentId.");
-          return;
-      }
-  
-      setIsSubmitting(true);
-      setSubmitError(null);
-      console.log(`Attempting to submit results for assignment: ${assignmentId}`);
-  
-      const result = await submitResults(assignmentId, testData);
-  
-      setIsSubmitting(false);
-      if (result.success) {
-          console.log("Submission successful.");
-          setIsCompletedAndSubmitted(true); // Set flag for final "Thank You" message
-      } else {
-          console.error("Submission failed:", result.message);
-          setSubmitError(result.message || "Failed to submit results.");
-          // Handle specific errors like already submitted
-          if (result.message && result.message.includes('already submitted')) {
-               setIsCompletedAndSubmitted(true); // Treat as completed, show message
-               setSubmitError(null);
-          }
-      }
-    };
+        if (isStandalone || !assignmentId) return;
+        setIsSubmitting(true);
+        setSubmitError(null);
+        const result = await submitResults(assignmentId, testData);
+        setIsSubmitting(false);
+        if (result.success) {
+            setIsCompletedAndSubmitted(true);
+        } else {
+            let displayError = result.message || t('common:failed_to_submit');
+             if (result.message && result.message.includes('already submitted')) {
+                 setIsCompletedAndSubmitted(true); // Treat as complete
+                 displayError = null; // Don't show error if already submitted
+                 console.log("Results were already submitted.");
+             }
+            setSubmitError(displayError);
+        }
+      };
   
     // --- Render Logic ---
     if (!initialCheckDone) {
-       return <div className={styles.container}><p className={styles.loading}>Loading...</p></div>;
-    }
-  
-    // Show final "Thank You" page only after successful submission (not in standalone)
-    if (isCompletedAndSubmitted && !isStandalone) {
-       return (
-         <div className={styles.container}>
-           <div className={styles.completionMessage}>
-               <h1>Thank You!</h1>
-               <p>Your test results have been recorded.</p>
-               <p>You may now close this window.</p>
-           </div>
-         </div>
-       );
+        return <div className={styles.container}><p className={styles.loading}>{t('common:loading')}</p></div>;
      }
-  
-     // Show submission loading state
-     if (isSubmitting) {
-        return <div className={styles.container}><p className={styles.loading}>Submitting results...</p></div>;
-     }
+   
+     if (isCompletedAndSubmitted && !isStandalone) {
+        return (
+          <div className={styles.container}>
+            <div className={styles.completionMessage}>
+                <h1>{t('common:thank_you')}</h1>
+                <p>{t('common:results_submitted')}</p>
+                <p>{t('common:close_window')}</p>
+            </div>
+          </div>
+        );
+      }
+   
+      if (isSubmitting) {
+         return <div className={styles.container}><p className={styles.loading}>{t('common:submitting')}</p></div>;
+      }
 
    // --- Default Render: Show the Test ---
-  return (
+   return (
     <>
       <Head>
-        <title>Corsi Block-Tapping Test {isStandalone ? '(Standalone)' : ''}</title>
-        <meta name="description" content="Complete the Corsi Block-Tapping Test" />
+        {/* Use translation for title */}
+        <title>{isStandalone ? t('test_title_standalone') : t('test_title')}</title>
+        <meta name="description" content={t('welcome_p1')} /> {/* Example meta description */}
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      {/* Pass assignmentId (which might be null) and completion handler */}
-      {initialCheckDone && <CorsiTest
-         key={assignmentId || 'standalone'} // Force re-mount if assignmentId changes (unlikely here, but good practice)
+      {/* Pass t function and potentially specific strings to child if needed */}
+      <CorsiTest
+         key={assignmentId || 'standalone'}
          assignmentId={assignmentId}
+         isStandalone={isStandalone}
          onComplete={handleSubmissionAttempt}
-         isStandalone={isStandalone} // Pass mode to test component if needed
-      />}
+         t={t} // Pass translation function
+      />
 
       {submitError && (
           <div className={styles.submitErrorContainer}>
-            <p className={styles.submitError}>Submission Error: {submitError}</p>
-            {/* Optionally add a retry button */}
-            {/* <button onClick={() => handleTestComplete(LAST_TEST_DATA)}>Retry Submission</button> */}
+            {/* Use translation for error message header */}
+            <p className={styles.submitError}>{t('common:submission_error')}: {submitError}</p>
           </div>
       )}
     </>

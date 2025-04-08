@@ -52,21 +52,49 @@ model VerificationToken {
 
 // --- Application Models ---
 
-model User { // Represents a Researcher
+enum UserRole {
+  RESEARCHER
+  ADMIN
+}
+
+model User {
   id            String    @id @default(cuid())
   name          String?
   email         String?   @unique
   emailVerified DateTime?
   image         String?
   passwordHash  String?
+  role          UserRole  @default(RESEARCHER) // <-- ADD Role field
 
   accounts      Account[]
   sessions      Session[]
-  studies       Study[] // Researcher owns studies
-  
+  studies       Study[]
+  proposals     TestProposal[] // <-- ADD Relation to proposals
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model TestProposal {
+  id            String    @id @default(cuid())
+  researcherId  String
+  researcher    User      @relation(fields: [researcherId], references: [id], onDelete: Cascade)
+
+  originalFilename String // The name of the file uploaded by the user
+  storagePath      String // Path/key where the file is stored (e.g., local path or S3 key)
+  fileType         String // e.g., 'application/pdf'
+  fileSize         Int    // Size in bytes
+
+  notes         String?   
+  isReviewed    Boolean   @default(false) // Flag for admin review
+  reviewedAt    DateTime? // Timestamp of review
+  adminNotes    String?   
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([researcherId])
+  @@index([isReviewed])
 }
 
 model Study {

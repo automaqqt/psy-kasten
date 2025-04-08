@@ -112,14 +112,56 @@
   
   
   /* Modal Styles Reuse/Import from DashboardPage.module.css or define here */
-  .modalOverlay { /* Ensure modal styles are available */
-      /* ... (copy from DashboardPage.module.css) ... */
+  .modalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000; /* Ensure it's above layout header */
+    padding: 1rem;
   }
-  .modalContent { /* ... */ }
-  .modalHeader { /* ... */ }
-  .closeButton { /* ... */ }
-  .modalBody {}
-  .formGroup { /* ... */ }
+  
+  .modalContent {
+    background-color: white;
+    padding: 1.5rem 2rem;
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    max-width: 500px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+  
+  .modalHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #e0e0e0;
+    padding-bottom: 0.8rem;
+    margin-bottom: 1rem;
+  }
+  
+  .modalHeader h2 {
+    margin: 0;
+    font-size: 1.4rem;
+  }
+  
+  .closeButton {
+    background: none;
+    border: none;
+    font-size: 1.8rem;
+    line-height: 1;
+    cursor: pointer;
+    color: #888;
+  }
+  .closeButton:hover {
+    color: #333;
+  }
   .formGroup input[type="text"],
   .formGroup textarea,
   .formGroup select { /* Style select too */
@@ -131,11 +173,45 @@
   }
   .selectInput { /* Specific style if needed */
   }
-  .formGroup small { /* ... */ }
-  .modalActions { /* ... */ }
-  .primaryButtonModal, .secondaryButtonModal { /* ... */ }
-  .primaryButtonModal:disabled { /* ... */ }
-  .secondaryButtonModal:disabled { /* ... */ }
+  .formGroup small {
+    font-size: 0.8rem;
+    color: #666;
+    margin-top: 0.25rem;
+    display: block;
+}
+
+.modalActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.8rem;
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e0e0e0;
+}
+  .primaryButtonModal, .secondaryButtonModal { /* Specific modal button styles */
+    padding: 0.5rem;
+    margin: 0.5rem;
+
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    border: none;
+    transition: background-color 0.2s ease, opacity 0.2s ease;
+ }
+ 
+ .primaryButtonModal {
+     background-color: #007bff;
+     color: white;
+     
+ }
+ .primaryButtonModal:hover {
+      background-color: #0056b3;
+ }
+ .primaryButtonModal:disabled {
+     background-color: #a1cfff;
+     cursor: not-allowed;
+ }
+ 
   .errorTextModal { /* ... */ }
   
   
@@ -166,7 +242,7 @@
   .copyButton {
       padding: 0.5rem 0.8rem;
       border: 1px solid #007bff;
-      background-color: #007bff;
+      background-color: #ff0000;
       color: white;
       border-radius: 0 4px 4px 0; /* Round right corners */
       cursor: pointer;
