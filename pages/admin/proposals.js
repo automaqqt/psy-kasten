@@ -6,6 +6,7 @@ import { UserRole } from '@prisma/client'; // Import enum
 //import styles from '../../styles/AdminPage.module.css'; // Create styles for admin pages
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'; // For layout translations
 import { getSession } from 'next-auth/react'; // Use standard getSession for getServerSideProps
+import prisma from '../../lib/prisma';
 
 // Server-side check for Admin role BEFORE rendering the page
 export async function getServerSideProps(context) {
