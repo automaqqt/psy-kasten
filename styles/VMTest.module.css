@@ -1,0 +1,315 @@
+
+  .container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
+      Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  }
+  
+  .testContainer {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 1rem;
+    width: 100%;
+  }
+  
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding: 0.5rem 0;
+    margin-bottom: 1rem;
+  }
+  
+  .logoLink {
+    cursor: pointer;
+  }
+  
+  .gameMetrics {
+    display: flex;
+    gap: 1.5rem;
+  }
+  
+  .levelIndicator, .trialIndicator, .scoreIndicator {
+    font-size: 1.1rem;
+    font-weight: 500;
+  }
+  
+  .metricValue {
+    font-weight: 600;
+    color: var(--primary-color);
+  }
+  
+  .gameArea {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    transition: all 0.3s ease;
+  }
+  
+  .fullscreenMode {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 9999;
+    background-color: var(--background-color);
+    padding: 20px;
+  }
+  
+  /* Welcome Card Styles */
+  .welcomeCard {
+    background-color: var(--card-bg-color);
+    border-radius: 0.5rem;
+    padding: 2rem;
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    max-width: 800px;
+    width: 100%;
+  }
+  
+  .welcomeCard h2 {
+    color: var(--primary-color);
+    margin-bottom: 1.5rem;
+    font-size: 1.8rem;
+  }
+  
+  .welcomeCard p {
+    margin-bottom: 1rem;
+    line-height: 1.5;
+  }
+  
+  .buttonContainer {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2rem;
+  }
+  
+  .primaryButton, .submitButton {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 0.375rem;
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+  
+  .primaryButton:hover, .submitButton:hover {
+    background-color: var(--secondary-color);
+  }
+  
+  .secondaryButton {
+    background-color: white;
+    color: var(--primary-color);
+    border: 1px solid var(--primary-color);
+    border-radius: 0.375rem;
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s, color 0.2s;
+  }
+  
+  .secondaryButton:hover {
+    background-color: var(--primary-color);
+    color: white;
+  }
+  
+  .linkContainer {
+    margin-top: 1.5rem;
+    text-align: center;
+  }
+  
+  .link {
+    color: var(--secondary-color);
+    text-decoration: underline;
+    cursor: pointer;
+  }
+  
+  .fullscreenInfo {
+    margin-top: 1.5rem;
+    text-align: center;
+    font-style: italic;
+    color: #666;
+    font-size: 0.9rem;
+  }
+  
+  /* Countdown Overlay */
+  .countdownOverlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(255, 255, 255, 0.9);
+    z-index: 10;
+  }
+  
+  .countdownContent {
+    text-align: center;
+  }
+  
+  .countdownNumber {
+    font-size: 6rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    margin: 1rem 0;
+  }
+  
+  /* Image Grid Styles */
+  .viewingContainer, .recallContainer {
+    width: 100%;
+    max-width: 900px;
+    margin: 0 auto;
+    background-color: var(--card-bg-color);
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  }
+  
+  .instructions {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    font-size: 1.2rem;
+    color: var(--primary-color);
+  }
+  
+  .imageGrid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  @media (max-width: 768px) {
+    .imageGrid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .imageGrid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  
+  .imageItem {
+    aspect-ratio: 1;
+    border: 2px solid var(--image-border-color);
+    border-radius: 0.375rem;
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.2s, border-color 0.2s;
+  }
+  
+  .imageItem:hover {
+    transform: scale(1.05);
+  }
+  
+  .imageItem.selected {
+    border-color: var(--image-selected-color);
+    box-shadow: 0 0 0 2px var(--image-selected-color);
+  }
+  
+  .imageFrame {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: white;
+  }
+  
+  .submitContainer {
+    display: flex;
+    justify-content: center;
+    margin-top: 1.5rem;
+  }
+  
+  .submitButton {
+    padding: 0.75rem 2rem;
+  }
+  
+  .submitButton:disabled {
+    background-color: var(--border-color);
+    cursor: not-allowed;
+  }
+  
+  /* Message Overlay */
+  .messageOverlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(255, 255, 255, 0.7);
+    z-index: 20;
+    animation: fadeIn 0.3s ease-in-out;
+  }
+  
+  .message {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 1rem 2rem;
+    border-radius: 0.5rem;
+    font-size: 1.2rem;
+    font-weight: 500;
+    box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  }
+  
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  
+  /* Result Grid Items - using specific selectors to override Corsi styles if needed */
+  .vm-imageComparison {
+    margin-top: 1rem;
+  }
+  
+  .vm-imageSection {
+    margin-bottom: 1.5rem;
+  }
+  
+  .vm-imageContainer {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+  }
+  
+  .vm-correctSelection {
+    border-color: var(--success-color);
+  }
+  
+  .vm-incorrectSelection {
+    border-color: var(--error-color);
+  }
+  
+  .vm-missedImage {
+    border-color: var(--border-color);
+    opacity: 0.7;
+  }

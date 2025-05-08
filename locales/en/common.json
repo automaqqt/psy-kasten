@@ -48,6 +48,8 @@
     "tol_description": "Assesses planning and problem-solving ability by rearranging colored balls on pegs.",
     "rpm_title": "Raven's Progressive Matrices",
     "rpm_description": "Measures non-verbal reasoning and abstract thinking ability using visual patterns.",
+    "vm_title": "VM Test",
+    "vm_description": "Generic VM Test description",
     "gng_sst_title": "Go/NoGo Stop-Signal Task",
     "gng_sst_description": "Measures reaction time, response inhibition, and ability to stop an initiated response.",
     "tag_memory": "Memory",

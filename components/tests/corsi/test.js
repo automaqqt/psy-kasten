@@ -6,6 +6,7 @@ import styles from '../../../styles/CorsiTest.module.css';
 import SettingsPanel from '../../settings/corsi';
 import DetailedResults from '../../results/corsi';
 import Footer from '../../ui/footer';
+import { useFullscreen } from '../../../hooks/useFullscreen';
 
 export default function CorsiTest({ assignmentId, onComplete, isStandalone, t }) {
   const [blocks, setBlocks] = useState([]);
@@ -31,8 +32,10 @@ export default function CorsiTest({ assignmentId, onComplete, isStandalone, t })
   const [showMessage, setShowMessage] = useState(false);
   const [message, setMessage] = useState('');
   const boardRef = useRef(null);
+  const gameArea = useRef(null)
   const canvasSize = useRef(null);
   const translate = t || ((key) => key);
+  const { isFullscreen, enterFullscreen, exitFullscreen } = useFullscreen(gameArea);
   // Calculate optimal canvas size based on viewport
   useEffect(() => {
     const updateCanvasSize = () => {
@@ -167,6 +170,13 @@ export default function CorsiTest({ assignmentId, onComplete, isStandalone, t })
   // Start a new round
   const startGame = useCallback(async () => {
     // Reset game state
+    if (!isFullscreen) {
+      try {
+        await enterFullscreen();
+      } catch (err) {
+        console.warn('Could not enter fullscreen mode:', err);
+      }
+    }
     setUserSequence([]);
     setFeedback('');
     setBlocks(prevBlocks => 
@@ -198,7 +208,7 @@ export default function CorsiTest({ assignmentId, onComplete, isStandalone, t })
       displaySequence(newSequence);
       clearInterval(countdownInterval);
     }, 3000);
-  }, [displaySequence, generateSequence]);
+  }, [displaySequence, generateSequence, enterFullscreen, isFullscreen]);
 
   // Handle user clicking a block
   const handleBlockClick = (blockId) => {
@@ -283,6 +293,9 @@ export default function CorsiTest({ assignmentId, onComplete, isStandalone, t })
         startGame();
       }, 1500);
     } else {
+      if (isFullscreen) {
+        exitFullscreen();
+      }
       const finishMessage = `${translate('incorrect_feedback')} ${translate('test_finished')}`;
        // Construct message for overlay
        const overlayMsg = isStandalone ? `${finishMessage} (${translate('common:results_not_saved_standalone')})` : `${finishMessage} (${translate('common:submitting')})`;
@@ -352,7 +365,7 @@ export default function CorsiTest({ assignmentId, onComplete, isStandalone, t })
            )}
         </div>
         
-        <div className={styles.gameArea}>
+        <div className={styles.gameArea} ref={gameArea}>
            {gameState === 'welcome' && (
               <div className={styles.welcomeCard}>
                  <h2>{translate('welcome_title')}</h2>
@@ -394,6 +407,10 @@ export default function CorsiTest({ assignmentId, onComplete, isStandalone, t })
           {/* Game board (visible during 'showing' and 'input' states) */}
           {(gameState === 'showing' || gameState === 'input') && (
             <div 
+            className={`${styles.gameArea} ${isFullscreen ? styles.fullscreenMode : ''}`}
+            
+          >
+            <div 
               className={styles.boardContainer}
               aria-label="Corsi Block Test Board"
             >
@@ -417,6 +434,7 @@ export default function CorsiTest({ assignmentId, onComplete, isStandalone, t })
                     tabIndex={showingSequence ? -1 : 0}
                   />
                 ))}
+              </div>
               </div>
               
               {/* Progress indicator */}

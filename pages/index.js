@@ -141,12 +141,12 @@ const changeLocale = (newLocale) => {
             <div className={styles.topBarContent}>
             <div className={styles.logoContainer}> {/* Added container for layout */}
                         <Link href="/" passHref>
-                          <div className={styles.logoLink}> {/* Link wrapping the image */}
+                          <div className={`${styles.logoLink} ${isScrolled ? styles.logoLinkScrolled : ''}`}> {/* Link wrapping the image */}
                                 <Image
                                     src="/logo.png" // Path relative to the public folder
                                     alt={t('logo_alt_text', 'CogniSuite Logo')} // Add alt text key
-                                    width={50}     // Specify width (adjust as needed)
-                                    height={50}    // Specify height (adjust aspect ratio)
+                                    fill
+                                    sizes="(max-width: 768px) 30vw, (max-width: 1200px) 23vw, 10vw"
                                 />
                             </div>
                         </Link>
@@ -198,7 +198,7 @@ const changeLocale = (newLocale) => {
             <div className={styles.heroContent}>
                 <h1 className={styles.heroTitle}>psyKasten</h1>
                 <p className={styles.heroDescription}>
-                    {t('landing_hero_intro', 'Explore standardized neuropsychological tests for measuring memory, attention, and executive functions. Designed for researchers and educational purposes.')}
+                    {t('landing_page_description', 'Explore standardized neuropsychological tests for measuring memory, attention, and executive functions. Designed for researchers and educational purposes.')}
                 </p>
                  <div className={styles.heroActions}>
                      <button onClick={scrollToTests} className={styles.heroButtonPrimary}>
@@ -334,7 +334,7 @@ const changeLocale = (newLocale) => {
                     )}
                      {session && (
                           // Optionally link to where they would add tests in their dashboard
-                         <Link href="/dashboard/studies">
+                         <Link href="/dashboard/proposals/new">
                             <div className={styles.ctaButton}>{t('cta_manage_tests_button', 'Manage Your Tests')}</div>
                          </Link>
                      )}

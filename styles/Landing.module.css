@@ -237,20 +237,21 @@
     backdrop-filter: blur(0px);
     box-shadow: none;
     z-index: 100;
-    height: 60px; /* Or your desired height */
+     /* Or your desired height */
+     height: 130px;
     display: flex;
     justify-content: center;
     transition: background-color 0.3s ease, box-shadow 0.3s ease, backdrop-filter 0.3s ease;
 }
 
 .topBarScrolled {
+  height: 60px;
   background-color: var(--bg-secondary, #eef2f7);
     backdrop-filter: blur(5px);
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .topBarContent {
-    max-width: 1200px;
     width: 100%;
     display: flex;
     justify-content: space-between;
@@ -268,14 +269,22 @@
   display: flex;
   align-items: center;
   /* Fade the logo in/out with scroll */
-  padding-top: 0.25rem;
+  padding-top: 0.75rem;
   transition: opacity 0.3s ease;
 }
 
 /* Target the link for proper focus/hover */
 .logoLink {
   display: inline-block; /* Helps with layout */
+  position:relative;
+  height: 120px;
+  width: 120px;
   line-height: 0; /* Prevent extra space below image */
+}
+.logoLinkScrolled {
+  margin-top: -0.5rem;
+  height: 50px;
+  width: 50px;
 }
 .logoLink:focus-visible { /* Add focus style */
   outline: 2px solid blue;
@@ -614,7 +623,7 @@
 /* --- Tests Overview Section --- */
 .testsOverviewSection {
   padding: 3rem 1.5rem; /* Add padding around the tests section */
-  max-width: 1200px;
+  max-width: 1600px;
   width: 100%;
   margin: 0 auto; /* Center */
   scroll-margin-top: 40px; /* Offset for smooth scroll past fixed header */
@@ -674,11 +683,14 @@
 
 .ctaSection {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); /* Example gradient */
+
   /* Or a solid color: background-color: #007bff; */
   color: white;
-  padding: 3rem 1.5rem;
-  margin-top: 4rem; /* Space above the CTA */
-  margin: 4rem; /* Space below before info section */
+  padding: 3rem 1.5rem; /* Add padding around the tests section */
+  max-width: 1200px;
+  width: 90%;
+  margin: 0 auto; /* Center */
+  scroll-margin-top: 40px;
   text-align: center;
   border-radius: 36px;
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
@@ -727,6 +739,13 @@
 }
 
 @media (max-width: 768px) {
+  .topBar{
+    height: 80px;
+  }
+  .logoLink {
+    height: 60px;
+    width: 60px;
+  }
 .heroSection { min-height: 100vh; padding: 2rem 1rem;}
 .heroTitle { font-size: 2.2rem; }
 .heroDescription { font-size: 1rem; }
