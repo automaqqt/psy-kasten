@@ -1,8 +1,9 @@
 import React, { useEffect, useRef } from 'react';
 import styles from '../../styles/Settings.module.css';
 
-const VmSettings = ({ settings, setSettings, onClose }) => {
+const WtbSettings = ({ settings, setSettings, onClose, t }) => {
   const panelRef = useRef(null);
+  const translate = t || ((key) => key);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -63,9 +64,10 @@ const VmSettings = ({ settings, setSettings, onClose }) => {
 
   const resetToDefaults = () => {
     setSettings({
-      presentationTimeMultiplier: 1.0,
+      speechRate: 1.0,
+      interDigitPause: 800,
+      voiceLang: 'de-DE',
       countdownDuration: 3,
-      recognitionGridCols: 5,
     });
   };
 
@@ -73,11 +75,11 @@ const VmSettings = ({ settings, setSettings, onClose }) => {
     <div className={styles.modalOverlay} role="dialog" aria-modal="true">
       <div className={styles.settingsPanel} ref={panelRef}>
         <div className={styles.panelHeader}>
-          <h2 className={styles.settingsTitle}>Visual Memory Test Settings</h2>
+          <h2 className={styles.settingsTitle}>{translate('settings_title')}</h2>
           <button
             className={styles.closeButton}
             onClick={onClose}
-            aria-label="Close settings"
+            aria-label={translate('close_settings')}
           >
             ×
           </button>
@@ -85,45 +87,61 @@ const VmSettings = ({ settings, setSettings, onClose }) => {
 
         <div className={styles.panelContent}>
           <div className={styles.settingGroup}>
-            <label htmlFor="presentationTimeMultiplier">Presentation Time Multiplier: {settings.presentationTimeMultiplier}x</label>
+            <label htmlFor="speechRate">{translate('speech_rate')}: {settings.speechRate.toFixed(1)}x</label>
             <input
               type="range"
-              id="presentationTimeMultiplier"
-              name="presentationTimeMultiplier"
+              id="speechRate"
+              name="speechRate"
               min="0.5"
               max="2.0"
               step="0.1"
-              value={settings.presentationTimeMultiplier}
+              value={settings.speechRate}
               onChange={handleChange}
               className={styles.slider}
             />
           </div>
 
           <div className={styles.settingGroup}>
-            <label htmlFor="countdownDuration">Countdown (seconds): {settings.countdownDuration}</label>
+            <label htmlFor="interDigitPause">{translate('inter_digit_pause')}: {settings.interDigitPause}ms</label>
+            <input
+              type="range"
+              id="interDigitPause"
+              name="interDigitPause"
+              min="300"
+              max="2000"
+              step="100"
+              value={settings.interDigitPause}
+              onChange={handleChange}
+              className={styles.slider}
+            />
+          </div>
+
+          <div className={styles.settingGroup}>
+            <label htmlFor="voiceLang">{translate('voice_language')}</label>
+            <select
+              id="voiceLang"
+              name="voiceLang"
+              value={settings.voiceLang}
+              onChange={handleChange}
+              className={styles.select}
+            >
+              <option value="de-DE">Deutsch (German)</option>
+              <option value="en-US">English (US)</option>
+              <option value="en-GB">English (UK)</option>
+              <option value="es-ES">Español (Spanish)</option>
+            </select>
+          </div>
+
+          <div className={styles.settingGroup}>
+            <label htmlFor="countdownDuration">{translate('countdown_duration')}: {settings.countdownDuration}s</label>
             <input
               type="range"
               id="countdownDuration"
               name="countdownDuration"
               min="1"
-              max="5"
-              step="1"
-              value={settings.countdownDuration}
-              onChange={handleChange}
-              className={styles.slider}
-            />
-          </div>
-
-          <div className={styles.settingGroup}>
-            <label htmlFor="recognitionGridCols">Recognition Grid Columns: {settings.recognitionGridCols}</label>
-            <input
-              type="range"
-              id="recognitionGridCols"
-              name="recognitionGridCols"
-              min="4"
               max="10"
               step="1"
-              value={settings.recognitionGridCols}
+              value={settings.countdownDuration}
               onChange={handleChange}
               className={styles.slider}
             />
@@ -135,13 +153,13 @@ const VmSettings = ({ settings, setSettings, onClose }) => {
             className={`${styles.button} ${styles.defaultButton}`}
             onClick={resetToDefaults}
           >
-            Reset to Defaults
+            {translate('reset_to_defaults')}
           </button>
           <button
             className={`${styles.button} ${styles.primaryButton}`}
             onClick={onClose}
           >
-            Save & Close
+            {translate('save_and_close')}
           </button>
         </div>
       </div>
@@ -149,4 +167,4 @@ const VmSettings = ({ settings, setSettings, onClose }) => {
   );
 };
 
-export default VmSettings;
+export default WtbSettings;

@@ -1,315 +1,397 @@
-
-  .container {
+/* styles/VmTest.module.css */
+.container {
     display: flex;
     flex-direction: column;
     min-height: 100vh;
-    background-color: var(--background-color);
-    color: var(--text-color);
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
-      Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    background-color: var(--bg-primary, #eef2f7);
   }
   
   .testContainer {
-    flex: 1;
     display: flex;
     flex-direction: column;
+    flex: 1;
+    padding: 1rem;
     max-width: 1200px;
     margin: 0 auto;
-    padding: 1rem;
     width: 100%;
+    height: 90%;
   }
   
   .header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    width: 100%;
-    padding: 0.5rem 0;
     margin-bottom: 1rem;
+    padding: 0.5rem;
   }
   
-  .logoLink {
-    cursor: pointer;
+  .title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #0070f3;
+    margin: 0;
   }
   
   .gameMetrics {
     display: flex;
+    align-items: center;
     gap: 1.5rem;
   }
   
-  .levelIndicator, .trialIndicator, .scoreIndicator {
-    font-size: 1.1rem;
+  .levelIndicator, .scoreIndicator {
+    font-size: 0.9rem;
     font-weight: 500;
+    color: #666;
   }
   
   .metricValue {
-    font-weight: 600;
-    color: var(--primary-color);
+    font-weight: 700;
+    color: #0070f3;
+  }
+  
+  .iconButton {
+    background: none;
+    border: none;
+    color: #666;
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+  }
+  
+  .iconButton:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+    color: #0070f3;
+  }
+  
+  .iconButton:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
   }
   
   .gameArea {
-    flex: 1;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    flex: 1;
     position: relative;
-    transition: all 0.3s ease;
+    padding: 1rem;
   }
   
-  .fullscreenMode {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    z-index: 9999;
-    background-color: var(--background-color);
-    padding: 20px;
-  }
-  
-  /* Welcome Card Styles */
+  /* Welcome Card */
   .welcomeCard {
-    background-color: var(--card-bg-color);
-    border-radius: 0.5rem;
+    background-color: var(--bg-secondary, #eef2f7);
+    border-radius: 15px;
     padding: 2rem;
-    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-    max-width: 800px;
+    max-width: 600px;
     width: 100%;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+    z-index: 10;
   }
   
   .welcomeCard h2 {
-    color: var(--primary-color);
+    margin-top: 0;
+    color: #0070f3;
     margin-bottom: 1.5rem;
-    font-size: 1.8rem;
   }
   
   .welcomeCard p {
-    margin-bottom: 1rem;
+    margin-bottom: 1.5rem;
+    line-height: 1.6;
+  }
+
+  /* Tutorial Content */
+  .tutorialContent {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    margin: 1.5rem 0;
+  }
+
+  .tutorialStep {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+    padding: 1rem;
+    background-color: rgba(0, 112, 243, 0.05);
+    border-radius: 10px;
+    border-left: 4px solid #0070f3;
+    transition: all 0.3s ease;
+  }
+
+  .tutorialStep:hover {
+    background-color: rgba(0, 112, 243, 0.1);
+    transform: translateX(5px);
+  }
+
+  .stepNumber {
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #0070f3 0%, #00a8ff 100%);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 1.2rem;
+    box-shadow: 0 4px 10px rgba(0, 112, 243, 0.3);
+  }
+
+  .stepText {
+    flex: 1;
+  }
+
+  .stepText h3 {
+    margin: 0 0 0.5rem 0;
+    color: #0070f3;
+    font-size: 1.1rem;
+    font-weight: 600;
+  }
+
+  .stepText p {
+    margin: 0;
+    color: #666;
     line-height: 1.5;
   }
   
   .buttonContainer {
     display: flex;
-    gap: 1rem;
-    margin-top: 2rem;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+    width: 100%;
   }
   
-  .primaryButton, .submitButton {
-    background-color: var(--primary-color);
-    color: white;
-    border: none;
-    border-radius: 0.375rem;
-    padding: 0.75rem 1.5rem;
+  .primaryButton, .secondaryButton {
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    font-weight: 600;
     font-size: 1rem;
-    font-weight: 500;
     cursor: pointer;
-    transition: background-color 0.2s;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
   }
   
-  .primaryButton:hover, .submitButton:hover {
-    background-color: var(--secondary-color);
+  .primaryButton {
+    background-color: #0070f3;
+    color: white;
+  }
+  
+  .primaryButton:hover {
+    background-color: #0051a8;
+    transform: translateY(-1px);
+    box-shadow: 0 5px 15px rgba(0, 112, 243, 0.15);
   }
   
   .secondaryButton {
-    background-color: white;
-    color: var(--primary-color);
-    border: 1px solid var(--primary-color);
-    border-radius: 0.375rem;
-    padding: 0.75rem 1.5rem;
-    font-size: 1rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: background-color 0.2s, color 0.2s;
+    background-color: #f0f0f0;
+    color: #333;
   }
   
   .secondaryButton:hover {
-    background-color: var(--primary-color);
-    color: white;
+    background-color: #e0e0e0;
+    transform: translateY(-1px);
   }
   
   .linkContainer {
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
     margin-top: 1.5rem;
-    text-align: center;
   }
   
   .link {
-    color: var(--secondary-color);
+    color: #0070f3;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s ease;
+  }
+  
+  .link:hover {
+    color: #0051a8;
     text-decoration: underline;
+  }
+  
+  /* VM Specific Styles */
+  .presentationArea {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 20px;
+  }
+
+  .presentationImage {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 10px;
+  }
+
+  .recognitionGrid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px;
+    width: 100%;
+    max-width: 800px;
+  }
+
+  .imageTile {
+    position: relative;
     cursor: pointer;
   }
-  
-  .fullscreenInfo {
-    margin-top: 1.5rem;
-    text-align: center;
-    font-style: italic;
-    color: #666;
-    font-size: 0.9rem;
+
+  .imageTile img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 10px;
   }
-  
-  /* Countdown Overlay */
+
+  .imageTile.selected img {
+    outline: 3px solid blue;
+  }
+
+  .confirmButton {
+    margin-top: 20px;
+    padding: 10px 20px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: white;
+    background-color: #28a745;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+
+  .confirmButton:hover {
+    background-color: #218838;
+  }
+
+  .timerBar {
+    width: 100%;
+    height: 10px;
+    background-color: #e0e0e0;
+    border-radius: 5px;
+    margin-bottom: 20px;
+  }
+
+  .timerBar > div {
+    height: 100%;
+    background-color: #0070f3;
+    border-radius: 5px;
+    animation: shrink linear;
+  }
+
+  @keyframes shrink {
+    from {
+      width: 100%;
+    }
+    to {
+      width: 0%;
+    }
+  }
+
+  /* Countdown */
   .countdownOverlay {
-    position: absolute;
+    position: fixed;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
+    background-color: rgba(0, 0, 0, 0.7);
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-    background-color: rgba(255, 255, 255, 0.9);
-    z-index: 10;
+    z-index: 100;
   }
   
   .countdownContent {
     text-align: center;
+    color: white;
+  }
+  
+  .countdownContent h2 {
+    font-size: 2rem;
+    margin-bottom: 1rem;
   }
   
   .countdownNumber {
-    font-size: 6rem;
-    font-weight: 700;
-    color: var(--primary-color);
+    font-size: 8rem;
+    font-weight: bold;
+    color: #0070f3;
+    animation: pulse 1s infinite;
     margin: 1rem 0;
+    line-height: 1;
   }
   
-  /* Image Grid Styles */
-  .viewingContainer, .recallContainer {
-    width: 100%;
-    max-width: 900px;
-    margin: 0 auto;
-    background-color: var(--card-bg-color);
-    border-radius: 0.5rem;
-    padding: 1.5rem;
-    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-  }
-  
-  .instructions {
-    text-align: center;
-    margin-bottom: 1.5rem;
-    font-size: 1.2rem;
-    color: var(--primary-color);
-  }
-  
-  .imageGrid {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 1rem;
-    margin-bottom: 1.5rem;
-  }
-  
-  @media (max-width: 768px) {
-    .imageGrid {
-      grid-template-columns: repeat(3, 1fr);
+  @keyframes pulse {
+    0% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.1);
+    }
+    100% {
+      transform: scale(1);
     }
   }
   
-  @media (max-width: 480px) {
-    .imageGrid {
-      grid-template-columns: repeat(2, 1fr);
-    }
-  }
-  
-  .imageItem {
-    aspect-ratio: 1;
-    border: 2px solid var(--image-border-color);
-    border-radius: 0.375rem;
-    overflow: hidden;
-    cursor: pointer;
-    transition: transform 0.2s, border-color 0.2s;
-  }
-  
-  .imageItem:hover {
-    transform: scale(1.05);
-  }
-  
-  .imageItem.selected {
-    border-color: var(--image-selected-color);
-    box-shadow: 0 0 0 2px var(--image-selected-color);
-  }
-  
-  .imageFrame {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  /* Results */
+  .resultsCard {
     background-color: white;
+    border-radius: 15px;
+    padding: 2rem;
+    width: 100%;
+    max-width: 800px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+    z-index: 10;
+    overflow: auto;
+    max-height: 80vh;
   }
   
-  .submitContainer {
-    display: flex;
-    justify-content: center;
-    margin-top: 1.5rem;
-  }
-  
-  .submitButton {
-    padding: 0.75rem 2rem;
-  }
-  
-  .submitButton:disabled {
-    background-color: var(--border-color);
-    cursor: not-allowed;
-  }
-  
-  /* Message Overlay */
-  .messageOverlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: rgba(255, 255, 255, 0.7);
-    z-index: 20;
-    animation: fadeIn 0.3s ease-in-out;
-  }
-  
-  .message {
-    background-color: var(--primary-color);
-    color: white;
-    padding: 1rem 2rem;
-    border-radius: 0.5rem;
-    font-size: 1.2rem;
-    font-weight: 500;
-    box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-  }
-  
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-    }
-    to {
-      opacity: 1;
-    }
-  }
-  
-  /* Result Grid Items - using specific selectors to override Corsi styles if needed */
-  .vm-imageComparison {
-    margin-top: 1rem;
-  }
-  
-  .vm-imageSection {
+  .resultsCard h2 {
+    text-align: center;
+    color: #0070f3;
+    margin-top: 0;
     margin-bottom: 1.5rem;
   }
   
-  .vm-imageContainer {
+  .resultsSummary {
     display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-    margin-top: 0.5rem;
+    justify-content: center;
+    gap: 3rem;
+    margin-bottom: 2rem;
   }
   
-  .vm-correctSelection {
-    border-color: var(--success-color);
+  .resultStat {
+    text-align: center;
   }
   
-  .vm-incorrectSelection {
-    border-color: var(--error-color);
+  .statLabel {
+    font-size: 1rem;
+    color: #666;
+    margin-bottom: 0.5rem;
   }
   
-  .vm-missedImage {
-    border-color: var(--border-color);
-    opacity: 0.7;
+  .statValue {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #0070f3;
+  }
+  
+  .footer {
+    padding: 1rem;
+    text-align: center;
+    font-size: 0.9rem;
+    color: #666;
+    margin-top: 2rem;
   }

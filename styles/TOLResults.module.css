@@ -96,6 +96,12 @@
   .success { color: #28a745; font-weight: bold; }
   .failure { color: #dc3545; font-weight: bold; }
   .noAttempt { color: #999; }
+
+  .trialDetails {
+    font-size: 0.8rem;
+    color: #666;
+    margin-top: 0.5rem;
+  }
   
   /* Buttons (Reuse from Corsi Results if available) */
   .buttonContainer {

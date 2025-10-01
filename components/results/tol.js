@@ -12,9 +12,9 @@ const TOLResults = ({ testData, totalScore, maxScore, onRestart }) => {
         'Problem',
         'Min Moves',
         'Score Awarded',
-        'Trial 1 Success', 'Trial 1 Moves',
-        'Trial 2 Success', 'Trial 2 Moves',
-        'Trial 3 Success', 'Trial 3 Moves'
+        'Trial 1 Success', 'Trial 1 Moves', 'Trial 1 Planning Time (ms)', 'Trial 1 Execution Time (ms)', 'Trial 1 Pauses (ms)', 'Trial 1 Skipped',
+        'Trial 2 Success', 'Trial 2 Moves', 'Trial 2 Planning Time (ms)', 'Trial 2 Execution Time (ms)', 'Trial 2 Pauses (ms)', 'Trial 2 Skipped',
+        'Trial 3 Success', 'Trial 3 Moves', 'Trial 3 Planning Time (ms)', 'Trial 3 Execution Time (ms)', 'Trial 3 Pauses (ms)', 'Trial 3 Skipped'
     ];
 
     const rows = testData.map(result => {
@@ -27,6 +27,10 @@ const TOLResults = ({ testData, totalScore, maxScore, onRestart }) => {
             const attempt = result.attempts.find(a => a.trial === i);
             row.push(attempt ? (attempt.success ? 'Yes' : 'No') : '-');
             row.push(attempt ? attempt.moves : '-');
+            row.push(attempt ? attempt.planningTime : '-');
+            row.push(attempt ? attempt.executionTime : '-');
+            row.push(attempt && attempt.pauses ? attempt.pauses.join(' ') : '-');
+            row.push(attempt && attempt.skipped ? 'Yes' : 'No');
         }
         return row;
     });
@@ -92,9 +96,22 @@ const TOLResults = ({ testData, totalScore, maxScore, onRestart }) => {
               const getTrialResult = (trialNum) => {
                 const attempt = result.attempts.find(a => a.trial === trialNum);
                 if (!attempt) return <span className={styles.noAttempt}>-</span>;
+                if (attempt.skipped) return <span className={styles.failure}>Skipped</span>;
                 return attempt.success
                   ? <span className={styles.success}>✓ ({attempt.moves}m)</span>
                   : <span className={styles.failure}>✕ ({attempt.moves}m)</span>;
+              };
+
+              const getTrialDetails = (trialNum) => {
+                const attempt = result.attempts.find(a => a.trial === trialNum);
+                if (!attempt) return null;
+                return (
+                  <div className={styles.trialDetails}>
+                    <div>Planning: {(attempt.planningTime / 1000).toFixed(2)}s</div>
+                    <div>Execution: {(attempt.executionTime / 1000).toFixed(2)}s</div>
+                    <div>Pauses: {attempt.pauses.join(', ')}ms</div>
+                  </div>
+                );
               };
 
               return (
@@ -102,9 +119,9 @@ const TOLResults = ({ testData, totalScore, maxScore, onRestart }) => {
                   <td>{result.problemIndex + 1}</td>
                   <td>{result.minMoves}</td>
                   <td>{result.score} / {TRIAL_SCORES[0]}</td>
-                  <td>{getTrialResult(1)}</td>
-                  <td>{getTrialResult(2)}</td>
-                  <td>{getTrialResult(3)}</td>
+                  <td>{getTrialResult(1)}{getTrialDetails(1)}</td>
+                  <td>{getTrialResult(2)}{getTrialDetails(2)}</td>
+                  <td>{getTrialResult(3)}{getTrialDetails(3)}</td>
                 </tr>
               );
             })}
