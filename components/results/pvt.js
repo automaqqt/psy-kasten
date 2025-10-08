@@ -2,11 +2,14 @@
 import { useState, useEffect, useRef } from 'react';
 import styles from '../../styles/PVTResults.module.css';
 
-export default function PVTResults({ trials, falseStarts }) {
+export default function PVTResults({ trials, falseStarts, t }) {
   const [selectedTab, setSelectedTab] = useState('graph');
   const [chartData, setChartData] = useState({ labels: [], datasets: [] });
   const chartRef = useRef(null);
   const chartInstance = useRef(null);
+
+  // Translation function with fallback
+  const translate = t || ((key) => key);
   
   // Prepare data for visualization
   useEffect(() => {
@@ -22,7 +25,7 @@ export default function PVTResults({ trials, falseStarts }) {
       labels,
       datasets: [
         {
-          label: 'Reaction Time (ms)',
+          label: translate('results_reaction_time_ms'),
           data: reactionTimes,
           borderColor: '#4a6fdc',
           backgroundColor: 'rgba(74, 111, 220, 0.2)',
@@ -64,7 +67,7 @@ export default function PVTResults({ trials, falseStarts }) {
               },
               title: {
                 display: true,
-                text: 'Reaction Times by Trial',
+                text: translate('results_chart_title'),
                 font: {
                   size: 16
                 }
@@ -72,7 +75,7 @@ export default function PVTResults({ trials, falseStarts }) {
               tooltip: {
                 callbacks: {
                   label: function(context) {
-                    return `RT: ${context.parsed.y} ms`;
+                    return translate('results_chart_tooltip_rt') + `: ${context.parsed.y} ms`;
                   }
                 }
               }
@@ -82,13 +85,13 @@ export default function PVTResults({ trials, falseStarts }) {
                 beginAtZero: false,
                 title: {
                   display: true,
-                  text: 'Reaction Time (ms)'
+                  text: translate('results_chart_y_axis')
                 }
               },
               x: {
                 title: {
                   display: true,
-                  text: 'Trial Number'
+                  text: translate('results_chart_x_axis')
                 }
               }
             }
@@ -161,23 +164,23 @@ export default function PVTResults({ trials, falseStarts }) {
   return (
     <div className={styles.resultsContainer}>
       <div className={styles.tabsContainer}>
-        <button 
-          className={`${styles.tabButton} ${selectedTab === 'graph' ? styles.activeTab : ''}`} 
+        <button
+          className={`${styles.tabButton} ${selectedTab === 'graph' ? styles.activeTab : ''}`}
           onClick={() => setSelectedTab('graph')}
         >
-          Reaction Time Graph
+          {translate('results_tab_graph')}
         </button>
-        <button 
-          className={`${styles.tabButton} ${selectedTab === 'distribution' ? styles.activeTab : ''}`} 
+        <button
+          className={`${styles.tabButton} ${selectedTab === 'distribution' ? styles.activeTab : ''}`}
           onClick={() => setSelectedTab('distribution')}
         >
-          RT Distribution
+          {translate('results_tab_distribution')}
         </button>
-        <button 
-          className={`${styles.tabButton} ${selectedTab === 'data' ? styles.activeTab : ''}`} 
+        <button
+          className={`${styles.tabButton} ${selectedTab === 'data' ? styles.activeTab : ''}`}
           onClick={() => setSelectedTab('data')}
         >
-          Raw Data
+          {translate('results_tab_data')}
         </button>
       </div>
       
@@ -188,7 +191,7 @@ export default function PVTResults({ trials, falseStarts }) {
               <canvas ref={chartRef} height="300" />
             ) : (
               <div className={styles.emptyState}>
-                <p>No reaction time data available</p>
+                <p>{translate('results_no_data')}</p>
               </div>
             )}
           </div>
@@ -199,15 +202,15 @@ export default function PVTResults({ trials, falseStarts }) {
             {trials.filter(t => t.reactionTime && !t.falseStart).length > 0 ? (
               <>
                 <div className={styles.percentileTable}>
-                  <h3>Reaction Time Percentiles (ms)</h3>
+                  <h3>{translate('results_percentiles_title')}</h3>
                   <table>
                     <thead>
                       <tr>
-                        <th>Min</th>
-                        <th>25%</th>
-                        <th>Median</th>
-                        <th>75%</th>
-                        <th>Max</th>
+                        <th>{translate('results_percentile_min')}</th>
+                        <th>{translate('results_percentile_25')}</th>
+                        <th>{translate('results_percentile_median')}</th>
+                        <th>{translate('results_percentile_75')}</th>
+                        <th>{translate('results_percentile_max')}</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -221,20 +224,20 @@ export default function PVTResults({ trials, falseStarts }) {
                     </tbody>
                   </table>
                 </div>
-                
+
                 <div className={styles.histogramContainer}>
-                  <h3>Reaction Time Distribution</h3>
+                  <h3>{translate('results_distribution_title')}</h3>
                   <div className={styles.histogram}>
                     {distribution.histogram?.map((bin, index) => (
-                      <div 
-                        key={index} 
+                      <div
+                        key={index}
                         className={styles.histogramBar}
-                        style={{ 
+                        style={{
                           height: `${(bin.count / Math.max(...distribution.histogram.map(b => b.count))) * 100}%`,
                         }}
                       >
                         <div className={styles.histogramTooltip}>
-                          {bin.label}: {bin.count} trials
+                          {bin.label}: {bin.count} {translate('results_histogram_trials')}
                         </div>
                       </div>
                     ))}
@@ -249,12 +252,12 @@ export default function PVTResults({ trials, falseStarts }) {
                       {distribution.histogram[distribution.histogram.length - 1]?.end}
                     </div>
                   </div>
-                  <div className={styles.histogramAxisLabel}>Reaction Time (ms)</div>
+                  <div className={styles.histogramAxisLabel}>{translate('results_chart_y_axis')}</div>
                 </div>
               </>
             ) : (
               <div className={styles.emptyState}>
-                <p>No reaction time data available</p>
+                <p>{translate('results_no_data')}</p>
               </div>
             )}
           </div>
@@ -265,10 +268,10 @@ export default function PVTResults({ trials, falseStarts }) {
             <table className={styles.dataTable}>
               <thead>
                 <tr>
-                  <th>Trial #</th>
-                  <th>Type</th>
-                  <th>Reaction Time (ms)</th>
-                  <th>Interval (ms)</th>
+                  <th>{translate('results_trial_number')}</th>
+                  <th>{translate('results_type')}</th>
+                  <th>{translate('results_reaction_time_ms')}</th>
+                  <th>{translate('results_interval_ms')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -276,35 +279,40 @@ export default function PVTResults({ trials, falseStarts }) {
                   trials.map((trial, index) => (
                     <tr key={index} className={trial.falseStart ? styles.falseStartRow : ''}>
                       <td>{trial.trialNumber}</td>
-                      <td>{trial.falseStart ? 'False Start' : 'Valid'}</td>
+                      <td>{trial.falseStart ? translate('results_type_false_start') : translate('results_type_valid')}</td>
                       <td>{trial.reactionTime ? formatMs(trial.reactionTime) : '-'}</td>
                       <td>{trial.intervalTime || '-'}</td>
                     </tr>
                   ))
                 ) : (
                   <tr>
-                    <td colSpan="4" className={styles.emptyState}>No trials recorded</td>
+                    <td colSpan="4" className={styles.emptyState}>{translate('results_no_trials')}</td>
                   </tr>
                 )}
               </tbody>
             </table>
             
             <div className={styles.dataExport}>
-              <button 
+              <button
                 className={styles.exportButton}
                 onClick={() => {
                   // Generate CSV data
-                  const headers = ['Trial Number', 'Type', 'Reaction Time (ms)', 'Interval (ms)'];
+                  const headers = [
+                    translate('results_trial_number'),
+                    translate('results_type'),
+                    translate('results_reaction_time_ms'),
+                    translate('results_interval_ms')
+                  ];
                   const csvContent = [
                     headers.join(','),
                     ...trials.map(trial => [
                       trial.trialNumber,
-                      trial.falseStart ? 'False Start' : 'Valid',
+                      trial.falseStart ? translate('results_type_false_start') : translate('results_type_valid'),
                       trial.reactionTime || '',
                       trial.intervalTime || ''
                     ].join(','))
                   ].join('\n');
-                  
+
                   // Create download link
                   const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
                   const url = URL.createObjectURL(blob);
@@ -316,7 +324,7 @@ export default function PVTResults({ trials, falseStarts }) {
                   document.body.removeChild(link);
                 }}
               >
-                Export Data (CSV)
+                {translate('results_export_csv')}
               </button>
             </div>
           </div>

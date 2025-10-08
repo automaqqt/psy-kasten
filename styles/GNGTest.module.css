@@ -1,113 +1,523 @@
 /* styles/GNGTest.module.css */
 .container {
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-    background-color: #f8f9fa; /* Match Corsi */
-  }
-  
-  .testContainer {
-    display: flex;
-    flex-direction: column;
-    flex: 1;
-    padding: 1rem;
-    max-width: 1200px;
-    margin: 0 auto;
-    width: 100%;
-    height:90%;
-  }border-bo
-.header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; padding-bottom: 1rem;  flex-wrap: wrap; gap: 0.5rem;}
-.title { font-size: 1.4rem; font-weight: 600; color: #333; margin: 0; }
-.progressInfo { font-size: 0.9rem; color: #555; background-color: #e9ecef; padding: 0.2rem 0.6rem; border-radius: 10px;}
-.settingsButton { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #666; padding: 5px; }
-.settingsButton:hover { color: #007bff; }
-.settingsButton:disabled { color: #ccc; cursor: not-allowed;}
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: var(--bg-primary, #eef2f7);
+}
 
-.gameArea { display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; min-height: 400px; /* Ensure minimum height */ }
+.testContainer {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  padding: 1rem;
+  max-width: 1800px;
+  margin: 0 auto;
+  width: 100%;
+  height: 90%;
+}
 
-/* Welcome */
-.welcomeCard { text-align: center; padding: 2rem; max-width: 600px; }
-.welcomeCard h2 { color: #007bff; margin-bottom: 1rem; }
-.welcomeCard p { margin-bottom: 1rem; line-height: 1.6; color: #444; }
-.welcomeCard span[style] { font-weight: bold; padding: 0 2px; } /* Highlight stimuli mentions */
-.buttonContainer { display: flex; flex-direction: row; gap: 0.75rem; margin-top: 1.5rem; width: 100%; align-items: center; }
-.primaryButton, .secondaryButton { padding: 0.8rem 1.6rem; border-radius: 6px; font-weight: 600; font-size: 1rem; cursor: pointer; transition: all 0.3s ease; border: none; text-decoration: none; width: 80%; max-width: 250px; text-align: center; }
-.primaryButton { background-color: #007bff; color: white; }
-.primaryButton:hover { background-color: #0056b3; }
-.secondaryButton { background-color: #e9ecef; color: #333; }
-.secondaryButton:hover { background-color: #ced4da; }
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.logoLink {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  transition: opacity 0.2s ease;
+}
+
+.logoLink:hover {
+  opacity: 0.8;
+}
+
+.progressInfo {
+  font-size: 1rem;
+  color: var(--text-secondary, #555);
+  background-color: rgba(255, 152, 0, 0.1);
+  padding: 0.5rem 1rem;
+  border-radius: 10px;
+  border: 2px solid #ff9800;
+  font-weight: 600;
+}
+
+.gameArea {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  position: relative;
+  padding: 1rem;
+  min-height: 400px;
+}
+
+/* Welcome Card Styles */
+.welcomeCard {
+  background-color: var(--bg-secondary, #ffffff);
+  border-radius: 15px;
+  padding: 2rem;
+  max-width: 700px;
+  width: 100%;
+  box-shadow: 0 5px 20px var(--shadow-color, rgba(0, 0, 0, 0.1));
+  z-index: 10;
+}
+
+.welcomeCard h2 {
+  color: #ff9800;
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.welcomeCard p {
+  margin-bottom: 1.5rem;
+  line-height: 1.6;
+  color: var(--text-primary, #333);
+}
+
+/* Tutorial Styles */
+.tutorialContent {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin: 1.5rem 0;
+}
+
+.tutorialStep {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+  padding: 1rem;
+  background-color: rgba(255, 152, 0, 0.05);
+  border-radius: 10px;
+  border-left: 4px solid #ff9800;
+  transition: all 0.3s ease;
+}
+
+.tutorialStep:hover {
+  background-color: rgba(255, 152, 0, 0.1);
+  transform: translateX(5px);
+}
+
+.stepNumber {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ff9800 0%, #ff6f00 100%);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 1.2rem;
+  box-shadow: 0 4px 10px rgba(255, 152, 0, 0.3);
+}
+
+.stepText {
+  flex: 1;
+}
+
+.stepText h3 {
+  margin: 0 0 0.5rem 0;
+  color: #ff9800;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.stepText p {
+  margin: 0;
+  color: var(--text-secondary, #666);
+  line-height: 1.5;
+}
+
+/* Button Styles */
+.buttonContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+  width: 100%;
+}
+
+.primaryButton,
+.secondaryButton,
+.tertiaryButton {
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+}
+
+.primaryButton {
+  background-color: #ff9800;
+  color: white;
+}
+
+.primaryButton:hover:not(:disabled) {
+  background-color: #f57c00;
+  transform: translateY(-1px);
+  box-shadow: 0 5px 15px rgba(255, 152, 0, 0.3);
+}
+
+.secondaryButton {
+  background-color: var(--bg-accent, #f0f0f0);
+  color: var(--text-primary, #333);
+}
+
+.secondaryButton:hover:not(:disabled) {
+  background-color: var(--border-color, #e0e0e0);
+  transform: translateY(-1px);
+}
+
+.tertiaryButton {
+  background-color: transparent;
+  color: var(--text-secondary, #666);
+  border: 1px solid var(--border-color, #e0e0e0);
+}
+
+.tertiaryButton:hover:not(:disabled) {
+  background-color: var(--bg-accent, #f5f5f5);
+  border-color: var(--text-secondary, #666);
+  transform: translateY(-1px);
+}
+
+.primaryButton:disabled,
+.secondaryButton:disabled,
+.tertiaryButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Demo Styles */
+.demoIntro {
+  font-size: 1rem;
+  color: var(--text-secondary, #666);
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.demoStepText {
+  min-height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 1rem 0;
+  padding: 1rem;
+  background-color: rgba(255, 152, 0, 0.05);
+  border-radius: 8px;
+  border-left: 4px solid #ff9800;
+}
+
+.demoStepText p {
+  margin: 0;
+  font-size: 1rem;
+  color: var(--text-primary, #333);
+  font-weight: 500;
+  text-align: center;
+}
+
+.demoContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+  margin: 2rem 0;
+  width: 100%;
+  min-height: 250px;
+  justify-content: center;
+}
+
+.demoStimulus {
+  animation: demoGlow 2s infinite;
+}
+
+@keyframes demoGlow {
+  0%, 100% { box-shadow: 0 0 10px rgba(255, 152, 0, 0.3); }
+  50% { box-shadow: 0 0 20px rgba(255, 152, 0, 0.6); }
+}
+
+/* Practice Stats Styles */
+.practiceStats {
+  background-color: rgba(255, 152, 0, 0.05);
+  border-radius: 10px;
+  padding: 1.5rem;
+  margin: 1.5rem 0;
+  border: 2px solid rgba(255, 152, 0, 0.2);
+}
+
+.practiceStats h3 {
+  margin: 0 0 1rem 0;
+  color: #ff9800;
+  font-size: 1.1rem;
+  text-align: center;
+}
+
+.statRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid rgba(255, 152, 0, 0.1);
+}
+
+.statRow:last-child {
+  border-bottom: none;
+}
+
+.statRow span:first-child {
+  color: var(--text-secondary, #666);
+  font-weight: 500;
+}
+
+.statValue {
+  color: #ff9800;
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+/* Countdown Overlay */
+.countdownOverlay {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+}
+
+.countdownOverlay h2 {
+  color: #ff9800;
+  font-size: 2rem;
+  margin: 0;
+  animation: pulse 1s ease-in-out infinite;
+}
+
+.countdownNumber {
+  font-size: 6rem;
+  font-weight: bold;
+  color: #ff9800;
+  animation: countdownScale 1s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+@keyframes countdownScale {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
 
 /* Playing Area */
-.stimulusContainer { width: 100%; height: 200px; /* Fixed height for stimulus area */ display: flex; justify-content: center; align-items: center; margin-bottom: 1rem; }
-.fixationCross { font-size: 3rem; font-weight: bold; color: #6c757d; }
-.stimulusArea { width: 150px; height: 150px; display: flex; justify-content: center; align-items: center; position: relative; /* For potential overlay */ }
-.stimulusShape { width: 100px; height: 100px; /* Base size */ background-color: #ccc; /* Default */ transition: border-color 0.1s ease, border-width 0.1s ease; /* Smooth stop signal transition */ }
-.stopOverlay { position: absolute; font-size: 5rem; font-weight: bold; opacity: 0.9; pointer-events: none; }
+.stimulusContainer {
+  width: 100%;
+  min-height: 400px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 1rem;
+  position: relative;
+}
+
+.fixationCross {
+  font-size: 4rem;
+  font-weight: bold;
+  color: var(--text-secondary, #6c757d);
+}
+
+.stimulusArea {
+  width: 250px;
+  height: 250px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+
+.stimulusShape {
+  width: 150px;
+  height: 150px;
+  /* Background color controlled by inline styles */
+  transition: border-color 0.1s ease, border-width 0.1s ease, box-shadow 0.2s ease;
+  position: relative;
+}
+
+.stimulusShape[style*="border: 5px"] {
+  animation: stopSignalPulse 0.5s infinite;
+}
+
+@keyframes stopSignalPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.7); }
+  50% { box-shadow: 0 0 0 10px rgba(231, 76, 60, 0); }
+}
+
+.stopOverlay {
+  position: absolute;
+  font-size: 5rem;
+  font-weight: bold;
+  opacity: 0.9;
+  pointer-events: none;
+}
+
+/* Feedback Message */
+.feedbackMessage {
+  position: absolute;
+  top: 60%;
+  font-size: 1.5rem;
+  font-weight: bold;
+  padding: 1rem 2rem;
+  border-radius: 10px;
+  animation: fadeInOut 0.8s ease-in-out;
+}
+
+.feedbackMessage.correct {
+  color: #2ecc71;
+  background-color: rgba(46, 204, 113, 0.1);
+  border: 2px solid #2ecc71;
+}
+
+.feedbackMessage.incorrect {
+  color: #e74c3c;
+  background-color: rgba(231, 76, 60, 0.1);
+  border: 2px solid #e74c3c;
+}
+
+@keyframes fadeInOut {
+  0% { opacity: 0; transform: translateY(-10px); }
+  20% { opacity: 1; transform: translateY(0); }
+  80% { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(-10px); }
+}
+
+/* Link Container */
+.linkContainer {
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.link {
+  color: #ff9800;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.link:hover {
+  color: #f57c00;
+  text-decoration: underline;
+}
 
 /* Footer */
-.footer { padding: 1rem; text-align: center; font-size: 0.8rem; color: #666; margin-top: 2rem; }
+.footer {
+  padding: 1rem;
+  text-align: center;
+  font-size: 0.9rem;
+  color: var(--text-secondary, #666);
+  margin-top: 2rem;
+}
 
- /* Dark mode support */
- @media (prefers-color-scheme: dark) {
-    .container {
-      background-color: #121212;
-    }
-    
-    .welcomeCard, .resultsCard, .board {
-      background-color: #1e1e1e;
-      border-color: #333;
-    }
-    
-    .welcomeCard h2, .resultsCard h2, .title {
-      color: #4da3ff;
-    }
-    
-    .welcomeCard p, .statLabel {
-      color: #bbb;
-    }
-    
-    .secondaryButton {
-      background-color: #333;
-      color: #fff;
-    }
-    
-    .secondaryButton:hover {
-      background-color: #444;
-    }
-    
-    .progressIndicator {
-      background-color: #1e1e1e;
-      color: #bbb;
-    }
-    
-    .footer {
-      color: #999;
-    }
-    
-    .footerLink, .link {
-      color: #4da3ff;
-    }
-    
-    .metricValue, .statValue {
-      color: #4da3ff;
-    }
+/* Dark mode support */
+html[data-theme="dark"] .container {
+  background-color: #121212;
+}
+
+html[data-theme="dark"] .welcomeCard {
+  background-color: #1e1e1e;
+  border-color: #333;
+}
+
+html[data-theme="dark"] .welcomeCard h2,
+html[data-theme="dark"] .practiceStats h3,
+html[data-theme="dark"] .countdownOverlay h2 {
+  color: #ffa726;
+}
+
+html[data-theme="dark"] .welcomeCard p,
+html[data-theme="dark"] .stepText p {
+  color: #bbb;
+}
+
+html[data-theme="dark"] .secondaryButton {
+  background-color: #333;
+  color: #fff;
+}
+
+html[data-theme="dark"] .secondaryButton:hover {
+  background-color: #444;
+}
+
+html[data-theme="dark"] .progressInfo {
+  background-color: rgba(255, 152, 0, 0.2);
+  color: #ffa726;
+}
+
+html[data-theme="dark"] .footer {
+  color: #999;
+}
+
+html[data-theme="dark"] .link {
+  color: #ffa726;
+}
+
+html[data-theme="dark"] .link:hover {
+  color: #ffb74d;
+}
+
+html[data-theme="dark"] .statValue {
+  color: #ffa726;
+}
+
+/* .stimulusShape background controlled by inline styles for dynamic Go/NoGo/Stop colors */
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .welcomeCard {
+    padding: 1.5rem;
   }
 
-  .linkContainer {
-    display: flex;
-    justify-content: center;
-    gap: 1.5rem;
-    margin-top: 1.5rem;
+  .tutorialStep {
+    flex-direction: column;
+    align-items: flex-start;
   }
-  
-  .link {
-    color: #0070f3;
-    text-decoration: none;
-    font-weight: 500;
-    transition: color 0.2s ease;
+
+  .stepNumber {
+    margin-bottom: 0.5rem;
   }
-  
-  .link:hover {
-    color: #0051a8;
-    text-decoration: underline;
+
+  .stimulusArea {
+    width: 200px;
+    height: 200px;
   }
+
+  .stimulusShape {
+    width: 120px;
+    height: 120px;
+  }
+
+  .countdownNumber {
+    font-size: 4rem;
+  }
+
+  .buttonContainer {
+    width: 100%;
+  }
+}

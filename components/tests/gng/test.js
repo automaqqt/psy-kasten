@@ -1,38 +1,36 @@
-// components/tests/gng/GNGTest.js
+// components/tests/gng/test.js
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import Link from 'next/link';
-import styles from '../../../styles/GNGTest.module.css'; // Create this CSS file
-import GNGResults from '../../results/gng'; // Create this Results component
-import GNGSettings from '../../settings/gng'; // Create this Settings component
-import { DEFAULT_SETTINGS, RESPONSE_KEY, STOP_SIGNAL_VISUAL } from './data';
+import Image from 'next/image';
+import styles from '../../../styles/GNGTest.module.css';
+import GNGResults from '../../results/gng';
+import GNGSettings from '../../settings/gng';
+import { DEFAULT_SETTINGS, PRACTICE_SETTINGS, RESPONSE_KEY, STOP_SIGNAL_VISUAL, THEME_COLOR } from './data';
+import { useFullscreen } from '../../../hooks/useFullscreen';
 
 // Simple stimulus display component
-const StimulusDisplay = ({ stimulus, isStopSignalActive }) => {
-    if (!stimulus) return <div className={styles.stimulusArea}></div>; // Empty area if no stimulus
+const StimulusDisplay = ({ stimulus, isStopSignalActive, isDemo }) => {
+    if (!stimulus) return <div className={styles.stimulusArea}></div>;
 
     const style = {
-        backgroundColor: stimulus.color || 'transparent', // Use color if defined
+        backgroundColor: stimulus.color || 'transparent',
         borderColor: isStopSignalActive ? STOP_SIGNAL_VISUAL.color : '#ccc',
-        borderWidth: isStopSignalActive ? STOP_SIGNAL_VISUAL.thickness : '1px',
+        borderWidth: isStopSignalActive ? STOP_SIGNAL_VISUAL.thickness : '2px',
         borderStyle: 'solid',
     };
 
     let content = null;
     if (stimulus.type === 'shape') {
         if (stimulus.value === 'circle') style.borderRadius = '50%';
-        // Add other shapes if needed (e.g., triangle using clip-path)
     }
-    // Add other stimulus types (e.g., letter) if defined
 
-    // Optional: Add Stop Signal Overlay (like an X)
     if (isStopSignalActive && STOP_SIGNAL_VISUAL.type === 'overlay_x') {
          content = <span className={styles.stopOverlay} style={{color: STOP_SIGNAL_VISUAL.color}}>X</span>;
     }
 
-
     return (
         <div className={styles.stimulusArea}>
-            <div className={styles.stimulusShape} style={style}>
+            <div className={`${styles.stimulusShape} ${isDemo ? styles.demoStimulus : ''}`} style={style}>
                 {content}
             </div>
         </div>
@@ -40,17 +38,30 @@ const StimulusDisplay = ({ stimulus, isStopSignalActive }) => {
 };
 
 
-export default function GNGTest() {
+export default function GNGTest({ assignmentId, onComplete, isStandalone, t }) {
     const [settings, setSettings] = useState(DEFAULT_SETTINGS);
     const [gameState, setGameState] = useState('welcome');
-    // welcome, instructions, countdown, playing, results
+    // welcome, tutorial, demo, practice, practiceComplete, countdown, playing, results
     const [trialCount, setTrialCount] = useState(0);
     const [currentStimulus, setCurrentStimulus] = useState(null);
     const [isStopSignalActive, setIsStopSignalActive] = useState(false);
     const [isFixationVisible, setIsFixationVisible] = useState(false);
     const [trialData, setTrialData] = useState([]);
-    const [currentSSD, setCurrentSSD] = useState(settings.initialSSDM); // ms
+    const [practiceData, setPracticeData] = useState([]);
+    const [currentSSD, setCurrentSSD] = useState(settings.initialSSDM);
     const [showSettings, setShowSettings] = useState(false);
+    const [countdown, setCountdown] = useState(3);
+    const [demoStep, setDemoStep] = useState(0);
+    const [isPractice, setIsPractice] = useState(false);
+    const [feedbackMessage, setFeedbackMessage] = useState('');
+    const [feedbackType, setFeedbackType] = useState(''); // 'correct', 'incorrect', ''
+
+    // Translation function with fallback
+    const translate = t || ((key) => key);
+
+    // Fullscreen functionality
+    const gameArea = useRef(null);
+    const { isFullscreen, enterFullscreen, exitFullscreen } = useFullscreen(gameArea);
 
     // Refs for managing timeouts and state within timeouts/event listeners
     const responseAllowed = useRef(false);
@@ -59,44 +70,88 @@ export default function GNGTest() {
     const stopSignalTimer = useRef(null);
     const ISITimer = useRef(null);
     const trialStartTime = useRef(null);
-    const currentTrialInfo = useRef(null); // Store info about the current trial
+    const currentTrialInfo = useRef(null);
+
+    // Demo animation effect
+    useEffect(() => {
+        if (gameState === 'demo') {
+            if (demoStep === 0) {
+                // Step 1: Show Go stimulus
+                setCurrentStimulus(settings.goStimulus);
+                setIsStopSignalActive(false);
+                const timer = setTimeout(() => setDemoStep(1), 2500);
+                return () => clearTimeout(timer);
+            } else if (demoStep === 1) {
+                // Step 2: Show "Correct!" feedback
+                setCurrentStimulus(null);
+                const timer = setTimeout(() => setDemoStep(2), 1500);
+                return () => clearTimeout(timer);
+            } else if (demoStep === 2) {
+                // Step 3: Show NoGo stimulus
+                setCurrentStimulus(settings.nogoStimulus);
+                const timer = setTimeout(() => setDemoStep(3), 2500);
+                return () => clearTimeout(timer);
+            } else if (demoStep === 3) {
+                // Step 4: Show "Correct withholding" feedback
+                setCurrentStimulus(null);
+                const timer = setTimeout(() => setDemoStep(4), 1500);
+                return () => clearTimeout(timer);
+            } else if (demoStep === 4) {
+                // Step 5: Show Go stimulus (for stop trial)
+                setCurrentStimulus(settings.goStimulus);
+                setIsStopSignalActive(false);
+                const timer = setTimeout(() => setDemoStep(5), 1500);
+                return () => clearTimeout(timer);
+            } else if (demoStep === 5) {
+                // Step 6: Show stop signal
+                setIsStopSignalActive(true);
+                const timer = setTimeout(() => setDemoStep(6), 2000);
+                return () => clearTimeout(timer);
+            } else if (demoStep === 6) {
+                // Step 7: Complete
+                setCurrentStimulus(null);
+                setIsStopSignalActive(false);
+            }
+        }
+    }, [gameState, demoStep, settings]);
 
     // --- Core Trial Logic ---
     const runTrial = useCallback(() => {
-        clearAllTimeouts(); // Clear any pending timeouts from previous trial steps
+        clearAllTimeouts();
         setIsFixationVisible(true);
         setCurrentStimulus(null);
         setIsStopSignalActive(false);
-        responseAllowed.current = false; // Disallow response during fixation/ISI
+        setFeedbackMessage('');
+        setFeedbackType('');
+        responseAllowed.current = false;
 
-        const isi = settings.minISIMs + Math.random() * (settings.maxISIMs - settings.minISIMs);
+        const activeSettings = isPractice ? { ...settings, ...PRACTICE_SETTINGS } : settings;
+        const isi = activeSettings.minISIMs + Math.random() * (activeSettings.maxISIMs - activeSettings.minISIMs);
 
         ISITimer.current = setTimeout(() => {
             setIsFixationVisible(false);
 
             // Determine Trial Type
-            let trialType = 'go'; // Default
+            let trialType = 'go';
             const randGo = Math.random();
-            if (randGo > settings.goProbability) {
+            if (randGo > activeSettings.goProbability) {
                 trialType = 'nogo';
             }
 
             let isStopTrial = false;
-            if (trialType === 'go' && settings.stopSignalProbability > 0) {
-                if (Math.random() < settings.stopSignalProbability) {
+            if (trialType === 'go' && activeSettings.stopSignalProbability > 0) {
+                if (Math.random() < activeSettings.stopSignalProbability) {
                     trialType = 'stop';
                     isStopTrial = true;
                 }
             }
 
             // Select Stimulus
-            const stimulus = (trialType === 'nogo') ? settings.nogoStimulus : settings.goStimulus;
+            const stimulus = (trialType === 'nogo') ? activeSettings.nogoStimulus : activeSettings.goStimulus;
             setCurrentStimulus(stimulus);
             trialStartTime.current = performance.now();
-            responseAllowed.current = true; // Allow response once stimulus appears
+            responseAllowed.current = true;
 
-
-            // Store current trial details for response handler
             currentTrialInfo.current = {
                 trialNum: trialCount + 1,
                 type: trialType,
@@ -108,141 +163,229 @@ export default function GNGTest() {
 
             // Schedule Stimulus Offset
             stimulusTimer.current = setTimeout(() => {
-                setCurrentStimulus(null); // Remove stimulus
-                // Note: Response window might still be open even if stimulus is gone
-            }, settings.stimulusDurationMs);
+                setCurrentStimulus(null);
+            }, activeSettings.stimulusDurationMs);
 
-            // Schedule Stop Signal (if applicable)
+            // Schedule Stop Signal
             if (isStopTrial) {
                 stopSignalTimer.current = setTimeout(() => {
                     setIsStopSignalActive(true);
-                    // Stop signal stays active until end of response window or stimulus duration, whichever is longer?
-                    // For simplicity, let it stay until the response window ends or stimulus offset if shorter
-                    // (This might need refinement based on specific SST protocols)
                 }, currentSSD);
             }
 
-            // Schedule Response Window End / Omission Check (for Go/Stop trials)
+            // Schedule Response Window End
             if (trialType === 'go' || trialType === 'stop') {
                 responseTimer.current = setTimeout(() => {
-                     // If this timeout fires, no valid response was made in time
-                     if (responseAllowed.current) { // Check if a response hasn't already been processed
-                         handleResponse(null, null); // Process as omission/correct inhibit
+                     if (responseAllowed.current) {
+                         handleResponse(null, null);
                      }
-                }, settings.responseWindowMs);
-            } else { // NoGo trial - no response expected
+                }, activeSettings.responseWindowMs);
+            } else {
                  responseTimer.current = setTimeout(() => {
-                     // If this timeout fires for a NoGo, it means they correctly withheld
                       if (responseAllowed.current) {
-                         handleResponse(null, null); // Process as correct inhibit
+                         handleResponse(null, null);
                       }
-                 }, settings.responseWindowMs); // Wait window duration to confirm withholding
+                 }, activeSettings.responseWindowMs);
             }
 
         }, isi);
 
-    }, [settings, trialCount, currentSSD]); // Include currentSSD for stop trials
+    }, [settings, trialCount, currentSSD, isPractice]);
 
     // --- Start/Stop Test ---
     useEffect(() => {
-        if (gameState === 'playing') {
-            if (settings.testDurationMode === 'trials' && trialCount >= settings.totalTrials) {
-                finishTest();
+        if (gameState === 'playing' || gameState === 'practice') {
+            const maxTrials = isPractice ? PRACTICE_SETTINGS.totalTrials : settings.totalTrials;
+            if (settings.testDurationMode === 'trials' && trialCount >= maxTrials) {
+                if (isPractice) {
+                    if (isFullscreen) {
+                        exitFullscreen();
+                    }
+                    setGameState('practiceComplete');
+                } else {
+                    finishTest();
+                }
             } else {
                 runTrial();
             }
         }
-        // Cleanup on unmount or when game state changes
         return () => clearAllTimeouts();
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [gameState, trialCount]); // runTrial dependency removed to avoid loop, it's called explicitly
+    }, [gameState, trialCount]);
 
-    const startTest = () => {
+    const startPractice = async () => {
+        setIsPractice(true);
+        if (!isFullscreen) {
+            try {
+                await enterFullscreen();
+            } catch (err) {
+                console.warn('Could not enter fullscreen mode:', err);
+            }
+        }
+        setTrialCount(0);
+        setPracticeData([]);
+        setCurrentSSD(PRACTICE_SETTINGS.initialSSDM);
+        setCountdown(3);
+        setGameState('countdown');
+
+        // Countdown then start practice
+        const countdownInterval = setInterval(() => {
+            setCountdown(prev => {
+                if (prev <= 1) {
+                    clearInterval(countdownInterval);
+                    setTimeout(() => setGameState('practice'), 500);
+                    return 0;
+                }
+                return prev - 1;
+            });
+        }, 1000);
+    };
+
+    const startTest = async () => {
+        setIsPractice(false);
+        if (!isFullscreen) {
+            try {
+                await enterFullscreen();
+            } catch (err) {
+                console.warn('Could not enter fullscreen mode:', err);
+            }
+        }
         setTrialCount(0);
         setTrialData([]);
-        setCurrentSSD(settings.initialSSDM); // Reset SSD
+        setCurrentSSD(settings.initialSSDM);
+        setCountdown(3);
         setGameState('countdown');
-        // Add countdown logic if desired, then setGameState('playing')
-         setTimeout(() => setGameState('playing'), 1000); // Simple immediate start for now
+
+        // Countdown then start playing
+        const countdownInterval = setInterval(() => {
+            setCountdown(prev => {
+                if (prev <= 1) {
+                    clearInterval(countdownInterval);
+                    setTimeout(() => setGameState('playing'), 500);
+                    return 0;
+                }
+                return prev - 1;
+            });
+        }, 1000);
     };
 
     const finishTest = () => {
         clearAllTimeouts();
+        if (isFullscreen) {
+            exitFullscreen();
+        }
         setGameState('results');
+
+        // Submit results if not standalone
+        if (!isStandalone && onComplete) {
+            onComplete(trialData);
+        }
     };
 
     const resetGame = () => {
         clearAllTimeouts();
+        if (isFullscreen) {
+            exitFullscreen();
+        }
         setGameState('welcome');
         setTrialCount(0);
         setTrialData([]);
+        setPracticeData([]);
         setCurrentStimulus(null);
         setIsFixationVisible(false);
         setIsStopSignalActive(false);
-         // Settings are kept, SSD reset by startTest if needed
+        setIsPractice(false);
     };
-
 
     // --- Response Handling ---
     const handleResponse = useCallback((key, responseTimestamp) => {
-        if (!responseAllowed.current || !currentTrialInfo.current) return; // Ignore response if not allowed or no trial info
+        if (!responseAllowed.current || !currentTrialInfo.current) return;
 
-        clearTimeout(responseTimer.current); // Response received, clear the timeout
-        responseAllowed.current = false; // Prevent multiple responses for this trial
+        clearTimeout(responseTimer.current);
+        responseAllowed.current = false;
 
         const rt = responseTimestamp ? responseTimestamp - trialStartTime.current : null;
         const pressedCorrectKey = key === RESPONSE_KEY;
 
         let outcome = 'unknown';
-        let ssdAdjustment = 0; // 0 = no change, 1 = increase SSD, -1 = decrease SSD
+        let ssdAdjustment = 0;
 
         const { type, stopSignal, ssd } = currentTrialInfo.current;
 
         if (type === 'go') {
             if (pressedCorrectKey && rt <= settings.responseWindowMs) {
                 outcome = 'correctGo';
+                if (isPractice) {
+                    setFeedbackMessage(translate('feedback_correct_go'));
+                    setFeedbackType('correct');
+                }
             } else {
-                outcome = 'omission'; // Missed or wrong key
+                outcome = 'omission';
+                if (isPractice) {
+                    setFeedbackMessage(translate('feedback_omission'));
+                    setFeedbackType('incorrect');
+                }
             }
         } else if (type === 'nogo') {
             if (pressedCorrectKey) {
-                outcome = 'commission'; // Responded when shouldn't have
+                outcome = 'commission';
+                if (isPractice) {
+                    setFeedbackMessage(translate('feedback_commission_nogo'));
+                    setFeedbackType('incorrect');
+                }
             } else {
-                outcome = 'correctInhibit'; // Correctly withheld
+                outcome = 'correctInhibit';
+                if (isPractice) {
+                    setFeedbackMessage(translate('feedback_correct_inhibit'));
+                    setFeedbackType('correct');
+                }
             }
         } else if (type === 'stop') {
             if (pressedCorrectKey && rt <= settings.responseWindowMs) {
-                outcome = 'commission'; // Failed to stop
-                ssdAdjustment = -1; // Make next stop easier
+                outcome = 'commission';
+                ssdAdjustment = -1;
+                if (isPractice) {
+                    setFeedbackMessage(translate('feedback_commission_stop'));
+                    setFeedbackType('incorrect');
+                }
             } else {
-                outcome = 'correctInhibit'; // Successfully stopped / withheld
-                ssdAdjustment = 1; // Make next stop harder
+                outcome = 'correctInhibit';
+                ssdAdjustment = 1;
+                if (isPractice) {
+                    setFeedbackMessage(translate('feedback_correct_stop'));
+                    setFeedbackType('correct');
+                }
             }
         }
 
         // Log trial data
-        setTrialData(prev => [...prev, {
+        const trialResult = {
             ...currentTrialInfo.current,
             responseKey: key,
             responseTime: rt,
             outcome: outcome,
-            ssd: ssd, // Log the SSD used for this trial
-        }]);
+            ssd: ssd,
+        };
+
+        if (isPractice) {
+            setPracticeData(prev => [...prev, trialResult]);
+        } else {
+            setTrialData(prev => [...prev, trialResult]);
+        }
 
         // Adjust SSD for next stop trial (Staircase)
         if (settings.useStaircaseSSD && ssdAdjustment !== 0) {
-            setCurrentSSD(prevSSD => Math.max(50, Math.min(1000, prevSSD + ssdAdjustment * settings.ssdStepM))); // Keep SSD within bounds
+            setCurrentSSD(prevSSD => Math.max(50, Math.min(1000, prevSSD + ssdAdjustment * settings.ssdStepM)));
         }
 
+        // Clear feedback after a short delay, then move to next trial
+        setTimeout(() => {
+            setFeedbackMessage('');
+            setFeedbackType('');
+            setTrialCount(prev => prev + 1);
+        }, isPractice ? 800 : 200);
 
-        // Move to next trial prep (fixation/ISI)
-        // Need a slight delay before starting next ISI to allow state update?
-        // Or trigger next step via useEffect on trialCount changing.
-         setTrialCount(prev => prev + 1); // This will trigger the useEffect to call runTrial
-
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [settings]); // Dependencies managed carefully
+    }, [settings, isPractice, translate]);
 
     // Keyboard listener
     useEffect(() => {
@@ -252,7 +395,7 @@ export default function GNGTest() {
             }
         };
 
-        if (gameState === 'playing') {
+        if (gameState === 'playing' || gameState === 'practice') {
             window.addEventListener('keydown', handleKeyDown);
         } else {
             window.removeEventListener('keydown', handleKeyDown);
@@ -271,77 +414,275 @@ export default function GNGTest() {
         clearTimeout(ISITimer.current);
     };
 
+    // Calculate practice stats
+    const calculatePracticeStats = () => {
+        const goTrials = practiceData.filter(r => r.type === 'go');
+        const correctGoResponses = practiceData.filter(r => r.outcome === 'correctGo');
+        const correctGoRTs = correctGoResponses.map(r => r.responseTime).filter(rt => rt !== null);
+        const meanGoRT = correctGoRTs.length > 0 ? (correctGoRTs.reduce((a, b) => a + b, 0) / correctGoRTs.length) : 0;
+
+        const nogoTrials = practiceData.filter(r => r.type === 'nogo');
+        const correctInhibitsNoGo = practiceData.filter(r => r.type === 'nogo' && r.outcome === 'correctInhibit');
+
+        const stopTrials = practiceData.filter(r => r.type === 'stop');
+        const correctInhibitsStop = practiceData.filter(r => r.type === 'stop' && r.outcome === 'correctInhibit');
+
+        return {
+            meanGoRT: meanGoRT.toFixed(0),
+            goCorrect: `${correctGoResponses.length}/${goTrials.length}`,
+            nogoCorrect: `${correctInhibitsNoGo.length}/${nogoTrials.length}`,
+            stopSuccess: stopTrials.length > 0 ? `${correctInhibitsStop.length}/${stopTrials.length}` : 'N/A',
+        };
+    };
+
     // --- Render ---
     return (
         <div className={styles.container}>
             <div className={styles.testContainer}>
                 <div className={styles.header}>
-                    <h1 className={styles.title}>Go/NoGo Stop-Signal Task</h1>
-                     {gameState === 'playing' && (
+                    <Link href="/" passHref>
+                        <div className={styles.logoLink}>
+                            <Image
+                                src="/logo.png"
+                                alt={'psykasten Logo'}
+                                width={50}
+                                height={50}
+                            />
+                        </div>
+                    </Link>
+                     {(gameState === 'playing' || gameState === 'practice') && (
                          <div className={styles.progressInfo}>
-                            Trial: {trialCount + 1} / {settings.testDurationMode === 'trials' ? settings.totalTrials : 'Time Limit'}
+                            {translate('trial_counter', {
+                                current: trialCount + 1,
+                                total: isPractice ? PRACTICE_SETTINGS.totalTrials : settings.totalTrials
+                            })}
                          </div>
                      )}
-                    </div>
+                </div>
 
-                <div className={styles.gameArea}>
+                <div className={styles.gameArea} ref={gameArea}>
+                    {/* Welcome screen */}
                     {gameState === 'welcome' && (
                         <div className={styles.welcomeCard}>
-                            <h2>Welcome!</h2>
-                            <p>Press the <strong>'{RESPONSE_KEY === ' ' ? 'Spacebar' : RESPONSE_KEY}'</strong> as quickly as possible when you see the <span style={{color: settings.goStimulus.color}}>Go stimulus ({settings.goStimulus.value})</span>.</p>
-                            {settings.stopSignalProbability === 0 && (
-                                <p><strong>Do NOT press</strong> the key if you see the <span style={{color: settings.nogoStimulus.color}}>NoGo stimulus ({settings.nogoStimulus.value})</span>.</p>
-                            )}
-                            {settings.stopSignalProbability > 0 && (
-                                <p>If the Go stimulus suddenly changes (e.g., gets a <span style={{color: STOP_SIGNAL_VISUAL.color, fontWeight:'bold'}}>red border</span>), try your best to <strong>STOP yourself</strong> from pressing the key.</p>
-                            )}
-                            <p>Focus on the cross (+) that appears between stimuli.</p>
+                            <h2>{translate('welcome_title')}</h2>
+                            <p>{translate('welcome_p1')}</p>
+                            <p>{translate('welcome_p2')}</p>
+                            <p>{translate('welcome_p3')}</p>
                             <div className={styles.buttonContainer}>
-                                <button className={styles.primaryButton} onClick={startTest}>
-                                Start Test
+                                <button className={styles.primaryButton} onClick={() => setGameState('tutorial')}>
+                                    {translate('start_button')}
                                 </button>
-                                <button 
-                                className={styles.secondaryButton} 
-                                onClick={() => setShowSettings(true)}
+                                <button
+                                    className={styles.secondaryButton}
+                                    onClick={() => setShowSettings(true)}
                                 >
-                                Adjust Settings
+                                    {translate('common:settings')}
                                 </button>
                             </div>
                             <div className={styles.linkContainer}>
-                                <Link href="/">
-                                <div className={styles.link}>Back to Home</div>
-                                </Link>
+                                {isStandalone && (
+                                    <Link href="/">
+                                        <div className={styles.link}>{translate('common:back_to_home')}</div>
+                                    </Link>
+                                )}
                             </div>
                         </div>
                     )}
 
-                    {(gameState === 'playing' || gameState === 'countdown') && (
-                        <div className={styles.stimulusContainer}>
-                            {isFixationVisible && <div className={styles.fixationCross}>+</div>}
-                            <StimulusDisplay stimulus={currentStimulus} isStopSignalActive={isStopSignalActive} />
+                    {/* Tutorial screen */}
+                    {gameState === 'tutorial' && (
+                        <div className={styles.welcomeCard}>
+                            <h2>{translate('tutorial_title')}</h2>
+                            <div className={styles.tutorialContent}>
+                                <div className={styles.tutorialStep}>
+                                    <div className={styles.stepNumber}>1</div>
+                                    <div className={styles.stepText}>
+                                        <h3>{translate('tutorial_step1_title')}</h3>
+                                        <p>{translate('tutorial_step1_text')}</p>
+                                    </div>
+                                </div>
+                                <div className={styles.tutorialStep}>
+                                    <div className={styles.stepNumber}>2</div>
+                                    <div className={styles.stepText}>
+                                        <h3>{translate('tutorial_step2_title')}</h3>
+                                        <p>{translate('tutorial_step2_text')}</p>
+                                    </div>
+                                </div>
+                                <div className={styles.tutorialStep}>
+                                    <div className={styles.stepNumber}>3</div>
+                                    <div className={styles.stepText}>
+                                        <h3>{translate('tutorial_step3_title')}</h3>
+                                        <p>{translate('tutorial_step3_text')}</p>
+                                    </div>
+                                </div>
+                                <div className={styles.tutorialStep}>
+                                    <div className={styles.stepNumber}>4</div>
+                                    <div className={styles.stepText}>
+                                        <h3>{translate('tutorial_step4_title')}</h3>
+                                        <p>{translate('tutorial_step4_text')}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className={styles.buttonContainer}>
+                                <button className={styles.primaryButton} onClick={() => { setDemoStep(0); setGameState('demo'); }}>
+                                    {translate('see_demo')}
+                                </button>
+                                <button className={styles.secondaryButton} onClick={startPractice}>
+                                    {translate('start_practice')}
+                                </button>
+                                <button
+                                    className={styles.tertiaryButton}
+                                    onClick={() => setGameState('welcome')}
+                                >
+                                    {translate('back')}
+                                </button>
+                            </div>
                         </div>
                     )}
-                    {/* Add Countdown display if implemented */}
 
+                    {/* Demo screen */}
+                    {gameState === 'demo' && (
+                        <div className={styles.welcomeCard}>
+                            <h2>{translate('demo_title')}</h2>
+                            <p className={styles.demoIntro}>{translate('demo_intro')}</p>
+
+                            <div className={styles.demoStepText}>
+                                {demoStep === 0 && <p>{translate('demo_step1')}</p>}
+                                {demoStep === 1 && <p>{translate('demo_step2')}</p>}
+                                {demoStep === 2 && <p>{translate('demo_step3')}</p>}
+                                {demoStep === 3 && <p>{translate('demo_step4')}</p>}
+                                {demoStep === 4 && <p>{translate('demo_step5')}</p>}
+                                {demoStep === 5 && <p>{translate('demo_step6')}</p>}
+                                {demoStep === 6 && <p>{translate('demo_step7')}</p>}
+                            </div>
+
+                            {/* Demo stimulus display */}
+                            <div className={styles.demoContainer}>
+                                <StimulusDisplay
+                                    stimulus={currentStimulus}
+                                    isStopSignalActive={isStopSignalActive}
+                                    isDemo={true}
+                                />
+                            </div>
+
+                            <div className={styles.buttonContainer}>
+                                <button
+                                    className={styles.primaryButton}
+                                    onClick={startPractice}
+                                    disabled={demoStep < 6}
+                                >
+                                    {translate('start_practice')}
+                                </button>
+                                <button
+                                    className={styles.secondaryButton}
+                                    onClick={() => setGameState('tutorial')}
+                                >
+                                    {translate('back')}
+                                </button>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Practice Complete screen */}
+                    {gameState === 'practiceComplete' && (
+                        <div className={styles.welcomeCard}>
+                            <h2>{translate('practice_complete_title')}</h2>
+                            <p>{translate('practice_complete_text1')}</p>
+                            <p>{translate('practice_complete_text2')}</p>
+
+                            <div className={styles.practiceStats}>
+                                <h3>{translate('practice_stats_title')}</h3>
+                                {(() => {
+                                    const stats = calculatePracticeStats();
+                                    return (
+                                        <>
+                                            <div className={styles.statRow}>
+                                                <span>{translate('practice_go_rt')}:</span>
+                                                <span className={styles.statValue}>{stats.meanGoRT} ms</span>
+                                            </div>
+                                            <div className={styles.statRow}>
+                                                <span>{translate('practice_go_correct')}:</span>
+                                                <span className={styles.statValue}>{stats.goCorrect}</span>
+                                            </div>
+                                            <div className={styles.statRow}>
+                                                <span>{translate('practice_nogo_correct')}:</span>
+                                                <span className={styles.statValue}>{stats.nogoCorrect}</span>
+                                            </div>
+                                            <div className={styles.statRow}>
+                                                <span>{translate('practice_stop_correct')}:</span>
+                                                <span className={styles.statValue}>{stats.stopSuccess}</span>
+                                            </div>
+                                        </>
+                                    );
+                                })()}
+                            </div>
+
+                            <div className={styles.buttonContainer}>
+                                <button className={styles.primaryButton} onClick={startTest}>
+                                    {translate('start_real_test')}
+                                </button>
+                                <button
+                                    className={styles.secondaryButton}
+                                    onClick={startPractice}
+                                >
+                                    {translate('practice_again')}
+                                </button>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Countdown screen */}
+                    {gameState === 'countdown' && (
+                        <div className={styles.countdownOverlay}>
+                            <h2>{translate('get_ready')}</h2>
+                            <div className={styles.countdownNumber}>{countdown > 0 ? countdown : 'GO!'}</div>
+                        </div>
+                    )}
+
+                    {/* Playing/Practice Area */}
+                    {(gameState === 'playing' || gameState === 'practice') && (
+                        <div className={styles.stimulusContainer}>
+                            {isFixationVisible && <div className={styles.fixationCross}>+</div>}
+                            {!isFixationVisible && (
+                                <StimulusDisplay
+                                    stimulus={currentStimulus}
+                                    isStopSignalActive={isStopSignalActive}
+                                    isDemo={false}
+                                />
+                            )}
+                            {feedbackMessage && (
+                                <div className={`${styles.feedbackMessage} ${styles[feedbackType]}`}>
+                                    {feedbackMessage}
+                                </div>
+                            )}
+                        </div>
+                    )}
+
+                     {/* Results screen */}
                      {gameState === 'results' && (
                          <GNGResults
                              results={trialData}
                              settings={settings}
                              onRestart={resetGame}
+                             t={translate}
                          />
                      )}
+
                 </div>
 
+                 {/* Settings panel */}
                  {showSettings && (
                     <GNGSettings
                         settings={settings}
                         setSettings={setSettings}
                         onClose={() => setShowSettings(false)}
+                        t={translate}
                     />
                  )}
 
+                 {/* Footer */}
                  <footer className={styles.footer}>
-                    <p>Go/NoGo Stop-Signal Task for assessing response control.</p>
+                    <p>{translate('footer_description')}</p>
                  </footer>
 
             </div>

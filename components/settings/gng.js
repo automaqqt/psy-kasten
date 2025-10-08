@@ -3,8 +3,9 @@ import React, { useEffect, useRef } from 'react';
 import styles from '../../styles/Settings.module.css'; // Reuse existing settings styles
 import { DEFAULT_SETTINGS } from '../tests/gng/data';
 
-const GNGSettings = ({ settings, setSettings, onClose }) => {
+const GNGSettings = ({ settings, setSettings, onClose, t }) => {
   const panelRef = useRef(null);
+  const translate = t || ((key) => key);
 
   // Re-use useEffect for closing modal, focus trapping, escape key...
   useEffect(() => {

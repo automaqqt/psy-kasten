@@ -2,6 +2,7 @@ import { getSession } from 'next-auth/react'; // or getServerSession
 import prisma from '../../../lib/prisma';
 import { authOptions } from '../auth/[...nextauth]';
 import { getServerSession } from "next-auth/next";
+import crypto from 'crypto'; // For generating secure access keys
 
 export default async function handler(req, res) {
   const session = await getServerSession(req, res, authOptions); // Or getSession({ req });
@@ -20,10 +21,10 @@ export default async function handler(req, res) {
     }
 
     try {
-      // Verify researcher owns the target study
+      // Verify researcher owns the target study and get test type
       const study = await prisma.study.findUnique({
         where: { id: studyId },
-        select: { researcherId: true } // Only select needed field
+        select: { researcherId: true, testType: true } // Get test type
       });
 
       if (!study) {
@@ -40,6 +41,19 @@ export default async function handler(req, res) {
           studyId: studyId,
         },
       });
+
+      // Automatically create test assignment for the participant
+      const accessKey = crypto.randomBytes(24).toString('hex'); // 48 characters hex
+
+      await prisma.testAssignment.create({
+        data: {
+          participantId: newParticipant.id,
+          studyId: studyId,
+          testType: study.testType,
+          accessKey: accessKey,
+        },
+      });
+
       return res.status(201).json(newParticipant);
 
     } catch (error) {

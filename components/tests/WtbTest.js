@@ -60,6 +60,8 @@ export default function WtbTest({ assignmentId, onComplete, isStandalone, t }) {
   const recognitionRef = useRef(null);
   const synthesisRef = useRef(null);
   const recordingTimerRef = useRef(null);
+  const accumulatedTranscriptRef = useRef('');
+  const silenceTimeoutRef = useRef(null);
   const translate = t || ((key) => key);
   const { isFullscreen, enterFullscreen, exitFullscreen } = useFullscreen(gameArea);
 
@@ -293,8 +295,8 @@ export default function WtbTest({ assignmentId, onComplete, isStandalone, t }) {
       if (SpeechRecognition) {
         addDebug('Initializing speech recognition...');
         const recognition = new SpeechRecognition();
-        recognition.continuous = false;
-        recognition.interimResults = false;
+        recognition.continuous = true;
+        recognition.interimResults = true;
         recognition.lang = settings.voiceLang;
         recognition.maxAlternatives = 1;
 
@@ -303,20 +305,45 @@ export default function WtbTest({ assignmentId, onComplete, isStandalone, t }) {
         };
 
         recognition.onresult = (event) => {
-          const transcript = event.results[0][0].transcript;
-          const confidence = event.results[0][0].confidence;
-          addDebug(`Recognition result: "${transcript}" (confidence: ${confidence.toFixed(2)})`);
-
-          // Extract only numbers from the transcript
-          const numbersOnly = extractNumbers(transcript, settings.voiceLang);
-          addDebug(`Filtered to numbers only: "${numbersOnly}"`);
-
-          setUserInput(numbersOnly);
-          setIsRecording(false);
-          if (recordingTimerRef.current) {
-            clearInterval(recordingTimerRef.current);
+          // Clear any existing silence timeout
+          if (silenceTimeoutRef.current) {
+            clearTimeout(silenceTimeoutRef.current);
           }
-          addDebug(`Transcription complete. Waiting for user to submit.`);
+
+          // Build full transcript from all final results
+          let fullTranscript = '';
+          for (let i = 0; i < event.results.length; i++) {
+            if (event.results[i].isFinal) {
+              fullTranscript += event.results[i][0].transcript + ' ';
+            }
+          }
+
+          // Get the latest result for logging
+          const lastResultIndex = event.results.length - 1;
+          const result = event.results[lastResultIndex];
+          const transcript = result[0].transcript;
+          const confidence = result[0].confidence;
+          const isFinal = result.isFinal;
+
+          addDebug(`Recognition result: "${transcript}" (confidence: ${confidence.toFixed(2)}, final: ${isFinal})`);
+
+          if (isFinal && fullTranscript.trim()) {
+            // Accumulate the final transcript
+            accumulatedTranscriptRef.current = fullTranscript.trim();
+            addDebug(`Accumulated transcript: "${accumulatedTranscriptRef.current}"`);
+
+            // Set a 5-second silence timeout to auto-stop
+            silenceTimeoutRef.current = setTimeout(() => {
+              addDebug('5-second silence detected, auto-stopping...');
+              if (recognitionRef.current) {
+                try {
+                  recognitionRef.current.stop();
+                } catch (e) {
+                  addDebug(`Error auto-stopping: ${e.message}`);
+                }
+              }
+            }, 5000);
+          }
         };
 
         recognition.onerror = (event) => {
@@ -350,6 +377,20 @@ export default function WtbTest({ assignmentId, onComplete, isStandalone, t }) {
 
         recognition.onend = () => {
           addDebug('Speech recognition ended');
+
+          // Clear the silence timeout
+          if (silenceTimeoutRef.current) {
+            clearTimeout(silenceTimeoutRef.current);
+          }
+
+          // Process accumulated transcript
+          if (accumulatedTranscriptRef.current) {
+            const numbersOnly = extractNumbers(accumulatedTranscriptRef.current, settings.voiceLang);
+            addDebug(`Final filtered numbers: "${numbersOnly}"`);
+            setUserInput(numbersOnly);
+            accumulatedTranscriptRef.current = ''; // Reset
+          }
+
           setIsRecording(false);
           if (recordingTimerRef.current) {
             clearInterval(recordingTimerRef.current);
@@ -420,6 +461,12 @@ export default function WtbTest({ assignmentId, onComplete, isStandalone, t }) {
     setUserInput('');
     setRecordingTime(0);
     setIsRecording(true);
+    accumulatedTranscriptRef.current = ''; // Reset accumulated transcript
+
+    // Clear any existing silence timeout
+    if (silenceTimeoutRef.current) {
+      clearTimeout(silenceTimeoutRef.current);
+    }
 
     recordingTimerRef.current = setInterval(() => {
       setRecordingTime(prev => prev + 1);
@@ -442,6 +489,12 @@ export default function WtbTest({ assignmentId, onComplete, isStandalone, t }) {
   // Stop recording
   const stopRecording = useCallback(() => {
     addDebug('stopRecording called');
+
+    // Clear silence timeout
+    if (silenceTimeoutRef.current) {
+      clearTimeout(silenceTimeoutRef.current);
+    }
+
     if (recognitionRef.current && isRecording) {
       try {
         addDebug('Calling recognition.stop()...');

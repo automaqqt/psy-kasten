@@ -1,12 +1,11 @@
 /* styles/RPMTest.module.css */
-/* Import or reuse common styles from globals.css or CorsiTest.module.css if applicable */
 .container {
     display: flex;
     flex-direction: column;
     min-height: 100vh;
-    background-color: #f8f9fa;
+    background-color: var(--bg-primary, #eef2f7);
   }
-  
+
   .testContainer {
     display: flex;
     flex-direction: column;
@@ -17,7 +16,7 @@
     width: 100%;
     height: 90%;
   }
-  
+
   .header {
     display: flex;
     justify-content: space-between;
@@ -25,31 +24,40 @@
     margin-bottom: 1rem;
     padding: 0.5rem;
   }
-  
+
   .title {
     font-size: 1.5rem;
     font-weight: 600;
-    color: #0070f3;
+    color: #4caf50;
     margin: 0;
   }
-  
+
   .timer {
     font-size: 1.1rem;
     font-weight: 500;
-    color: #e74c3c; /* Red timer */
-    background-color: rgb(224, 155, 201);
-    padding: 0.25rem 0.75rem;
-    border-radius: 4px;
+    color: #fff;
+    background-color: #e74c3c;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    box-shadow: 0 4px 10px rgba(231, 76, 60, 0.2);
   }
-  
+
   .progressIndicator {
     font-size: 0.9rem;
-    color: #666;
-    background-color: #e9ecef;
-    padding: 0.25rem 0.75rem;
-    border-radius: 12px;
+    font-weight: 500;
+    color: var(--text-secondary, #666);
+    background-color: var(--card-bg, white);
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    box-shadow: 0 4px 10px var(--shadow-color, rgba(0, 0, 0, 0.05));
   }
-  
+
+  .gameMetrics {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+  }
+
   .settingsButton {
      background: none;
      border: none;
@@ -57,9 +65,13 @@
      cursor: pointer;
      color: #666;
      padding: 5px;
+     border-radius: 50%;
+     transition: all 0.2s ease;
   }
+
   .settingsButton:hover {
-     color: #007bff;
+     background-color: rgba(0, 0, 0, 0.05);
+     color: #4caf50;
   }
   
   
@@ -72,38 +84,159 @@
     position: relative;
     padding: 1rem;
   }
+
+  .fullscreenMode {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 9999;
+    background-color: var(--bg-primary, #eef2f7);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
   /* Welcome Card */
   .welcomeCard {
-    background-color: white;
+    background-color: var(--card-bg, white);
     border-radius: 15px;
     padding: 2rem;
     max-width: 600px;
     width: 100%;
     box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
     z-index: 10;
+    animation: appear 0.5s ease;
   }
-  
-  .welcomeCard h2 { color: #007bff; margin-bottom: 1rem; }
-  .welcomeCard p { margin-bottom: 1rem; line-height: 1.6; color: #444; }
-  .buttonContainer { /* Adapt from Corsi/TOL */
+
+  .welcomeCard h2 {
+    margin-top: 0;
+    color: #4caf50;
+    margin-bottom: 1.5rem;
+  }
+
+  .welcomeCard p {
+    margin-bottom: 1.5rem;
+    line-height: 1.6;
+    color: var(--text-primary, #333);
+  }
+
+  /* Tutorial Content */
+  .tutorialContent {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    margin: 1.5rem 0;
+  }
+
+  .tutorialStep {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+    padding: 1rem;
+    background-color: rgba(76, 175, 80, 0.05);
+    border-radius: 10px;
+    border-left: 4px solid #4caf50;
+    transition: all 0.3s ease;
+  }
+
+  .tutorialStep:hover {
+    background-color: rgba(76, 175, 80, 0.1);
+    transform: translateX(5px);
+  }
+
+  .stepNumber {
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #4caf50 0%, #66bb6a 100%);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 1.2rem;
+    box-shadow: 0 4px 10px rgba(76, 175, 80, 0.3);
+  }
+
+  .stepText {
+    flex: 1;
+  }
+
+  .stepText h3 {
+    margin: 0 0 0.5rem 0;
+    color: #4caf50;
+    font-size: 1.1rem;
+    font-weight: 600;
+  }
+
+  .stepText p {
+    margin: 0;
+    color: var(--text-secondary, #666);
+    line-height: 1.5;
+  }
+
+  .buttonContainer {
      display: flex;
-     flex-direction: row;
+     flex-direction: column;
      gap: 0.75rem;
      margin-top: 1.5rem;
      width: 100%;
+  }
+
+  .primaryButton, .secondaryButton {
+     padding: 0.75rem 1rem;
+     border-radius: 8px;
+     font-weight: 600;
+     font-size: 1rem;
+     cursor: pointer;
+     transition: all 0.3s ease;
+     display: flex;
      align-items: center;
+     justify-content: center;
+     border: none;
   }
-  .primaryButton, .secondaryButton { /* Reuse styles */
-     padding: 0.8rem 1.6rem; border-radius: 6px; font-weight: 600; font-size: 1rem; cursor: pointer; transition: all 0.3s ease; border: none; text-decoration: none; width: 80%; max-width: 250px; text-align: center;
+
+  .primaryButton {
+    background-color: #4caf50;
+    color: white;
   }
-  .primaryButton { background-color: #007bff; color: white; }
-  .primaryButton:hover { background-color: #0056b3; }
-  .secondaryButton { background-color: #e9ecef; color: #333; }
-  .secondaryButton:hover { background-color: #ced4da; }
+
+  .primaryButton:hover {
+    background-color: #45a049;
+    transform: translateY(-1px);
+    box-shadow: 0 5px 15px rgba(76, 175, 80, 0.2);
+  }
+
+  .primaryButton:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+
+  .primaryButton:disabled:hover {
+    transform: none;
+    box-shadow: none;
+  }
+
+  .secondaryButton {
+    background-color: var(--bg-accent, #f0f0f0);
+    color: var(--text-primary, #333);
+  }
+
+  .secondaryButton:hover {
+    background-color: var(--border-color, #e0e0e0);
+    transform: translateY(-1px);
+  }
+
   .copyrightNotice {
      margin-top: 2rem;
      font-size: 0.8rem;
-     color: #dc3545; /* Red warning */
+     color: #dc3545;
      font-weight: bold;
      border: 1px solid #f5c6cb;
      background-color: #f8d7da;
@@ -118,223 +251,504 @@
     flex-direction: column;
     align-items: center;
     width: 100%;
+    gap: 2rem;
   }
-  
+
   .matrixContainer {
     width: 100%;
-    max-width: 600px; /* Adjust as needed */
-    margin-bottom: 2rem;
-    border: 1px solid #ccc;
-    padding: 1rem;
-    background-color: #f8f9fa;
+    max-width: 500px;
+    margin-bottom: 1rem;
+    padding: 1.5rem;
+    background-color: var(--card-bg, white);
+    border: 2px solid #e0e0e0;
+    border-radius: 12px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
     display: flex;
     justify-content: center;
     align-items: center;
-    min-height: 250px; /* Ensure space */
-  }
-  .optionsContainer {
-    display: grid;
-    /* Adjust columns based on max options (8 for Sets C,D,E) */
-    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-    gap: 1rem;
-    width: 100%;
-    max-width: 800px; /* Allow options grid to be wider */
-  }
-  
-  .optionButton {
-    background-color: #fff;
-    border: 2px solid #ccc;
-    border-radius: 6px;
-    padding: 0.5rem; /* Adjust padding if needed */
-    cursor: pointer;
-    transition: border-color 0.2s ease, transform 0.2s ease;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: space-between; /* Pushes label down better */
-    min-height: 120px; /* Increased min-height slightly to give SVG more room */
-    overflow: hidden; /* Prevent content overflow */
-  }
-  
-  .optionButton:hover {
-    border-color: #007bff;
-    transform: translateY(-2px);
-  }
-  
-  .optionButton.selected {
-    border-color: #007bff;
-    background-color: #e7f3ff;
-    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.5);
-  }
-  
-  .optionButton:focus {
-     outline: 2px solid #0056b3;
-     outline-offset: 2px;
-  }
-  
-  
-  .imagePlaceholder { /* Basic placeholder style */
-    width: 80%;
-    height: 60px; /* Adjust */
-    background-color: #e9ecef;
-    color: #6c757d;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.8rem;
-    text-align: center;
-    margin-bottom: 0.5rem; /* Space between placeholder and label */
-    border-radius: 4px;
-  }
-  
-  .matrixContainer .imagePlaceholder {
-     height: 200px; /* Larger placeholder for matrix */
-     width: 90%;
-     font-size: 1rem;
-  }
-  
-  .optionLabel {
-     font-weight: bold;
-     color: #333;
-     margin-top: auto; /* Push label to bottom */
-     background-color: rgba(255, 255, 255, 0.8);
-     padding: 2px 6px;
-     border-radius: 3px;
-  }
-  
-  
-  .footer { /* Basic footer */
-    padding: 1rem;
-    text-align: center;
-    font-size: 0.8rem;
-    color: #666;
-    margin-top: 2rem;
-    border-top: 1px solid #e0e0e0;
-  }
-  
-  /* Responsive adjustments */
-  @media (max-width: 768px) {
-    .testContainer { padding: 0.5rem; margin: 0.5rem auto;}
-    .title { font-size: 1.3rem; }
-    .header { flex-direction: column; align-items: flex-start; }
-    .optionsContainer { grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); gap: 0.5rem; }
-    .optionButton { min-height: 80px; padding: 0.3rem;}
-    .imagePlaceholder { height: 40px; font-size: 0.7rem;}
-     .matrixContainer .imagePlaceholder { height: 150px; font-size: 0.9rem; }
-     .optionLabel { font-size: 0.9rem; }
+    aspect-ratio: 1 / 1;
   }
 
-  /* styles/RPMTest.module.css */
-/* Wrapper for the SVG if you used one in React, or target the inner div directly */
-.svgWrapper { /* Or target: .optionButton > div:first-child */
-    width: 90%; /* Use most of the button width */
-    height: 70px; /* Allocate a specific height */
-    display: flex; /* Helps with centering */
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 0.5rem;
-    overflow: hidden; /* Crucial: clip the SVG if it's too big */
-}
-
-/* Target the SVG element itself */
-.svgWrapper svg, /* If using a wrapper */
-.optionButton > div:first-child svg /* If targeting the first div directly */ {
-    display: block; /* Removes extra space below inline SVGs */
-    width: auto;    /* Allow SVG to shrink */
-    height: auto;   /* Allow SVG to shrink */
-    max-width: 100%; /* Don't exceed container width */
-    max-height: 100%;/* Don't exceed container height */
-}
- .matrixContainer > div { /* Target the div created by dangerouslySetInnerHTML */
+  .matrixContainer > div {
     width: 100%;
-    height: auto; /* Let height be determined by aspect ratio */
-    max-width: 500px; /* Example max size */
-    max-height: 500px;
+    height: 100%;
     display: flex;
     justify-content: center;
     align-items: center;
-}
-.matrixContainer svg {
+  }
+
+  .matrixContainer svg {
     display: block;
     max-width: 100%;
     max-height: 100%;
     width: auto;
     height: auto;
-}
+  }
 
+  .optionsContainer {
+    display: flex;
+    flex-direction: row;
+    gap: 1rem;
+    width: 100%;
+    max-width: 100%;
+    padding: 0 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
 
-.optionLabel {
-   font-weight: bold;
-   color: #333;
-   margin-top: 0.25rem; /* Small space above label */
-   background-color: rgba(233, 236, 239, 0.7); /* Light bg for label */
-   padding: 2px 6px;
-   border-radius: 3px;
-   font-size: 0.9em;
-}
+  .optionButton {
+    background-color: white;
+    border: 3px solid #e0e0e0;
+    border-radius: 10px;
+    padding: 0.75rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 120px;
+    width: 120px;
+    height: 140px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  }
 
-.linkContainer {
+  .optionButton:hover {
+    border-color: #4caf50;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(76, 175, 80, 0.15);
+  }
+
+  .optionButton.selected {
+    border-color: #4caf50;
+    background-color: rgba(76, 175, 80, 0.1);
+    box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.2);
+  }
+
+  .optionButton:focus {
+     outline: 3px solid #4caf50;
+     outline-offset: 2px;
+  }
+
+  .svgWrapper {
+    width: 90%;
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  .svgWrapper svg,
+  .optionButton > div:first-child svg {
+    display: block;
+    width: auto;
+    height: auto;
+    max-width: 100%;
+    max-height: 100%;
+  }
+
+  .optionLabel {
+     font-weight: bold;
+     color: var(--text-primary, #333);
+     margin-top: 0.25rem;
+     background-color: rgba(76, 175, 80, 0.1);
+     padding: 4px 10px;
+     border-radius: 5px;
+     font-size: 0.95em;
+  }
+  
+  
+  /* Demo Styles */
+  .demoContainer {
+    margin: 1.5rem 0;
+    padding: 1.5rem;
+    background-color: var(--bg-secondary, #f5f5f5);
+    border-radius: 10px;
+  }
+
+  .demoMatrixExample {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background-color: var(--card-bg, white);
+    border-radius: 8px;
+  }
+
+  .demoOptionsContainer {
+    display: flex;
+    flex-direction: row;
+    gap: 0.75rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 1.5rem;
+  }
+
+  .demoOptionButton {
+    background-color: white;
+    border: 3px solid #e0e0e0;
+    border-radius: 10px;
+    padding: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 100px;
+    width: 100px;
+    height: 120px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+  }
+
+  .demoCorrectOption {
+    border-color: #4caf50;
+    background-color: rgba(76, 175, 80, 0.1);
+    box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.2);
+    animation: demoHighlight 0.5s ease;
+  }
+
+  @keyframes demoHighlight {
+    0% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.05);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+
+  .demoText {
+    text-align: center;
+    min-height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .demoText p {
+    margin: 0;
+    font-size: 1rem;
+    line-height: 1.6;
+    color: var(--text-primary, #333);
+  }
+
+  .demoText .highlight {
+    color: #ff8c00;
+    font-weight: 600;
+  }
+
+  .demoText .success {
+    color: #4caf50;
+    font-weight: 600;
+  }
+
+  /* Countdown */
+  .countdownOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+  }
+
+  .countdownContent {
+    text-align: center;
+    color: white;
+  }
+
+  .countdownContent h2 {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+  }
+
+  .countdownNumber {
+    font-size: 8rem;
+    font-weight: bold;
+    color: #4caf50;
+    animation: pulse 1s infinite;
+    margin: 1rem 0;
+    line-height: 1;
+  }
+
+  @keyframes pulse {
+    0% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.1);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+
+  /* Message Overlay */
+  .messageOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    animation: fadeInOut 1.5s ease;
+    pointer-events: none;
+  }
+
+  @keyframes fadeInOut {
+    0% { opacity: 0; }
+    20% { opacity: 1; }
+    80% { opacity: 1; }
+    100% { opacity: 0; }
+  }
+
+  .message {
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    font-size: 1.5rem;
+    font-weight: 600;
+    padding: 1rem 2rem;
+    border-radius: 30px;
+    max-width: 90%;
+    text-align: center;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    transform: scale(1);
+    animation: messagePopIn 0.3s ease-out;
+  }
+
+  @keyframes messagePopIn {
+    0% {
+      transform: scale(0.8);
+      opacity: 0;
+    }
+    100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+
+  .message.success {
+    background: linear-gradient(135deg, #4caf50 0%, #66bb6a 100%);
+    color: white;
+    font-size: 2rem;
+    border: 3px solid #45a049;
+  }
+
+  .message.error {
+    background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%);
+    color: white;
+    font-size: 2rem;
+    border: 3px solid #c92a3a;
+  }
+
+  .message.info {
+    background-color: rgba(76, 175, 80, 0.95);
+    color: white;
+  }
+
+  .linkContainer {
     display: flex;
     justify-content: center;
     gap: 1.5rem;
     margin-top: 1.5rem;
   }
-  
+
   .link {
-    color: #0070f3;
+    color: #4caf50;
     text-decoration: none;
     font-weight: 500;
     transition: color 0.2s ease;
+    cursor: pointer;
   }
-  
+
   .link:hover {
-    color: #0051a8;
+    color: #45a049;
     text-decoration: underline;
   }
 
+  .footer {
+    padding: 1rem;
+    text-align: center;
+    font-size: 0.9rem;
+    color: var(--text-secondary, #666);
+    margin-top: 2rem;
+  }
 
-/* Dark mode support */
-@media (prefers-color-scheme: dark) {
+  .footerLink {
+    color: #4caf50;
+    margin-left: 0.5rem;
+    text-decoration: none;
+  }
+
+  .footerLink:hover {
+    color: #45a049;
+    text-decoration: underline;
+  }
+
+  /* Animations */
+  @keyframes appear {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Logo in header */
+  .logoLink {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+  }
+
+  .logoLink:hover {
+    opacity: 0.8;
+  }
+
+  /* Accessibility focus styles */
+  .primaryButton:focus,
+  .secondaryButton:focus,
+  .link:focus {
+    outline: 3px solid #4caf50;
+    outline-offset: 3px;
+  }
+
+  /* Responsive adjustments */
+  @media (min-width: 768px) {
+    .title {
+      font-size: 2rem;
+    }
+
+    .buttonContainer {
+      flex-direction: row;
+    }
+
+    .primaryButton, .secondaryButton {
+      flex: 1;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .testContainer {
+      padding: 0.5rem;
+    }
+
+    .title {
+      font-size: 1.3rem;
+    }
+
+    .header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.5rem;
+    }
+
+    .optionsContainer {
+      gap: 0.75rem;
+      padding: 0 0.5rem;
+    }
+
+    .optionButton {
+      min-height: 100px;
+      width: 100px;
+      height: 120px;
+      padding: 0.5rem;
+    }
+
+    .matrixContainer {
+      max-width: 350px;
+      padding: 1rem;
+    }
+
+    .tutorialStep {
+      flex-direction: column;
+      padding: 0.75rem;
+    }
+
+    .stepNumber {
+      width: 35px;
+      height: 35px;
+      font-size: 1rem;
+    }
+
+    .stepText h3 {
+      font-size: 1rem;
+    }
+
+    .stepText p {
+      font-size: 0.9rem;
+    }
+
+    .welcomeCard {
+      padding: 1.5rem;
+    }
+
+    .demoOptionsContainer {
+      gap: 0.5rem;
+    }
+
+    .demoOptionButton {
+      min-height: 80px;
+      width: 80px;
+      height: 100px;
+      padding: 0.4rem;
+    }
+
+    .countdownNumber {
+      font-size: 6rem;
+    }
+
+    .message {
+      font-size: 1.2rem;
+      padding: 0.75rem 1.5rem;
+    }
+
+    .message.success,
+    .message.error {
+      font-size: 1.5rem;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .optionsContainer {
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .optionButton {
+      min-height: 80px;
+      width: 80px;
+      height: 100px;
+      padding: 0.4rem;
+    }
+
+    .matrixContainer {
+      max-width: 280px;
+    }
+  }
+
+  /* Print styles */
+  @media print {
+    .welcomeCard, .buttonContainer, .linkContainer, .footer {
+      display: none;
+    }
+
     .container {
-      background-color: #121212;
-    }
-    
-    .welcomeCard, .resultsCard, .board {
-      background-color: #1e1e1e;
-      border-color: #333;
-    }
-    
-    .welcomeCard h2, .resultsCard h2, .title {
-      color: #4da3ff;
-    }
-    
-    .welcomeCard p, .statLabel {
-      color: #bbb;
-    }
-    
-    .secondaryButton {
-      background-color: #333;
-      color: #fff;
-    }
-    
-    .secondaryButton:hover {
-      background-color: #444;
-    }
-    
-    .progressIndicator {
-      background-color: #1e1e1e;
-      color: #bbb;
-    }
-    
-    .footer {
-      color: #999;
-    }
-    
-    .footerLink, .link {
-      color: #4da3ff;
-    }
-    
-    .metricValue, .statValue {
-      color: #4da3ff;
+      background-color: white;
     }
   }

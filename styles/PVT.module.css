@@ -1,9 +1,9 @@
-/* styles/PVTTest.module.css */
+/* styles/PVT.module.css */
 .container {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  background-color: #f8f9fa;
+  background-color: var(--bg-primary, #eef2f7);
 }
 
 .testContainer {
@@ -11,7 +11,7 @@
   flex-direction: column;
   flex: 1;
   padding: 1rem;
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
   width: 100%;
   height: 90%;
@@ -23,13 +23,18 @@
   align-items: center;
   margin-bottom: 1rem;
   padding: 0.5rem;
+  flex-wrap: wrap;
 }
 
-.title {
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: #0070f3;
-  margin: 0;
+.logoLink {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  transition: opacity 0.2s ease;
+}
+
+.logoLink:hover {
+  opacity: 0.8;
 }
 
 .gameMetrics {
@@ -38,15 +43,16 @@
   gap: 1.5rem;
 }
 
-.timeIndicator, .trialIndicator {
+.timeIndicator,
+.trialIndicator {
   font-size: 0.9rem;
   font-weight: 500;
-  color: #666;
+  color: var(--text-secondary, #666);
 }
 
 .metricValue {
   font-weight: 700;
-  color: #0070f3;
+  color: #00bcd4;
 }
 
 .iconButton {
@@ -63,8 +69,8 @@
 }
 
 .iconButton:hover {
-  background-color: rgba(0, 0, 0, 0.05);
-  color: #0070f3;
+  background-color: rgba(0, 188, 212, 0.1);
+  color: #00bcd4;
 }
 
 .iconButton:disabled {
@@ -80,31 +86,90 @@
   flex: 1;
   position: relative;
   padding: 1rem;
+  min-height: 400px;
 }
 
-/* Welcome Card */
+/* Welcome Card Styles */
 .welcomeCard {
-  background-color: white;
+  background-color: var(--bg-secondary, #ffffff);
   border-radius: 15px;
   padding: 2rem;
-  max-width: 600px;
+  max-width: 700px;
   width: 100%;
-  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 5px 20px var(--shadow-color, rgba(0, 0, 0, 0.1));
   z-index: 10;
 }
 
 .welcomeCard h2 {
+  color: #00bcd4;
   margin-top: 0;
-  color: #0070f3;
   margin-bottom: 1.5rem;
+  text-align: center;
 }
 
 .welcomeCard p {
   margin-bottom: 1.5rem;
   line-height: 1.6;
-  color: #444;
+  color: var(--text-primary, #333);
 }
 
+/* Tutorial Styles */
+.tutorialContent {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin: 1.5rem 0;
+}
+
+.tutorialStep {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+  padding: 1rem;
+  background-color: rgba(0, 188, 212, 0.05);
+  border-radius: 10px;
+  border-left: 4px solid #00bcd4;
+  transition: all 0.3s ease;
+}
+
+.tutorialStep:hover {
+  background-color: rgba(0, 188, 212, 0.1);
+  transform: translateX(5px);
+}
+
+.stepNumber {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #00bcd4 0%, #0097a7 100%);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 1.2rem;
+  box-shadow: 0 4px 10px rgba(0, 188, 212, 0.3);
+}
+
+.stepText {
+  flex: 1;
+}
+
+.stepText h3 {
+  margin: 0 0 0.5rem 0;
+  color: #00bcd4;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.stepText p {
+  margin: 0;
+  color: var(--text-secondary, #666);
+  line-height: 1.5;
+}
+
+/* Button Styles */
 .buttonContainer {
   display: flex;
   flex-direction: column;
@@ -113,7 +178,9 @@
   width: 100%;
 }
 
-.primaryButton, .secondaryButton {
+.primaryButton,
+.secondaryButton,
+.tertiaryButton {
   padding: 0.75rem 1rem;
   border-radius: 8px;
   font-weight: 600;
@@ -127,24 +194,136 @@
 }
 
 .primaryButton {
-  background-color: #0070f3;
+  background-color: #00bcd4;
   color: white;
 }
 
-.primaryButton:hover {
-  background-color: #0051a8;
+.primaryButton:hover:not(:disabled) {
+  background-color: #0097a7;
   transform: translateY(-1px);
-  box-shadow: 0 5px 15px rgba(0, 112, 243, 0.15);
+  box-shadow: 0 5px 15px rgba(0, 188, 212, 0.3);
 }
 
 .secondaryButton {
-  background-color: #f0f0f0;
-  color: #333;
+  background-color: var(--bg-accent, #f0f0f0);
+  color: var(--text-primary, #333);
 }
 
-.secondaryButton:hover {
-  background-color: #e0e0e0;
+.secondaryButton:hover:not(:disabled) {
+  background-color: var(--border-color, #e0e0e0);
   transform: translateY(-1px);
+}
+
+.tertiaryButton {
+  background-color: transparent;
+  color: var(--text-secondary, #666);
+  border: 1px solid var(--border-color, #e0e0e0);
+}
+
+.tertiaryButton:hover:not(:disabled) {
+  background-color: var(--bg-accent, #f5f5f5);
+  border-color: var(--text-secondary, #666);
+  transform: translateY(-1px);
+}
+
+.primaryButton:disabled,
+.secondaryButton:disabled,
+.tertiaryButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Demo Styles */
+.demoIntro {
+  font-size: 1rem;
+  color: var(--text-secondary, #666);
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.demoStepText {
+  min-height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 1rem 0;
+  padding: 1rem;
+  background-color: rgba(0, 188, 212, 0.05);
+  border-radius: 8px;
+  border-left: 4px solid #00bcd4;
+}
+
+.demoStepText p {
+  margin: 0;
+  font-size: 1rem;
+  color: var(--text-primary, #333);
+  font-weight: 500;
+  text-align: center;
+}
+
+.demoContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+  margin: 2rem 0;
+  width: 100%;
+  min-height: 250px;
+  justify-content: center;
+}
+
+.demoStimulus {
+  animation: demoGlow 2s infinite;
+}
+
+@keyframes demoGlow {
+  0%,
+  100% {
+    box-shadow: 0 0 10px rgba(0, 188, 212, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(0, 188, 212, 0.6);
+  }
+}
+
+/* Practice Stats Styles */
+.practiceStats {
+  background-color: rgba(0, 188, 212, 0.05);
+  border-radius: 10px;
+  padding: 1.5rem;
+  margin: 1.5rem 0;
+  border: 2px solid rgba(0, 188, 212, 0.2);
+}
+
+.practiceStats h3 {
+  margin: 0 0 1rem 0;
+  color: #00bcd4;
+  font-size: 1.1rem;
+  text-align: center;
+}
+
+.statRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid rgba(0, 188, 212, 0.1);
+}
+
+.statRow:last-child {
+  border-bottom: none;
+}
+
+.statRow span:first-child {
+  color: var(--text-secondary, #666);
+  font-weight: 500;
+}
+
+.statValue {
+  color: #00bcd4;
+  font-weight: 700;
+  font-size: 1.1rem;
 }
 
 .linkContainer {
@@ -155,14 +334,14 @@
 }
 
 .link {
-  color: #0070f3;
+  color: #00bcd4;
   text-decoration: none;
   font-weight: 500;
   transition: color 0.2s ease;
 }
 
 .link:hover {
-  color: #0051a8;
+  color: #0097a7;
   text-decoration: underline;
 }
 
@@ -175,16 +354,17 @@
   align-items: center;
   justify-content: center;
   position: relative;
+  gap: 1.5rem;
 }
 
 .stimulus {
-  background-color: white;
+  /* Background color controlled by inline styles */
   border-radius: 10px;
   position: relative;
   width: 100%;
   height: 300px;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -199,9 +379,22 @@
 .instructions {
   font-size: 1.2rem;
   font-weight: 500;
-  color: #666;
-  margin-top: 1.5rem;
+  color: #ffffff;
   text-align: center;
+  margin: 0;
+  /* Dark shadow for visibility on light backgrounds */
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5), 0 0 20px rgba(0, 0, 0, 0.3);
+}
+
+.bottomInstructions {
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--text-secondary, #666);
+  text-align: center;
+}
+
+.bottomInstructions p {
+  margin: 0;
 }
 
 .elapsedTime {
@@ -236,12 +429,18 @@
 .countdownContent h2 {
   font-size: 2rem;
   margin-bottom: 1rem;
+  color: white;
+}
+
+.countdownContent p {
+  margin-top: 1rem;
+  font-size: 1.1rem;
 }
 
 .countdownNumber {
   font-size: 8rem;
   font-weight: bold;
-  color: #0070f3;
+  color: #00bcd4;
   animation: pulse 1s infinite;
   margin: 1rem 0;
   line-height: 1;
@@ -275,10 +474,18 @@
 }
 
 @keyframes fadeInOut {
-  0% { opacity: 0; }
-  20% { opacity: 1; }
-  80% { opacity: 1; }
-  100% { opacity: 0; }
+  0% {
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
 }
 
 .message {
@@ -292,89 +499,104 @@
   text-align: center;
 }
 
-/* Results */
-.resultsCard {
-  background-color: white;
-  border-radius: 15px;
-  padding: 2rem;
-  width: 100%;
-  max-width: 800px;
-  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
-  z-index: 10;
-  overflow: auto;
-  max-height: 80vh;
-}
-
-.resultsCard h2 {
-  text-align: center;
-  color: #0070f3;
-  margin-top: 0;
-  margin-bottom: 1.5rem;
-}
-
-.resultsSummary {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1.5rem;
-  margin-bottom: 2rem;
-}
-
-.resultStat {
-  text-align: center;
-  background-color: #f8f9fa;
-  padding: 1.2rem;
-  border-radius: 10px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.resultStat:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
-}
-
-.statLabel {
-  font-size: 1rem;
-  color: #666;
-  margin-bottom: 0.5rem;
-}
-
-.statValue {
-  font-size: 2.5rem;
-  font-weight: 700;
-  color: #0070f3;
-}
-
+/* Footer */
 .footer {
   padding: 1rem;
   text-align: center;
   font-size: 0.9rem;
-  color: #666;
+  color: var(--text-secondary, #666);
   margin-top: 2rem;
 }
 
-.footerLink {
-  color: #0070f3;
-  margin-left: 0.5rem;
-  text-decoration: none;
+/* Dark mode support */
+html[data-theme="dark"] .container {
+  background-color: #121212;
 }
 
-.footerLink:hover {
-  text-decoration: underline;
+html[data-theme="dark"] .welcomeCard {
+  background-color: #1e1e1e;
+  border-color: #333;
 }
 
-/* Media Queries */
+/* .stimulus background controlled by inline styles for dynamic color changes */
+
+html[data-theme="dark"] .welcomeCard h2,
+html[data-theme="dark"] .practiceStats h3,
+html[data-theme="dark"] .countdownNumber {
+  color: #26c6da;
+}
+
+html[data-theme="dark"] .welcomeCard p,
+html[data-theme="dark"] .stepText p {
+  color: #bbb;
+}
+
+/* .instructions keeps white color with shadow for visibility */
+
+html[data-theme="dark"] .secondaryButton {
+  background-color: #333;
+  color: #fff;
+}
+
+html[data-theme="dark"] .secondaryButton:hover {
+  background-color: #444;
+}
+
+html[data-theme="dark"] .footer {
+  color: #999;
+}
+
+html[data-theme="dark"] .link {
+  color: #26c6da;
+}
+
+html[data-theme="dark"] .link:hover {
+  color: #4dd0e1;
+}
+
+html[data-theme="dark"] .metricValue,
+html[data-theme="dark"] .statValue {
+  color: #26c6da;
+}
+
+/* Responsive Design */
 @media (min-width: 768px) {
-  .title {
-    font-size: 2rem;
-  }
-  
   .buttonContainer {
     flex-direction: row;
   }
-  
-  .primaryButton, .secondaryButton {
+
+  .primaryButton,
+  .secondaryButton,
+  .tertiaryButton {
     flex: 1;
+  }
+}
+
+@media (max-width: 768px) {
+  .welcomeCard {
+    padding: 1.5rem;
+  }
+
+  .tutorialStep {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .stepNumber {
+    margin-bottom: 0.5rem;
+  }
+
+  .stimulus {
+    height: 200px;
+  }
+
+  .countdownNumber {
+    font-size: 6rem;
+  }
+
+  .message {
+    font-size: 1.2rem;
+    padding: 0.75rem 1.5rem;
   }
 }
 
@@ -384,35 +606,14 @@
     align-items: center;
     gap: 1rem;
   }
-  
+
   .gameMetrics {
     width: 100%;
     justify-content: space-between;
   }
-  
-  .resultsCard {
-    padding: 1.5rem;
-  }
-  
-  .resultsSummary {
-    gap: 1rem;
-  }
-  
-  .statValue {
+
+  .elapsedTime {
     font-size: 2rem;
-  }
-  
-  .countdownNumber {
-    font-size: 6rem;
-  }
-  
-  .message {
-    font-size: 1.2rem;
-    padding: 0.75rem 1.5rem;
-  }
-  
-  .stimulus {
-    height: 200px;
   }
 }
 
@@ -428,20 +629,7 @@
   }
 }
 
-@keyframes glow {
-  0% {
-    box-shadow: 0 0 5px rgba(0, 112, 243, 0.5);
-  }
-  50% {
-    box-shadow: 0 0 20px rgba(0, 112, 243, 0.8);
-  }
-  100% {
-    box-shadow: 0 0 5px rgba(0, 112, 243, 0.5);
-  }
-}
-
-/* Apply animations */
-.welcomeCard, .resultsCard {
+.welcomeCard {
   animation: appear 0.5s ease;
 }
 
@@ -451,77 +639,22 @@
 
 /* Accessibility focus styles */
 .stimulus:focus {
-  outline: 3px solid #0070f3;
+  outline: 3px solid #00bcd4;
   outline-offset: 3px;
 }
 
-.primaryButton:focus, .secondaryButton:focus, .link:focus, .iconButton:focus {
-  outline: 3px solid #0070f3;
+.primaryButton:focus,
+.secondaryButton:focus,
+.tertiaryButton:focus,
+.link:focus,
+.iconButton:focus {
+  outline: 3px solid #00bcd4;
   outline-offset: 3px;
 }
 
 /* Performance optimization */
-.stimulus, .messageOverlay, .countdownOverlay {
+.stimulus,
+.messageOverlay,
+.countdownOverlay {
   will-change: transform, opacity;
-}
-
-/* Print styles */
-@media print {
-  .welcomeCard, .iconButton, .buttonContainer, .linkContainer, .footer {
-    display: none;
-  }
-  
-  .resultsCard {
-    box-shadow: none;
-    padding: 0;
-  }
-  
-  .container {
-    background-color: white;
-  }
-}
-
-/* Dark mode support */
-@media (prefers-color-scheme: dark) {
-  .container {
-    background-color: #121212;
-  }
-  
-  .welcomeCard, .resultsCard, .stimulus {
-    background-color: #1e1e1e;
-    border-color: #333;
-  }
-  
-  .welcomeCard h2, .resultsCard h2, .title {
-    color: #4da3ff;
-  }
-  
-  .welcomeCard p, .statLabel, .instructions {
-    color: #bbb;
-  }
-  
-  .secondaryButton {
-    background-color: #333;
-    color: #fff;
-  }
-  
-  .secondaryButton:hover {
-    background-color: #444;
-  }
-  
-  .resultStat {
-    background-color: #252525;
-  }
-  
-  .footer {
-    color: #999;
-  }
-  
-  .footerLink, .link {
-    color: #4da3ff;
-  }
-  
-  .metricValue, .statValue {
-    color: #4da3ff;
-  }
 }

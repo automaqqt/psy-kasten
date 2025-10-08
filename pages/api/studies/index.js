@@ -37,10 +37,14 @@ export default async function handler(req, res) {
   }
   // --- POST: Create a new study ---
   else if (req.method === 'POST') {
-    const { name, description } = req.body;
+    const { name, description, testType } = req.body;
 
     if (!name || typeof name !== 'string' || name.trim().length === 0) {
       return res.status(400).json({ message: 'Study name is required' });
+    }
+
+    if (!testType || typeof testType !== 'string') {
+      return res.status(400).json({ message: 'Test type is required' });
     }
 
     try {
@@ -48,6 +52,7 @@ export default async function handler(req, res) {
         data: {
           name: name.trim(),
           description: description?.trim() || null,
+          testType: testType,
           researcherId: researcherId,
         },
       });

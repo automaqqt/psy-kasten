@@ -8,38 +8,83 @@ import  Modal  from '../../../components/ui/modal'; // Example path
 import { TEST_TYPES } from '../../../lib/testConfig'; // Define test types centrally
 
 // Reusable List Component (Extract later if needed)
-const ParticipantList = ({ participants, onAssignTestClick, onDeleteParticipant }) => {
+const ParticipantList = ({ participants, onDeleteParticipant, testType }) => {
     if (!participants || participants.length === 0) {
         return <p>No participants added to this study yet.</p>;
     }
+
+    const handleCopyLink = (link) => {
+        navigator.clipboard.writeText(link)
+            .then(() => alert("Link copied to clipboard!"))
+            .catch(err => alert("Failed to copy link: " + err));
+    };
+
+    const handleOpenLink = (link) => {
+        window.open(link, '_blank', 'noopener,noreferrer');
+    };
+
     return (
-        <table className={styles.participantTable}>
-            <thead>
-                <tr>
-                    <th>Identifier</th>
-                    <th>Assignments</th>
-                    <th>Created</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                {participants.map(p => (
-                    <tr key={p.id}>
-                        <td>{p.identifier}</td>
-                        <td>{p.assignments.length ?? 0}</td>
-                        <td>{new Date(p.createdAt).toLocaleDateString()}</td>
-                        <td>
-                            <button onClick={() => onAssignTestClick(p)} className={styles.actionButtonAssign}>Assign Test</button>
-                            <button onClick={() => onDeleteParticipant(p.id)} className={styles.actionButtonDelete}>Delete</button>
-                            {/* Add View Results button link */}
-                             <Link href={`/dashboard/results?participantId=${p.id}`}>
-                                 <div className={styles.actionButtonView}>View Results</div>
-                             </Link>
-                        </td>
+        <div className={styles.tableWrapper}>
+            <table className={styles.participantTable}>
+                <thead>
+                    <tr>
+                        <th>Identifier</th>
+                        <th>Status</th>
+                        <th>Test Link</th>
+                        <th>Created</th>
+                        <th>Actions</th>
                     </tr>
-                ))}
+                </thead>
+                <tbody>
+                {participants.map(p => {
+                    const assignment = p.assignments?.[0]; // Get first assignment (should only be one)
+                    const testLink = assignment ? `${window.location.origin}/${testType}?assignmentId=${assignment.accessKey}` : null;
+                    const status = assignment?.completedAt ? 'Completed' : 'Pending';
+
+                    return (
+                        <tr key={p.id}>
+                            <td>{p.identifier}</td>
+                            <td>
+                                <span className={`${styles.statusBadge} ${assignment?.completedAt ? styles.statusCompleted : styles.statusPending}`}>
+                                    {status}
+                                </span>
+                            </td>
+                            <td className={styles.linkCell}>
+                                {testLink ? (
+                                    <div className={styles.linkWrapper}>
+                                        <code className={styles.testLink} title={testLink}>
+                                            {testLink.length > 50 ? `${testLink.substring(0, 47)}...` : testLink}
+                                        </code>
+                                    </div>
+                                ) : (
+                                    <span className={styles.noLink}>No link</span>
+                                )}
+                            </td>
+                            <td>{new Date(p.createdAt).toLocaleDateString()}</td>
+                            <td className={styles.actionsCell}>
+                                {testLink && (
+                                    <>
+                                        <button onClick={() => handleOpenLink(testLink)} className={styles.actionButtonOpen} title="Open in new tab">
+                                            🔗 Open
+                                        </button>
+                                        <button onClick={() => handleCopyLink(testLink)} className={styles.actionButtonCopy} title="Copy to clipboard">
+                                            📋 Copy
+                                        </button>
+                                    </>
+                                )}
+                                <button onClick={() => onDeleteParticipant(p.id)} className={styles.actionButtonDelete} title="Delete participant">
+                                    🗑️ Delete
+                                </button>
+                                <Link href={`/dashboard/results?participantId=${p.id}`}>
+                                    <div className={styles.actionButtonView} title="View results">📊 Results</div>
+                                </Link>
+                            </td>
+                        </tr>
+                    );
+                })}
             </tbody>
         </table>
+        </div>
     );
 };
 
@@ -56,10 +101,6 @@ export default function StudyDetailPage() {
   // Modal States
   const [isAddParticipantModalOpen, setIsAddParticipantModalOpen] = useState(false);
   const [newParticipantIdentifier, setNewParticipantIdentifier] = useState('');
-  const [isAssignModalOpen, setIsAssignModalOpen] = useState(false);
-  const [selectedParticipant, setSelectedParticipant] = useState(null);
-  const [selectedTestType, setSelectedTestType] = useState(TEST_TYPES[0]?.id || ''); // Default to first test type
-  const [generatedLink, setGeneratedLink] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const fetchStudyData = useCallback(async () => {
@@ -135,55 +176,6 @@ export default function StudyDetailPage() {
   };
 
 
-  // --- Assignment Handlers ---
-   const openAssignModal = (participant) => {
-       setSelectedParticipant(participant);
-       setSelectedTestType(TEST_TYPES[0]?.id || ''); // Reset to default test type
-       setGeneratedLink(null);
-       setError(null); // Clear previous errors
-       setIsAssignModalOpen(true);
-   };
-
-   const handleAssignTestSubmit = async (e) => {
-      e.preventDefault();
-      if (!selectedParticipant || !selectedTestType) return;
-       setIsSubmitting(true);
-       setError(null);
-       setGeneratedLink(null);
-       try {
-           const res = await fetch('/api/assignments', {
-               method: 'POST',
-               headers: { 'Content-Type': 'application/json' },
-               body: JSON.stringify({
-                   participantId: selectedParticipant.id,
-                   testType: selectedTestType,
-                   studyId: studyId // Include studyId for potential linking/filtering
-               }),
-           });
-            const data = await res.json();
-           if (!res.ok) {
-               throw new Error(data.message || 'Failed to create assignment');
-           }
-           setGeneratedLink(data.testLink); // Show the generated link
-            // Optionally close modal after a delay or keep it open to show link
-           // setIsAssignModalOpen(false);
-           fetchStudyData(); // Refresh participant assignment counts etc.
-       } catch (err) {
-           setError(err.message);
-       } finally {
-           setIsSubmitting(false);
-       }
-   };
-
-   const copyLink = () => {
-       if (generatedLink) {
-           navigator.clipboard.writeText(generatedLink)
-               .then(() => alert("Link copied to clipboard!"))
-               .catch(err => alert("Failed to copy link: " + err));
-       }
-   };
-
-
   // --- Render ---
   if (isLoading) return <DashboardLayout><p className={styles.loadingText}>Loading study data...</p></DashboardLayout>;
   if (error && !study) return <DashboardLayout><p className={styles.errorText}>Error: {error}</p></DashboardLayout>; // Show error prominently if study fetch failed
@@ -206,17 +198,10 @@ export default function StudyDetailPage() {
             </button>
            <ParticipantList
                 participants={participants}
-                onAssignTestClick={openAssignModal}
                 onDeleteParticipant={handleDeleteParticipant}
+                testType={study.testType}
             />
        </section>
-
-        {/* Optional: Section to view assignments for the whole study */}
-        {/* <section className={styles.section}>
-            <h2>Test Assignments</h2>
-            <AssignmentList assignments={assignments} />
-        </section> */}
-
 
        {/* Add Participant Modal */}
        <Modal isOpen={isAddParticipantModalOpen} onClose={() => setIsAddParticipantModalOpen(false)} title="Add New Participant">
@@ -240,45 +225,6 @@ export default function StudyDetailPage() {
                      <button type="submit" disabled={isSubmitting || !newParticipantIdentifier.trim()} className={styles.primaryButtonModal}>
                         {isSubmitting ? 'Adding...' : 'Add Participant'}
                     </button>
-                </div>
-            </form>
-       </Modal>
-
-       {/* Assign Test Modal */}
-        <Modal isOpen={isAssignModalOpen} onClose={() => setIsAssignModalOpen(false)} title={`Assign Test to ${selectedParticipant?.identifier}`}>
-            <form onSubmit={handleAssignTestSubmit}>
-                 {error && <p className={styles.errorTextModal}>{error}</p>}
-                 <div className={styles.formGroup}>
-                     <label htmlFor="testType">Select Test *</label>
-                     <select
-                        id="testType"
-                        value={selectedTestType}
-                        onChange={(e) => setSelectedTestType(e.target.value)}
-                        required
-                        disabled={isSubmitting || !!generatedLink} // Disable after generating link
-                        className={styles.selectInput}
-                    >
-                         {TEST_TYPES.map(test => (
-                             <option key={test.id} value={test.id}>{test.titleKey.slice(0,test.titleKey.length-6)}</option>
-                         ))}
-                     </select>
-                 </div>
-
-                 {generatedLink && (
-                    <div className={styles.generatedLinkContainer}>
-                        <label>Generated Test Link:</label>
-                        <input type="text" readOnly value={generatedLink} className={styles.linkInput}/>
-                        <button type="button" onClick={copyLink} className={styles.copyButton}>Copy Link</button>
-                    </div>
-                 )}
-
-                  <div className={styles.modalActions}>
-                     <button type="button" onClick={() => setIsAssignModalOpen(false)} disabled={isSubmitting} className={styles.secondaryButtonModal}>Close</button>
-                     {!generatedLink && ( // Only show generate button if no link yet
-                         <button type="submit" disabled={isSubmitting || !selectedTestType} className={styles.primaryButtonModal}>
-                            {isSubmitting ? 'Generating...' : 'Generate Link'}
-                        </button>
-                     )}
                 </div>
             </form>
        </Modal>

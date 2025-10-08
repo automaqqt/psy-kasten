@@ -38,7 +38,8 @@ const estimateSSRTMean = (goRTs, stopSuccessRate, meanSSD) => {
     return Math.max(0, ssrt); // SSRT cannot be negative
 };
 
-const GNGResults = ({ results, settings, onRestart }) => {
+const GNGResults = ({ results, settings, onRestart, t }) => {
+    const translate = t || ((key) => key);
 
     // --- Calculate Metrics ---
     const goTrials = results.filter(r => r.type === 'go');
@@ -114,53 +115,51 @@ const GNGResults = ({ results, settings, onRestart }) => {
 
     return (
         <div className={styles.resultsCard}>
-            <h2>Test Results</h2>
+            <h2>{translate('results_title')}</h2>
 
             <div className={styles.metricsGrid}>
                 {/* Go Metrics */}
                 <div className={styles.metricCard}>
-                    <h3>Go Performance</h3>
-                    <div>Mean RT: {meanGoRT.toFixed(0)} ms</div>
-                    <div>Median RT: {medianGoRT.toFixed(0)} ms</div>
-                    <div>SD RT: {sdGoRT.toFixed(0)} ms</div>
-                    <div>Omissions: {(omissionErrorRate * 100).toFixed(1)}% ({omissionErrors.length}/{goTrials.length})</div>
+                    <h3>{translate('go_performance')}</h3>
+                    <div>{translate('mean_rt')}: {meanGoRT.toFixed(0)} ms</div>
+                    <div>{translate('median_rt')}: {medianGoRT.toFixed(0)} ms</div>
+                    <div>{translate('sd_rt')}: {sdGoRT.toFixed(0)} ms</div>
+                    <div>{translate('omissions')}: {(omissionErrorRate * 100).toFixed(1)}% ({omissionErrors.length}/{goTrials.length})</div>
                 </div>
 
                 {/* Inhibitory Metrics */}
                 <div className={styles.metricCard}>
-                    <h3>Inhibition Performance</h3>
-                    <div>Commission Errors (NoGo): {nogoTrials.length > 0 ? `${(commissionErrorsNoGo.length / nogoTrials.length * 100).toFixed(1)}% (${commissionErrorsNoGo.length}/${nogoTrials.length})` : 'N/A'}</div>
+                    <h3>{translate('inhibition_performance')}</h3>
+                    <div>{translate('commission_errors_nogo')}: {nogoTrials.length > 0 ? `${(commissionErrorsNoGo.length / nogoTrials.length * 100).toFixed(1)}% (${commissionErrorsNoGo.length}/${nogoTrials.length})` : 'N/A'}</div>
                      {settings.stopSignalProbability > 0 && stopTrials.length > 0 && (
                          <>
-                            <div>Commission Errors (Stop): {`${(commissionErrorsStop.length / stopTrials.length * 100).toFixed(1)}% (${commissionErrorsStop.length}/${stopTrials.length})`}</div>
-                            <div>Stop Success Rate: {(stopSuccessRate * 100).toFixed(1)}%</div>
+                            <div>{translate('commission_errors_stop')}: {`${(commissionErrorsStop.length / stopTrials.length * 100).toFixed(1)}% (${commissionErrorsStop.length}/${stopTrials.length})`}</div>
+                            <div>{translate('stop_success_rate')}: {(stopSuccessRate * 100).toFixed(1)}%</div>
                          </>
                      )}
                       {settings.stopSignalProbability === 0 && (
-                          <div>Correct NoGo: {nogoTrials.length > 0 ? `${(correctInhibitsNoGo.length / nogoTrials.length * 100).toFixed(1)}% (${correctInhibitsNoGo.length}/${nogoTrials.length})` : 'N/A'}</div>
+                          <div>{translate('correct_nogo')}: {nogoTrials.length > 0 ? `${(correctInhibitsNoGo.length / nogoTrials.length * 100).toFixed(1)}% (${correctInhibitsNoGo.length}/${nogoTrials.length})` : 'N/A'}</div>
                       )}
                 </div>
 
                  {/* Stop Signal Specific */}
                   {settings.stopSignalProbability > 0 && stopTrials.length > 0 && (
                      <div className={styles.metricCard}>
-                         <h3>Stop Signal Metrics</h3>
-                         <div>Mean SSD: {meanSSD ? meanSSD.toFixed(0) + ' ms' : 'N/A'}</div>
-                         <div>Estimated SSRT: {estimatedSSRT ? estimatedSSRT.toFixed(0) + ' ms' : 'N/A'}</div>
-                         <div className={styles.note}>(SSRT via Mean Method - approximation)</div>
+                         <h3>{translate('stop_signal_metrics')}</h3>
+                         <div>{translate('mean_ssd')}: {meanSSD ? meanSSD.toFixed(0) + ' ms' : 'N/A'}</div>
+                         <div>{translate('estimated_ssrt')}: {estimatedSSRT ? estimatedSSRT.toFixed(0) + ' ms' : 'N/A'}</div>
+                         <div className={styles.note}>{translate('ssrt_note')}</div>
                      </div>
                   )}
             </div>
 
              <div className={styles.exportContainer}>
-                 <button className={styles.exportButton} onClick={exportResultsToCSV}>Export Detailed Results (CSV)</button>
+                 <button className={styles.exportButton} onClick={exportResultsToCSV}>{translate('export_results')}</button>
              </div>
 
-             {/* Maybe add a small table/chart of RT distribution or SSD changes */}
-
             <div className={styles.buttonContainer}>
-                <button className={styles.primaryButton} onClick={onRestart}>Restart Test</button>
-                <Link href="/"><div className={styles.secondaryButton}>Back to Home</div></Link>
+                <button className={styles.primaryButton} onClick={onRestart}>{translate('restart_test')}</button>
+                <Link href="/"><div className={styles.secondaryButton}>{translate('common:back_to_home')}</div></Link>
             </div>
         </div>
     );

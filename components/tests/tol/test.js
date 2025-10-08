@@ -26,7 +26,7 @@ const statesAreEqual = (state1, state2) => {
 
 
 export default function TOLTest({ assignmentId, onComplete, isStandalone, t }) {
-  const [gameState, setGameState] = useState('welcome'); // welcome, tutorial, practice, practiceComplete, playing, results
+  const [gameState, setGameState] = useState('welcome'); // welcome, tutorial, demo, practice, practiceComplete, playing, results
   const [currentProblemIndex, setCurrentProblemIndex] = useState(0);
   const [currentTrial, setCurrentTrial] = useState(1);
   // Initialize pegState with the start state of the *first* problem
@@ -42,6 +42,9 @@ export default function TOLTest({ assignmentId, onComplete, isStandalone, t }) {
   const [trialStartTime, setTrialStartTime] = useState(null);
   const [firstMoveTime, setFirstMoveTime] = useState(null);
   const [lastMoveTime, setLastMoveTime] = useState(null);
+  const [demoStep, setDemoStep] = useState(0);
+  const [demoPegState, setDemoPegState] = useState(null);
+  const [demoHeldBall, setDemoHeldBall] = useState(null);
 
   // Translation function with fallback
   const translate = t || ((key) => key);
@@ -81,6 +84,34 @@ export default function TOLTest({ assignmentId, onComplete, isStandalone, t }) {
         setPegState(null);
      }
   }, [gameState, currentProblemIndex, pegState, setupProblemBoard]);
+
+  // Demo animation effect
+  useEffect(() => {
+    if (gameState === 'demo') {
+      if (demoStep === 0) {
+        // Initialize demo board: [['R'], ['G'], ['B']]
+        setDemoPegState([['R'], ['G'], ['B']]);
+        setDemoHeldBall(null);
+        const timer = setTimeout(() => setDemoStep(1), 2000);
+        return () => clearTimeout(timer);
+      } else if (demoStep === 1) {
+        const timer = setTimeout(() => setDemoStep(2), 2500);
+        return () => clearTimeout(timer);
+      } else if (demoStep === 2) {
+        // Pick up blue ball
+        setDemoPegState([['R'], ['G'], []]);
+        setDemoHeldBall({ ball: 'B', fromPegIndex: 2 });
+        const timer = setTimeout(() => setDemoStep(3), 2000);
+        return () => clearTimeout(timer);
+      } else if (demoStep === 3) {
+        // Place blue ball on middle peg
+        setDemoPegState([['R'], ['G', 'B'], []]);
+        setDemoHeldBall(null);
+        const timer = setTimeout(() => setDemoStep(4), 2000);
+        return () => clearTimeout(timer);
+      }
+    }
+  }, [gameState, demoStep]);
 
 
   const startPractice = async () => {
@@ -368,6 +399,22 @@ export default function TOLTest({ assignmentId, onComplete, isStandalone, t }) {
 
 
   // --- Render Logic ---
+  // Helper to render demo balls
+  const renderDemoBalls = (pegIndex) => {
+    if (!demoPegState || !demoPegState[pegIndex]) return null;
+    return (
+      <div className={styles.pegBalls}>
+        {demoPegState[pegIndex].map((ball, ballIndex) => (
+          <div
+            key={`demo-${pegIndex}-${ballIndex}`}
+            className={`${styles.ball} ${demoHeldBall?.fromPegIndex === pegIndex && demoHeldBall?.ball === ball ? styles.held : ''}`}
+            style={{ backgroundColor: BALL_COLORS[ball] }}
+          />
+        ))}
+      </div>
+    );
+  };
+
   // renderBalls remains the same...
    const renderBalls = (pegIndex) => {
         // ... (implementation from previous version) - check for null pegState
@@ -504,12 +551,91 @@ export default function TOLTest({ assignmentId, onComplete, isStandalone, t }) {
                 </div>
               </div>
               <div className={styles.buttonContainer}>
-                <button className={styles.primaryButton} onClick={startPractice}>
+                <button className={styles.primaryButton} onClick={() => { setDemoStep(0); setGameState('demo'); }}>
+                  {translate('see_demo')}
+                </button>
+                <button className={styles.secondaryButton} onClick={startPractice}>
+                  {translate('start_practice')}
+                </button>
+                <button
+                  className={styles.tertiaryButton}
+                  onClick={() => setGameState('welcome')}
+                >
+                  {translate('back')}
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Demo screen */}
+          {gameState === 'demo' && (
+            <div className={styles.welcomeCard}>
+              <h2>{translate('demo_title')}</h2>
+              <p className={styles.demoIntro}>{translate('demo_intro')}</p>
+
+              <div className={styles.demoStepText}>
+                {demoStep === 0 && <p>{translate('demo_step1')}</p>}
+                {demoStep === 1 && <p>{translate('demo_step2')}</p>}
+                {demoStep === 2 && <p>{translate('demo_step3')}</p>}
+                {demoStep === 3 && <p>{translate('demo_step4')}</p>}
+                {demoStep === 4 && <p>{translate('demo_step5')}</p>}
+              </div>
+
+              {/* Demo Board */}
+              {demoPegState && (
+                <div className={styles.demoBoard}>
+                  <div className={styles.board}>
+                    {demoPegState.map((_, pegIndex) => (
+                      <div
+                        key={`demo-peg-${pegIndex}`}
+                        className={`${styles.peg} ${styles[`peg${pegIndex + 1}`]}`}
+                      >
+                        {renderDemoBalls(pegIndex)}
+                        <div className={`${styles.pegPost} ${styles[`pegPost${pegIndex + 1}`]}`} />
+                      </div>
+                    ))}
+                    {demoHeldBall && (
+                      <div
+                        className={styles.heldBallFloating}
+                        style={{ backgroundColor: BALL_COLORS[demoHeldBall.ball] }}
+                      />
+                    )}
+                  </div>
+
+                  {/* Demo Goal */}
+                  <div className={styles.goalContainer}>
+                    <h4>{translate('target_config', { moves: 1 })}</h4>
+                    <div className={styles.goalBoard}>
+                      {[['R'], ['G', 'B'], []].map((pegBalls, pegIndex) => (
+                        <div key={`demo-goal-peg-${pegIndex}`} className={styles.goalPeg}>
+                          <div className={styles.goalPegBalls}>
+                            {pegBalls.map((ball, ballIndex) => (
+                              <div
+                                key={`demo-goal-ball-${pegIndex}-${ballIndex}`}
+                                className={styles.goalBall}
+                                style={{ backgroundColor: BALL_COLORS[ball] }}
+                              />
+                            ))}
+                          </div>
+                          <div className={`${styles.pegPost} ${styles[`pegPost${pegIndex + 1}`]}`} />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              <div className={styles.buttonContainer}>
+                <button
+                  className={styles.primaryButton}
+                  onClick={startPractice}
+                  disabled={demoStep < 4}
+                >
                   {translate('start_practice')}
                 </button>
                 <button
                   className={styles.secondaryButton}
-                  onClick={() => setGameState('welcome')}
+                  onClick={() => setGameState('tutorial')}
                 >
                   {translate('back')}
                 </button>

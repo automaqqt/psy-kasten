@@ -1,24 +1,64 @@
-// components/settings/rpm/RPMSettings.js
+// components/settings/rpm.js
 import React, { useEffect, useRef } from 'react';
-import styles from '../../styles/Settings.module.css'; // Reuse existing settings styles
+import styles from '../../styles/Settings.module.css';
 
-const RPMSettings = ({ settings, setSettings, onClose }) => {
+const RPMSettings = ({ settings, setSettings, onClose, t }) => {
   const panelRef = useRef(null);
+  const translate = t || ((key) => key);
 
-  // Re-use useEffect for closing modal, focus trapping, escape key from your previous SettingsPanel
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (panelRef.current && !panelRef.current.contains(event.target)) onClose();
+      if (panelRef.current && !panelRef.current.contains(event.target)) {
+        onClose();
+      }
     };
+
     document.addEventListener('mousedown', handleClickOutside);
-    // Add focus trap logic here...
-    // Add escape key logic here...
-     const firstFocusable = panelRef.current?.querySelector('input, button');
-     firstFocusable?.focus();
+
+    // Trap focus inside modal
+    const handleTabKey = (e) => {
+      if (e.key === 'Tab') {
+        const focusableElements = panelRef.current.querySelectorAll(
+          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        );
+        const firstElement = focusableElements[0];
+        const lastElement = focusableElements[focusableElements.length - 1];
+
+        if (!e.shiftKey && document.activeElement === lastElement) {
+          firstElement.focus();
+          e.preventDefault();
+        } else if (e.shiftKey && document.activeElement === firstElement) {
+          lastElement.focus();
+          e.preventDefault();
+        }
+      }
+    };
+
+    document.addEventListener('keydown', handleTabKey);
+
+    // Focus first element on mount
+    const firstFocusable = panelRef.current.querySelector('button, [href], input, select');
+    if (firstFocusable) {
+      firstFocusable.focus();
+    }
+
+    // Handle escape key
+    const handleEscapeKey = (e) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+
+    document.addEventListener('keydown', handleEscapeKey);
+
+    // Add body class to prevent scrolling
     document.body.classList.add('modal-open');
+
+    // Clean up
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
-      // Remove other listeners...
+      document.removeEventListener('keydown', handleTabKey);
+      document.removeEventListener('keydown', handleEscapeKey);
       document.body.classList.remove('modal-open');
     };
   }, [onClose]);
@@ -42,7 +82,7 @@ const RPMSettings = ({ settings, setSettings, onClose }) => {
     <div className={styles.modalOverlay} role="dialog" aria-modal="true">
       <div className={styles.settingsPanel} ref={panelRef}>
         <div className={styles.panelHeader}>
-          <h2 className={styles.settingsTitle}>RPM Settings</h2>
+          <h2 className={styles.settingsTitle}>{translate('common:settings')}</h2>
           <button className={styles.closeButton} onClick={onClose} aria-label="Close settings">×</button>
         </div>
 

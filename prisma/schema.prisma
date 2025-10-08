@@ -101,6 +101,7 @@ model Study {
   id          String    @id @default(cuid())
   name        String
   description String?
+  testType    String    @default("corsi") // Test type assigned to this study (e.g., 'corsi', 'pvt', 'gng-sst')
   researcherId String
   researcher  User      @relation(fields: [researcherId], references: [id], onDelete: Cascade) // Link to researcher
 
