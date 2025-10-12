@@ -111,22 +111,29 @@ const AktTest = ({ assignmentId, onComplete, isStandalone, t }) => {
     const numTargets = isPractice ? 3 : settings.numTargets;
     const R = clicks.filter(c => c.symbol.type === 'target').length;
     const F = clicks.filter(c => c.symbol.type === 'distractor').length;
-    const F1 = clicks.filter(c => c.symbol.rotation === 180).length;
-    const F2 = clicks.filter(c => c.symbol.rotation === 90 || c.symbol.rotation === 270).length;
+    // Error type classification (for distractor clicks only):
+    // F1: Rechts-links Fehler (focuses on Lage, neglects Muster) - rotation 270
+    // F2: Lage-Fehler (focuses on Muster, neglects Lage) - rotation 90
+    // F3: Doppelfehler (both Muster and Lage differ) - rotation 0
+    const F1 = clicks.filter(c => c.symbol.type === 'distractor' && c.symbol.rotation === 270).length;
+    const F2 = clicks.filter(c => c.symbol.type === 'distractor' && c.symbol.rotation === 90).length;
+    const F3 = clicks.filter(c => c.symbol.type === 'distractor' && c.symbol.rotation === 0).length;
     const Omissions = numTargets - R;
     const F_perc = (F / (R + F)) * 100 || 0;
-    const G = R - F;
+    const G = 35 - F + R; // Total correctly processed characters: distractors avoided + targets found
 
-    const calculatedResults = { T, R, F, F1, F2, Omissions, F_perc, G };
+    const calculatedResults = { T, R, F, F1, F2, F3, Omissions, F_perc, G };
 
     if (isPractice) {
       // Check practice results
-      if (Omissions === 0 && F === 0) {
+      const totalErrors = Omissions + F;
+      if (totalErrors === 0) {
         if (isFullscreen) exitFullscreen();
         setGameState('practiceComplete');
       } else {
         if (isFullscreen) exitFullscreen();
-        setPracticeFailureData({ Omissions, F });
+        const mustRetry = totalErrors > 5;
+        setPracticeFailureData({ Omissions, F, totalErrors, mustRetry });
         setGameState('practiceFailed');
       }
     } else {
@@ -174,7 +181,7 @@ const AktTest = ({ assignmentId, onComplete, isStandalone, t }) => {
     if (gameState === 'intro' && demoStep < 3) {
       const timer = setTimeout(() => {
         setDemoStep(prev => prev + 1);
-      }, 1500);
+      }, 4000);
       return () => clearTimeout(timer);
     }
   }, [gameState, demoStep]);
@@ -245,6 +252,13 @@ const AktTest = ({ assignmentId, onComplete, isStandalone, t }) => {
               <div className={styles.stepText}>
                 <h3>{translate('tutorial_step3_title')}</h3>
                 <p>{translate('tutorial_step3_text')}</p>
+              </div>
+            </div>
+            <div className={styles.tutorialStep}>
+              <div className={styles.stepNumber}>4</div>
+              <div className={styles.stepText}>
+                <h3>{translate('tutorial_step4_title')}</h3>
+                <p>{translate('tutorial_step4_text')}</p>
               </div>
             </div>
           </div>
@@ -318,9 +332,16 @@ const AktTest = ({ assignmentId, onComplete, isStandalone, t }) => {
               {translate('practice_false_positives')}: {practiceFailureData.F}
             </p>
           )}
-          <p>{translate('practice_failed_p2')}</p>
+          {practiceFailureData.mustRetry ? (
+            <p className={styles.errorText}>{translate('practice_must_retry')}</p>
+          ) : (
+            <p>{translate('practice_failed_p2')}</p>
+          )}
           <div className={styles.buttonContainer}>
             <button className={styles.primaryButton} onClick={startPractice}>{translate('try_practice_again')}</button>
+            {!practiceFailureData.mustRetry && (
+              <button className={styles.secondaryButton} onClick={() => { setCountdown(settings.countdownDuration); setGameState('countdown'); }}>{translate('start_real_test')}</button>
+            )}
             <button className={styles.secondaryButton} onClick={() => setGameState('tutorial')}>{translate('back_to_tutorial')}</button>
           </div>
         </div>

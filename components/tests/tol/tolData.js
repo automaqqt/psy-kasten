@@ -28,13 +28,13 @@ export const PROBLEMS = [
     // Problem 1
     start: [['B'], ['R'], ['G']],
     goal:  [['B','G'], [], ['R']],
-    minMoves: 3
+    minMoves: 2
   },
   {
     // Problem 2
     start: [['B','G'], [], ['R']],
     goal:  [['B','R'], ['G'], []],
-    minMoves: 3
+    minMoves: 2
   },
   {
     // Problem 3
@@ -60,13 +60,13 @@ export const PROBLEMS = [
     // Problem 6
     start: [[], ['G','B'], ['R']],
     goal:  [['R', 'G'], [], ['B']],
-    minMoves: 4
+    minMoves: 3
   },
   {
     // Problem 7
     start: [['R', 'G'], [], ['B']],
     goal:  [['R','B','G'], [], []],
-    minMoves: 4
+    minMoves: 3
   },
   {
     // Problem 8

@@ -3,6 +3,7 @@ import { useSession, signOut } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 import Footer from '../../components/ui/footer';
+import { ThemeToggle } from '../ui/themeToggle';
 import Image from 'next/image';
 import styles from '../../styles/DashboardLayout.module.css'; // Create this CSS file
 
@@ -47,6 +48,7 @@ export default function DashboardLayout({ children }) {
             {/* Add more nav links as needed */}
         </nav>
         <div className={styles.userArea}>
+          <ThemeToggle />
           <span>{session.user?.name || session.user?.email}</span>
           <button onClick={() => signOut({ callbackUrl: '/' })} className={styles.logoutButton}>
             Sign Out

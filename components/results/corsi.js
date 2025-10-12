@@ -66,8 +66,8 @@ const DetailedResults = ({ roundData, calculateCorsiSpan, isStandalone, t }) => 
       round.success ? 'Success' : 'Failure',
       Math.round(round.totalResponseTime),
       Math.round(round.avgClickInterval || 0),
-      round.sequence.map(id => id + 1).join('-'),
-      round.userSequence.map(id => id + 1).join('-')
+      round.sequence.join('-'),
+      round.userSequence.join('-')
     ]);
     
     // Create CSV content
@@ -199,26 +199,26 @@ const DetailedResults = ({ roundData, calculateCorsiSpan, isStandalone, t }) => 
                 <div className={styles.sequenceDots}>
                   {roundData[selectedRound].sequence.map((blockId, i) => (
                     <div key={i} className={styles.sequenceDot}>
-                      {blockId + 1}
+                      {blockId}
                     </div>
                   ))}
                 </div>
               </div>
-              
+
               <div>
                 <div className={styles.sequenceLabel}>Your input:</div>
                 <div className={styles.sequenceDots}>
                   {roundData[selectedRound].userSequence.map((blockId, i) => {
-                    const isCorrect = roundData[selectedRound].success ? 
-                      true : 
+                    const isCorrect = roundData[selectedRound].success ?
+                      true :
                       blockId === roundData[selectedRound].sequence[i];
-                    
+
                     return (
-                      <div 
-                        key={i} 
+                      <div
+                        key={i}
                         className={`${styles.sequenceDot} ${!isCorrect ? styles.wrongDot : ''}`}
                       >
-                        {blockId + 1}
+                        {blockId}
                       </div>
                     );
                   })}

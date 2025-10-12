@@ -29,7 +29,7 @@ const PREDEFINED_SEQUENCES = [
 
 export default function WtbTest({ assignmentId, onComplete, isStandalone, t }) {
   const [gameState, setGameState] = useState('welcome'); // welcome, tutorial, intro, practice, practiceComplete, countdown, playing, listening, results
-  const [level, setLevel] = useState(3); // Start with 3-digit sequences
+  const [level, setLevel] = useState(1); // Start with 3-digit sequences
   const [sequence, setSequence] = useState([]);
   const [userInput, setUserInput] = useState('');
   const [isRecording, setIsRecording] = useState(false);
@@ -38,6 +38,7 @@ export default function WtbTest({ assignmentId, onComplete, isStandalone, t }) {
   const [results, setResults] = useState([]);
   const [roundData, setRoundData] = useState([]);
   const [sequenceIndexPerLevel, setSequenceIndexPerLevel] = useState({}); // Track which sequence we're at for each level
+  const [attemptsPerLevel, setAttemptsPerLevel] = useState({}); // Track number of attempts per level
   const [countdown, setCountdown] = useState(3);
   const [isPractice, setIsPractice] = useState(false);
   const [demoStep, setDemoStep] = useState(0);
@@ -79,7 +80,7 @@ export default function WtbTest({ assignmentId, onComplete, isStandalone, t }) {
       translate('test_completed_successfully') :
       translate('test_finished');
 
-    showOverlayMessage(finishMessage, 2000);
+    showOverlayMessage(finishMessage, 3500);
 
     if (assignmentId) {
       const finalTestData = {
@@ -88,13 +89,14 @@ export default function WtbTest({ assignmentId, onComplete, isStandalone, t }) {
         rounds: updatedRoundData,
         settingsUsed: { ...settings },
         completedSuccessfully,
-        sequenceIndexPerLevel
+        sequenceIndexPerLevel,
+        attemptsPerLevel
       };
       onComplete(finalTestData);
     }
 
     setTimeout(() => setGameState('results'), 1500);
-  }, [isFullscreen, exitFullscreen, results, score, settings, sequenceIndexPerLevel, assignmentId, onComplete, translate, showOverlayMessage]);
+  }, [isFullscreen, exitFullscreen, results, score, settings, sequenceIndexPerLevel, attemptsPerLevel, assignmentId, onComplete, translate, showOverlayMessage]);
 
   const speakSequence = useCallback(async (seq) => {
     if (!synthesisRef.current) return;
@@ -149,6 +151,9 @@ export default function WtbTest({ assignmentId, onComplete, isStandalone, t }) {
       }
     }
 
+    // Increment attempts for this level
+    setAttemptsPerLevel(prev => ({ ...prev, [currentLevel]: (prev[currentLevel] || 0) + 1 }));
+
     setUserInput('');
     setCountdown(settings.countdownDuration);
     setGameState('countdown');
@@ -169,7 +174,7 @@ export default function WtbTest({ assignmentId, onComplete, isStandalone, t }) {
       // Check if we've run out of sequences
       if (newSequence === null) {
         clearInterval(countdownInterval);
-        showOverlayMessage('test_failed_no_sequences', 2500, 'error');
+        showOverlayMessage('test_failed_no_sequences', 3000, 'error');
         finishTest(roundData, false);
         return;
       }
@@ -408,7 +413,7 @@ export default function WtbTest({ assignmentId, onComplete, isStandalone, t }) {
     if (gameState === 'intro' && demoStep < 3) {
       const timer = setTimeout(() => {
         setDemoStep(prev => prev + 1);
-      }, 2000);
+      }, 4000);
       return () => clearTimeout(timer);
     }
   }, [gameState, demoStep]);
@@ -527,13 +532,13 @@ export default function WtbTest({ assignmentId, onComplete, isStandalone, t }) {
 
     if (isPractice) {
       if (isCorrect) {
-        showOverlayMessage('practice_correct', 2000, 'success');
+        showOverlayMessage('practice_correct', 3000, 'success');
         setTimeout(() => {
           if (isFullscreen) exitFullscreen();
           setGameState('practiceComplete');
         }, 2200);
       } else {
-        showOverlayMessage('practice_incorrect_retry', 2000, 'error');
+        showOverlayMessage('practice_incorrect_retry', 3000, 'error');
         setTimeout(() => startPractice(), 2200);
       }
       return;
@@ -545,7 +550,8 @@ export default function WtbTest({ assignmentId, onComplete, isStandalone, t }) {
       sequence: [...sequence],
       userSequence,
       userInput,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
+      attemptNumber: attemptsPerLevel[level] || 0
     };
 
     const updatedRoundData = [...roundData, roundResult];
@@ -553,9 +559,14 @@ export default function WtbTest({ assignmentId, onComplete, isStandalone, t }) {
 
     if (isCorrect) {
       // Correct answer: move to next level
-      setScore(prevScore => prevScore + level);
-      showOverlayMessage('correct_feedback', 1500, 'success');
-      setResults(prev => [...prev, { level, success: true }]);
+      // Award points equal to level number + 1 bonus point if first attempt
+      const levelPoints = level;
+      const bonusPoints = (attemptsPerLevel[level] === 1) ? 1 : 0;
+      const totalPoints = levelPoints + bonusPoints;
+
+      setScore(prevScore => prevScore + totalPoints);
+      showOverlayMessage('correct_feedback', 3000, 'success');
+      setResults(prev => [...prev, { level, success: true, points: totalPoints, isFirstTry: attemptsPerLevel[level] === 1 }]);
 
       setTimeout(() => {
         // Check if we've reached 9-digit sequences
@@ -581,14 +592,14 @@ export default function WtbTest({ assignmentId, onComplete, isStandalone, t }) {
       // Note: currentSequenceIndex already points to the next sequence
       // because we increment on presentation
       if (currentSequenceIndex >= levelSequences.length) {
-        showOverlayMessage('test_failed_no_sequences', 2500, 'error');
+        showOverlayMessage('test_failed_no_sequences', 3000, 'error');
         finishTest(updatedRoundData, false);
       } else {
-        showOverlayMessage('incorrect_retry', 2000, 'error');
+        showOverlayMessage('incorrect_retry', 3000, 'error');
         setTimeout(() => startRound(level), 2200);
       }
     }
-  }, [userInput, sequence, level, isPractice, roundData, sequenceIndexPerLevel, isFullscreen, exitFullscreen, showOverlayMessage, startRound, finishTest, addDebug]);
+  }, [userInput, sequence, level, isPractice, roundData, sequenceIndexPerLevel, attemptsPerLevel, isFullscreen, exitFullscreen, showOverlayMessage, startRound, finishTest, addDebug]);
 
   // Start practice
   const startPractice = useCallback(async () => {
@@ -613,12 +624,13 @@ export default function WtbTest({ assignmentId, onComplete, isStandalone, t }) {
   
   // Reset game
   const resetGame = () => {
-    setLevel(3);
+    setLevel(2);
     setScore(0);
     setResults([]);
     setRoundData([]);
     setGameState('welcome');
     setSequenceIndexPerLevel({});
+    setAttemptsPerLevel({});
   };
 
   return (
@@ -803,12 +815,13 @@ export default function WtbTest({ assignmentId, onComplete, isStandalone, t }) {
               <p>{translate('practice_complete_p2')}</p>
               <div className={styles.buttonContainer}>
                 <button className={styles.primaryButton} onClick={() => {
-                  setLevel(3);
-                  setSequenceIndexPerLevel({ 3: 0 });
+                  setLevel(2);
+                  setSequenceIndexPerLevel({ 2: 0 });
+                  setAttemptsPerLevel({});
                   setScore(0);
                   setResults([]);
                   setRoundData([]);
-                  startRound(3);
+                  startRound(2);
                 }}>
                   {translate('start_real_test')}
                 </button>
@@ -836,7 +849,6 @@ export default function WtbTest({ assignmentId, onComplete, isStandalone, t }) {
                   <>
                     <div className={styles.speakerIcon}>🔊</div>
                     <h3>{translate('listening_instruction')}</h3>
-                    <p>{translate('listen_carefully')}</p>
                   </>
                 ) : (
                   <>
@@ -844,7 +856,6 @@ export default function WtbTest({ assignmentId, onComplete, isStandalone, t }) {
                       {isSpeaking ? '🔊' : '⏳'}
                     </div>
                     <h3>{translate('waiting_to_speak')}</h3>
-                    <p>{translate('wait_message')}</p>
                   </>
                 )}
               </div>
@@ -960,6 +971,7 @@ export default function WtbTest({ assignmentId, onComplete, isStandalone, t }) {
             <WtbResults
               roundData={roundData}
               maxLevel={Math.max(...results.filter(r => r.success).map(r => r.level), 0)}
+              totalScore={score}
               isStandalone={isStandalone}
               t={translate}
             />

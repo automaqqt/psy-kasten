@@ -2,7 +2,7 @@ import React from 'react';
 import styles from '../../styles/Results.module.css';
 
 const AktResults = ({ results, t }) => {
-  const { T, R, F, F1, F2, Omissions, F_perc, G } = results;
+  const { T, R, F, F1, F2, F3, Omissions, F_perc, G } = results;
   const translate = t || ((key) => key);
 
   const exportResultsToCSV = () => {
@@ -11,8 +11,9 @@ const AktResults = ({ results, t }) => {
       'Correct_R',
       'Omissions',
       'Errors_F_Total',
-      'Errors_F1_Opposite',
-      'Errors_F2_Perpendicular',
+      'Errors_F1_RightLeft',
+      'Errors_F2_Position',
+      'Errors_F3_Double',
       'Error_Percent_F_perc',
       'Total_Score_G'
     ];
@@ -24,6 +25,7 @@ const AktResults = ({ results, t }) => {
       F,
       F1,
       F2,
+      F3,
       F_perc,
       G
     ];
@@ -82,12 +84,16 @@ const AktResults = ({ results, t }) => {
             <div className={styles.detailValue}>{F}</div>
           </div>
           <div className={styles.detailItem}>
-            <div className={styles.detailLabel}>- Opposite Errors (F1):</div>
+            <div className={styles.detailLabel}>{translate('error_f1_label')} (F1):</div>
             <div className={styles.detailValue}>{F1}</div>
           </div>
           <div className={styles.detailItem}>
-            <div className={styles.detailLabel}>- Perpendicular Errors (F2):</div>
+            <div className={styles.detailLabel}>{translate('error_f2_label')} (F2):</div>
             <div className={styles.detailValue}>{F2}</div>
+          </div>
+          <div className={styles.detailItem}>
+            <div className={styles.detailLabel}>{translate('error_f3_label')} (F3):</div>
+            <div className={styles.detailValue}>{F3}</div>
           </div>
           <div className={styles.detailItem}>
             <div className={styles.detailLabel}>{translate('false_alarm_percentage_label')} (F%):</div>

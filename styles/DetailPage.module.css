@@ -57,6 +57,42 @@
   .addButton:hover {
     background-color: #218838;
   }
+
+  /* Header Actions */
+  .headerActions {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .editButton, .deleteButton {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+  }
+
+  .editButton {
+    background-color: #ffc107;
+    color: #000;
+  }
+
+  .editButton:hover {
+    background-color: #e0a800;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+  }
+
+  .deleteButton {
+    background-color: #dc3545;
+    color: white;
+  }
+
+  .deleteButton:hover {
+    background-color: #c82333;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+  }
   
   /* Table Wrapper for Responsive Scrolling */
   .tableWrapper {
@@ -105,7 +141,7 @@
       white-space: nowrap; /* Prevent actions wrapping */
   }
   
-  .actionButtonOpen, .actionButtonCopy, .actionButtonDelete, .actionButtonView {
+  .actionButtonOpen, .actionButtonCopy, .actionButtonEdit, .actionButtonDelete, .actionButtonView {
       font-size: 0.8rem;
       padding: 0.5rem 0.875rem;
       border-radius: 6px;
@@ -139,6 +175,16 @@
     background-color: #059669;
     transform: translateY(-1px);
     box-shadow: 0 4px 6px rgba(16, 185, 129, 0.25);
+  }
+
+  .actionButtonEdit {
+    background-color: #f59e0b;
+    color: white;
+  }
+  .actionButtonEdit:hover {
+    background-color: #d97706;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px rgba(245, 158, 11, 0.25);
   }
 
   .actionButtonDelete {
@@ -385,9 +431,101 @@
     border-radius: 4px;
   }
 
+  /* Dark mode support */
+  html[data-theme="dark"] .pageHeader h1 {
+    color: #e0e0e0;
+  }
+
+  html[data-theme="dark"] .studyDescription {
+    background-color: #1a1a1a;
+    color: #b0b0b0;
+    border-left-color: #4da6ff;
+  }
+
+  html[data-theme="dark"] .section {
+    background-color: #2d2d2d;
+  }
+
+  html[data-theme="dark"] .section h2 {
+    color: #e0e0e0;
+    border-bottom-color: #444;
+  }
+
+  html[data-theme="dark"] .tableWrapper {
+    border-color: #444;
+  }
+
+  html[data-theme="dark"] .participantTable th {
+    background-color: #1a1a1a;
+    color: #b0b0b0;
+    border-bottom-color: #444;
+  }
+
+  html[data-theme="dark"] .participantTable td {
+    border-bottom-color: #444;
+    color: #e0e0e0;
+  }
+
+  html[data-theme="dark"] .participantTable tbody tr:hover {
+    background-color: #1a1a1a;
+  }
+
+  html[data-theme="dark"] .testLink {
+    background-color: #1a1a1a;
+    color: #4da6ff;
+    border-color: #444;
+  }
+
+  html[data-theme="dark"] .testLink:hover {
+    background-color: #2d2d2d;
+    border-color: #4da6ff;
+  }
+
+  html[data-theme="dark"] .modalContent {
+    background-color: #2d2d2d;
+    color: #e0e0e0;
+  }
+
+  html[data-theme="dark"] .modalHeader {
+    border-bottom-color: #444;
+  }
+
+  html[data-theme="dark"] .modalActions {
+    border-top-color: #444;
+  }
+
+  html[data-theme="dark"] .formGroup input[type="text"],
+  html[data-theme="dark"] .formGroup textarea {
+    background-color: #1a1a1a;
+    border-color: #444;
+    color: #e0e0e0;
+  }
+
+  html[data-theme="dark"] .errorTextPage {
+    background-color: #2d1a1a;
+    border-color: #442222;
+    color: #ff6b6b;
+  }
+
   /* Responsive adjustments */
   @media (max-width: 768px) {
-    .actionButtonOpen, .actionButtonCopy, .actionButtonDelete, .actionButtonView {
+    .pageHeader {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.75rem;
+    }
+
+    .headerActions {
+      width: 100%;
+      flex-direction: column;
+    }
+
+    .headerActions .editButton,
+    .headerActions .deleteButton {
+      width: 100%;
+    }
+
+    .actionButtonOpen, .actionButtonCopy, .actionButtonEdit, .actionButtonDelete, .actionButtonView {
       font-size: 0.7rem;
       padding: 0.4rem 0.6rem;
       margin-left: 0.25rem;
@@ -401,5 +539,9 @@
 
     .testLink {
       font-size: 0.7rem;
+    }
+
+    .modalContent {
+      padding: 1rem;
     }
   }

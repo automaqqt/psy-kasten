@@ -16,8 +16,58 @@ export default async function handler(req, res) {
 
     const researcherId = session.user.id;
 
+    // --- PUT: Update a participant ---
+    if (req.method === 'PUT') {
+        try {
+            const { identifier } = req.body;
+
+            if (!identifier || typeof identifier !== 'string' || identifier.trim() === '') {
+                return res.status(400).json({ message: 'Identifier is required' });
+            }
+
+            // Verify ownership via the study the participant belongs to
+            const participant = await prisma.participant.findUnique({
+                where: { id: participantId },
+                select: { studyId: true, study: { select: { researcherId: true } } }
+            });
+
+            if (!participant) {
+                return res.status(404).json({ message: 'Participant not found' });
+            }
+            if (participant.study?.researcherId !== researcherId) {
+                console.warn(`Unauthorized update attempt: User ${researcherId} -> Participant ${participantId}`);
+                return res.status(403).json({ message: 'Forbidden: You do not own the study this participant belongs to' });
+            }
+
+            // Check if identifier already exists in this study
+            const existingParticipant = await prisma.participant.findFirst({
+                where: {
+                    studyId: participant.studyId,
+                    identifier: identifier.trim(),
+                    id: { not: participantId }
+                }
+            });
+
+            if (existingParticipant) {
+                return res.status(409).json({ message: 'A participant with this identifier already exists in this study' });
+            }
+
+            // Update the participant
+            const updatedParticipant = await prisma.participant.update({
+                where: { id: participantId },
+                data: { identifier: identifier.trim() },
+            });
+
+            console.log(`Participant ${participantId} updated by user ${researcherId}`);
+            return res.status(200).json(updatedParticipant);
+
+        } catch (error) {
+            console.error(`Error updating participant ${participantId}:`, error);
+            return res.status(500).json({ message: 'Error updating participant' });
+        }
+    }
     // --- DELETE: Delete a participant ---
-    if (req.method === 'DELETE') {
+    else if (req.method === 'DELETE') {
         try {
             // Verify ownership via the study the participant belongs to
             const participant = await prisma.participant.findUnique({
@@ -47,7 +97,7 @@ export default async function handler(req, res) {
     }
     // --- Method Not Allowed ---
     else {
-        res.setHeader('Allow', ['DELETE']);
+        res.setHeader('Allow', ['PUT', 'DELETE']);
         return res.status(405).json({ message: `Method ${req.method} Not Allowed` });
     }
 }

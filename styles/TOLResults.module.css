@@ -94,6 +94,13 @@
   }
   
   .success { color: #28a745; font-weight: bold; }
+  .successPerfect {
+    color: #155724;
+    font-weight: bold;
+    background-color: #d4edda;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+  }
   .failure { color: #dc3545; font-weight: bold; }
   .noAttempt { color: #999; }
 
@@ -127,7 +134,49 @@
   .primaryButton:hover { background-color: #0051a8; }
   .secondaryButton { background-color: #f0f0f0; color: #333; }
   .secondaryButton:hover { background-color: #e0e0e0; }
-  
+
+  /* Planning Time Averages Section */
+  .averagesSection {
+    margin-top: 2rem;
+    padding: 1.5rem;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+  }
+
+  .averagesSection h3 {
+    margin-top: 0;
+    margin-bottom: 1rem;
+    color: #333;
+    font-size: 1.1rem;
+  }
+
+  .averagesGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+  }
+
+  .averageItem {
+    display: flex;
+    flex-direction: column;
+    padding: 1rem;
+    background-color: white;
+    border-radius: 6px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  }
+
+  .averageLabel {
+    font-size: 0.85rem;
+    color: #666;
+    margin-bottom: 0.5rem;
+  }
+
+  .averageValue {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #0070f3;
+  }
+
   @media (max-width: 600px) {
     .resultsCard { padding: 1rem; }
     .summaryMetrics { flex-direction: column; gap: 1rem; }
@@ -135,4 +184,6 @@
     .resultsTable th, .resultsTable td { padding: 0.4rem; font-size: 0.8rem;}
     .buttonContainer { flex-direction: column; align-items: center;}
     .primaryButton, .secondaryButton { width: 80%; max-width: 250px;}
+    .averagesGrid { grid-template-columns: 1fr; }
+    .averageValue { font-size: 1.1rem; }
   }

@@ -49,10 +49,10 @@ export default async function handler(req, res) {
             });
     
             // 4. Mark Assignment as Completed
-            // await tx.testAssignment.update({
-            //   where: { id: newResult.id },
-              
-            // });
+            await tx.testAssignment.update({
+              where: { accessKey: assignmentId },
+              data: { completedAt: new Date() }
+            });
     
             return newResult;
           });

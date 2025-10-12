@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/router';
 import DashboardLayout from '../../../components/layouts/DashboardLayout';
 import styles from '../../../styles/ResultsPage.module.css'; // Create this CSS file
 
@@ -50,6 +51,7 @@ const ResultTable = ({ results }) => {
  };
 
 export default function ResultsPage() {
+    const router = useRouter();
     const [results, setResults] = useState([]);
     const [studies, setStudies] = useState([]); // For filtering
     const [participants, setParticipants] = useState([]); // For filtering
@@ -58,7 +60,18 @@ export default function ResultsPage() {
 
     // Filter State
     const [selectedStudyId, setSelectedStudyId] = useState('');
-    // Add states for selectedParticipantId, selectedTestType if needed
+    const [selectedParticipantId, setSelectedParticipantId] = useState('');
+    // Add states for selectedTestType if needed
+
+    // Read participantId from URL on mount
+    useEffect(() => {
+        if (router.isReady) {
+            const participantIdFromUrl = router.query.participantId;
+            if (participantIdFromUrl && typeof participantIdFromUrl === 'string') {
+                setSelectedParticipantId(participantIdFromUrl);
+            }
+        }
+    }, [router.isReady, router.query.participantId]);
 
     const fetchData = async () => {
         setIsLoading(true);
@@ -73,6 +86,7 @@ export default function ResultsPage() {
             // Build query string for results based on filters
             const queryParams = new URLSearchParams();
             if (selectedStudyId) queryParams.append('studyId', selectedStudyId);
+            if (selectedParticipantId) queryParams.append('participantId', selectedParticipantId);
             // Add other filters...
 
             const resultsRes = await fetch(`/api/results?${queryParams.toString()}`);
@@ -93,13 +107,81 @@ export default function ResultsPage() {
     // Fetch initial data and refetch when filters change
     useEffect(() => {
         fetchData();
-    }, [selectedStudyId]); // Add other filter dependencies here
+    }, [selectedStudyId, selectedParticipantId]); // Add other filter dependencies here
+
+    const exportResultsToCSV = () => {
+        if (!results || results.length === 0) {
+            alert('No results to export');
+            return;
+        }
+
+        // Headers for CSV
+        const headers = [
+            'Result_ID',
+            'Study',
+            'Participant_ID',
+            'Test_Type',
+            'Completed_At_DE',
+            'Data_JSON'
+        ];
+
+        // Map results to CSV rows
+        const rows = results.map(res => {
+            const completedAt = res.testAssignment?.completedAt
+                ? new Date(res.testAssignment.completedAt).toLocaleString('de-DE', {
+                    timeZone: 'Europe/Berlin',
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit'
+                })
+                : 'Incomplete';
+
+            return [
+                res.id,
+                res.testAssignment?.study?.name ?? 'N/A',
+                res.testAssignment?.participant?.identifier ?? 'N/A',
+                res.testAssignment?.testType ?? 'Unknown',
+                completedAt,
+                JSON.stringify(res.data).replace(/"/g, '""') // Escape quotes in JSON
+            ];
+        });
+
+        // Create CSV content
+        const csvContent = [
+            headers.join(','),
+            ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
+        ].join('\n');
+
+        // Create and download file
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.setAttribute('href', url);
+        const timestamp = new Date().toISOString().split('T')[0];
+        const studyName = selectedStudyId
+            ? studies.find(s => s.id === selectedStudyId)?.name.replace(/[^a-zA-Z0-9]/g, '_')
+            : 'all-studies';
+        link.setAttribute('download', `results-${studyName}-${timestamp}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
 
     return (
         <DashboardLayout>
             <div className={styles.pageHeader}>
                 <h1>Test Results</h1>
-                {/* Add export button for filtered results? */}
+                <button
+                    onClick={exportResultsToCSV}
+                    disabled={!results || results.length === 0}
+                    className={styles.exportButton}
+                    title="Export filtered results to CSV"
+                >
+                    📥 Export Results (CSV)
+                </button>
             </div>
 
             <div className={styles.filters}>

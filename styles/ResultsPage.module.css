@@ -98,3 +98,111 @@
   .actionButtonView:hover {
       background-color: #0056b3;
   }
+
+  .exportButton {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 0.6rem 1.2rem;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.95rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+  }
+
+  .exportButton:hover:not(:disabled) {
+    background-color: #218838;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+  }
+
+  .exportButton:disabled {
+    background-color: #6c757d;
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+
+  /* Dark mode support */
+  html[data-theme="dark"] .pageHeader {
+    border-bottom-color: #444;
+  }
+
+  html[data-theme="dark"] .pageHeader h1 {
+    color: #e0e0e0;
+  }
+
+  html[data-theme="dark"] .filters {
+    background-color: #1a1a1a;
+  }
+
+  html[data-theme="dark"] .filters label {
+    color: #b0b0b0;
+  }
+
+  html[data-theme="dark"] .filterSelect {
+    background-color: #2d2d2d;
+    border-color: #444;
+    color: #e0e0e0;
+  }
+
+  html[data-theme="dark"] .resultsTable {
+    background-color: #2d2d2d;
+  }
+
+  html[data-theme="dark"] .resultsTable th {
+    background-color: #1a1a1a;
+    color: #b0b0b0;
+    border-color: #444;
+  }
+
+  html[data-theme="dark"] .resultsTable td {
+    border-color: #444;
+    color: #e0e0e0;
+  }
+
+  html[data-theme="dark"] .resultsTable tbody tr:nth-child(even) {
+    background-color: #252525;
+  }
+
+  html[data-theme="dark"] .resultsTable tbody tr:hover {
+    background-color: #1a1a1a;
+  }
+
+  /* Mobile responsiveness */
+  @media (max-width: 768px) {
+    .pageHeader {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 1rem;
+    }
+
+    .exportButton {
+      width: 100%;
+    }
+
+    .filters {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .filterSelect {
+      width: 100%;
+    }
+
+    .resultsTable {
+      font-size: 0.85rem;
+    }
+
+    .resultsTable th,
+    .resultsTable td {
+      padding: 0.5rem 0.6rem;
+      font-size: 0.85rem;
+    }
+  }
+
+  /* Tablet responsiveness */
+  @media (max-width: 1024px) and (min-width: 769px) {
+    .resultsTable {
+      font-size: 0.9rem;
+    }
+  }

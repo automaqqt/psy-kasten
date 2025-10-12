@@ -92,22 +92,22 @@ export default function TOLTest({ assignmentId, onComplete, isStandalone, t }) {
         // Initialize demo board: [['R'], ['G'], ['B']]
         setDemoPegState([['R'], ['G'], ['B']]);
         setDemoHeldBall(null);
-        const timer = setTimeout(() => setDemoStep(1), 2000);
+        const timer = setTimeout(() => setDemoStep(1), 3500);
         return () => clearTimeout(timer);
       } else if (demoStep === 1) {
-        const timer = setTimeout(() => setDemoStep(2), 2500);
+        const timer = setTimeout(() => setDemoStep(2), 4000);
         return () => clearTimeout(timer);
       } else if (demoStep === 2) {
         // Pick up blue ball
         setDemoPegState([['R'], ['G'], []]);
         setDemoHeldBall({ ball: 'B', fromPegIndex: 2 });
-        const timer = setTimeout(() => setDemoStep(3), 2000);
+        const timer = setTimeout(() => setDemoStep(3), 3500);
         return () => clearTimeout(timer);
       } else if (demoStep === 3) {
         // Place blue ball on middle peg
         setDemoPegState([['R'], ['G', 'B'], []]);
         setDemoHeldBall(null);
-        const timer = setTimeout(() => setDemoStep(4), 2000);
+        const timer = setTimeout(() => setDemoStep(4), 3500);
         return () => clearTimeout(timer);
       }
     }
@@ -153,9 +153,8 @@ export default function TOLTest({ assignmentId, onComplete, isStandalone, t }) {
   };
 
 
-   // handleBallClick remains the same...
+   // handleBallClick - counts turn as soon as ball is picked up
    const handleBallClick = (pegIndex, ballIndex) => {
-       // ... (implementation from previous version)
        if ((gameState !== 'playing' && gameState !== 'practice') || heldBall || !pegState) return;
 
        const peg = pegState[pegIndex];
@@ -169,21 +168,36 @@ export default function TOLTest({ assignmentId, onComplete, isStandalone, t }) {
          const newState = JSON.parse(JSON.stringify(pegState));
          newState[pegIndex].pop();
          setPegState(newState);
+
+         // Count the turn immediately when ball is picked up
+         const currentMoveNumber = moveHistory.length + 1;
+         const pauseTime = lastMoveTime ? Date.now() - lastMoveTime : 0;
+         setMoveHistory(prev => [...prev, { ball, from: pegIndex, to: null, pauseTime }]);
+         setFeedback(translate('move_number', { number: currentMoveNumber }));
        }
    };
 
-   // handlePegClick remains mostly the same, but uses currentProblem.goal
+   // handlePegClick - completes the move that was started when ball was picked up
    const handlePegClick = (toPegIndex) => {
     if ((gameState !== 'playing' && gameState !== 'practice') || !heldBall || !pegState) return;
 
     const { ball, fromPegIndex } = heldBall;
 
-    // Return ball if clicking same peg
+    // Return ball if clicking same peg (still counts as a move since ball was picked up)
     if (fromPegIndex === toPegIndex) {
       const newState = JSON.parse(JSON.stringify(pegState));
       newState[fromPegIndex].push(ball);
       setPegState(newState);
       setHeldBall(null);
+      // Update the last move in history with the destination (same as source)
+      setMoveHistory(prev => {
+        const updated = [...prev];
+        if (updated.length > 0) {
+          updated[updated.length - 1].to = toPegIndex;
+        }
+        return updated;
+      });
+      setLastMoveTime(Date.now());
       return;
     }
 
@@ -194,19 +208,32 @@ export default function TOLTest({ assignmentId, onComplete, isStandalone, t }) {
       newState[fromPegIndex].push(ball);
       setPegState(newState);
       setHeldBall(null);
+      // Update the last move in history with the destination (returned to source due to invalid)
+      setMoveHistory(prev => {
+        const updated = [...prev];
+        if (updated.length > 0) {
+          updated[updated.length - 1].to = fromPegIndex;
+        }
+        return updated;
+      });
+      setLastMoveTime(Date.now());
       return;
     }
 
-    // Valid move
+    // Valid move - complete it
     const newState = JSON.parse(JSON.stringify(pegState));
     newState[toPegIndex].push(ball);
     setPegState(newState); // Apply the move
-    const currentMoveNumber = moveHistory.length + 1;
-    const pauseTime = Date.now() - lastMoveTime;
-    setMoveHistory(prev => [...prev, { ball, from: fromPegIndex, to: toPegIndex, pauseTime }]);
+    // Update the last move in history with the destination
+    setMoveHistory(prev => {
+      const updated = [...prev];
+      if (updated.length > 0) {
+        updated[updated.length - 1].to = toPegIndex;
+      }
+      return updated;
+    });
     setLastMoveTime(Date.now());
     setHeldBall(null); // Ball is placed
-    setFeedback(translate('move_number', { number: currentMoveNumber }));
 
 
     // --- Check for Solution ---
@@ -225,13 +252,13 @@ export default function TOLTest({ assignmentId, onComplete, isStandalone, t }) {
     } else {
       // Use currentProblem.goal for comparison
       if (currentProblem && statesAreEqual(newState, currentProblem.goal)) {
-         // Solved
-         handleTrialSuccess(currentMoveNumber); // Pass move number
+         // Solved - use moveHistory.length since move was already counted
+         handleTrialSuccess(moveHistory.length);
 
-      } else if (currentProblem && currentMoveNumber >= currentProblem.minMoves) {
+      } else if (currentProblem && moveHistory.length >= currentProblem.minMoves) {
          // Min moves reached or exceeded without solving
          // Optional: Could automatically fail the trial here, or let user continue
-         setFeedback(translate('goal_not_reached', { number: currentMoveNumber }));
+         setFeedback(translate('goal_not_reached', { number: moveHistory.length }));
       }
     }
   };
@@ -241,8 +268,8 @@ export default function TOLTest({ assignmentId, onComplete, isStandalone, t }) {
     const scoreForTrial = TRIAL_SCORES[currentTrial - 1];
     setTotalScore(prev => prev + scoreForTrial);
 
-    const planningTime = firstMoveTime - trialStartTime;
-    const executionTime = Date.now() - firstMoveTime;
+    const planningTime = firstMoveTime ? firstMoveTime - trialStartTime : 0;
+    const executionTime = firstMoveTime ? Date.now() - firstMoveTime : Date.now() - trialStartTime;
 
     const attemptData = { trial: currentTrial, success: true, moves: movesTaken, planningTime, executionTime };
     updateProblemResult(attemptData);
@@ -262,8 +289,8 @@ export default function TOLTest({ assignmentId, onComplete, isStandalone, t }) {
      const attemptData = {
          trial: currentTrial,
          success: false,
-         // Calculate moves accurately even if failing mid-move attempt
-         moves: moveHistory.length + (heldBall ? 0 : 1), // Count placed moves + potentially the one triggering failure
+         // Moves are counted when picked up, so moveHistory.length is accurate
+         moves: moveHistory.length,
          planningTime,
          executionTime
      };
@@ -596,7 +623,7 @@ export default function TOLTest({ assignmentId, onComplete, isStandalone, t }) {
                     ))}
                     {demoHeldBall && (
                       <div
-                        className={styles.heldBallFloating}
+                        className={styles.heldBallFloatingDemo}
                         style={{ backgroundColor: BALL_COLORS[demoHeldBall.ball] }}
                       />
                     )}
@@ -715,7 +742,7 @@ export default function TOLTest({ assignmentId, onComplete, isStandalone, t }) {
                   <button 
                     className={styles.skipButton} 
                     onClick={skipProblem}>
-                    Skip
+                    Weiter
                   </button>
                 )}
               </div>

@@ -29,12 +29,12 @@
   "detailed_results_link": "Ver Análisis Detallado",
   "footer_description": "Prueba de Golpeteo de Bloques de Corsi.",
   "tutorial_title": "Cómo Funciona la Prueba",
-  "tutorial_step1_title": "Observa la Secuencia",
-  "tutorial_step1_text": "Presta mucha atención mientras los bloques se iluminan uno tras otro. Recuerda el orden.",
-  "tutorial_step2_title": "Repite la Secuencia",
-  "tutorial_step2_text": "Después de que termine la secuencia, haz clic en los bloques en el mismo orden en que se iluminaron.",
-  "tutorial_step3_title": "Progreso y Dificultad",
-  "tutorial_step3_text": "Con cada intento exitoso, la secuencia se vuelve más larga. La prueba termina después de dos fallos en el mismo nivel.",
+  "tutorial_step1_title": "Tarea",
+  "tutorial_step1_text": "En la siguiente tarea, reproducirás una secuencia.",
+  "tutorial_step2_title": "Observa",
+  "tutorial_step2_text": "Verás varios bloques en la pantalla. Ahora iluminaré algunos de estos bloques en un orden específico.",
+  "tutorial_step3_title": "Tu Tarea",
+  "tutorial_step3_text": "Tu tarea es hacer clic en los mismos bloques en el mismo orden. Intenta reproducir exactamente la secuencia que te acabo de mostrar.",
   "start_practice": "Iniciar Práctica",
   "back": "Atrás",
   "see_demo": "Ver Demo",
@@ -54,5 +54,8 @@
   "try_again_same_category": "Inténtalo de nuevo en este nivel.",
   "test_failed_category": "Prueba terminada después de dos intentos fallidos.",
   "test_completed_successfully": "¡Prueba completada con éxito!",
-  "incorrect_retry": "Secuencia incorrecta. ¡Un intento más!"
+  "incorrect_retry": "Secuencia incorrecta. ¡Un intento más!",
+  "skip_button": "Omitir Ensayo",
+  "skipped_first_time": "Ensayo omitido (sin penalización)",
+  "skipped_counted_error": "Ensayo omitido (contado como error)"
 }

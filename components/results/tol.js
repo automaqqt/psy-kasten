@@ -6,38 +6,94 @@ import { TRIAL_SCORES } from '../tests/tol/tolData';
 
 const TOLResults = ({ testData, totalScore, maxScore, onRestart }) => {
 
-  // Optional: Function to export data (similar to Corsi one if you have it)
+  // Helper function to calculate planning time averages per difficulty level
+  const calculatePlanningTimeAverages = () => {
+    const levelGroups = {};
+
+    testData.forEach(result => {
+      const minMoves = result.minMoves;
+      if (!levelGroups[minMoves]) {
+        levelGroups[minMoves] = { times: [], count: 0 };
+      }
+
+      // Get the first successful attempt or the first attempt
+      const firstAttempt = result.attempts[0];
+      if (firstAttempt && firstAttempt.planningTime > 0) {
+        levelGroups[minMoves].times.push(firstAttempt.planningTime);
+        levelGroups[minMoves].count++;
+      }
+    });
+
+    // Calculate averages
+    const averages = {};
+    Object.keys(levelGroups).forEach(level => {
+      const group = levelGroups[level];
+      if (group.count > 0) {
+        averages[level] = group.times.reduce((sum, time) => sum + time, 0) / group.count;
+      }
+    });
+
+    return averages;
+  };
+
+  // Optional: Function to export data
   const exportResultsToCSV = () => {
     const headers = [
         'Problem',
         'Min Moves',
         'Score Awarded',
-        'Trial 1 Success', 'Trial 1 Moves', 'Trial 1 Planning Time (ms)', 'Trial 1 Execution Time (ms)', 'Trial 1 Pauses (ms)', 'Trial 1 Skipped',
-        'Trial 2 Success', 'Trial 2 Moves', 'Trial 2 Planning Time (ms)', 'Trial 2 Execution Time (ms)', 'Trial 2 Pauses (ms)', 'Trial 2 Skipped',
-        'Trial 3 Success', 'Trial 3 Moves', 'Trial 3 Planning Time (ms)', 'Trial 3 Execution Time (ms)', 'Trial 3 Pauses (ms)', 'Trial 3 Skipped'
+        'Status',
+        'Moves Used',
+        'Planning Time (ms)',
+        'Execution Time (ms)',
+        'Pauses (ms)',
+        'Skipped'
     ];
 
     const rows = testData.map(result => {
+        // Get the first attempt (trial 1)
+        const attempt = result.attempts[0];
+
+        // Determine status
+        let status = '-';
+        if (attempt) {
+          if (attempt.skipped) {
+            status = 'Skipped';
+          } else if (attempt.success) {
+            if (attempt.moves <= result.minMoves) {
+              status = 'Solved Successfully';
+            } else {
+              status = 'Solved (Too Many Moves)';
+            }
+          } else {
+            status = 'Failed';
+          }
+        }
+
         const row = [
             result.problemIndex + 1,
             result.minMoves,
             result.score,
+            status,
+            attempt ? attempt.moves : '-',
+            attempt ? attempt.planningTime : '-',
+            attempt ? attempt.executionTime : '-',
+            attempt && attempt.pauses ? attempt.pauses.join(' ') : '-',
+            attempt && attempt.skipped ? 'Yes' : 'No'
         ];
-        for (let i = 1; i <= 3; i++) {
-            const attempt = result.attempts.find(a => a.trial === i);
-            row.push(attempt ? (attempt.success ? 'Yes' : 'No') : '-');
-            row.push(attempt ? attempt.moves : '-');
-            row.push(attempt ? attempt.planningTime : '-');
-            row.push(attempt ? attempt.executionTime : '-');
-            row.push(attempt && attempt.pauses ? attempt.pauses.join(' ') : '-');
-            row.push(attempt && attempt.skipped ? 'Yes' : 'No');
-        }
         return row;
     });
 
-    // Add summary row
+    // Add summary rows
     rows.push([]); // Spacer
     rows.push(['Total Score:', totalScore, `(Max: ${maxScore})`]);
+    rows.push([]);
+    rows.push(['Planning Time Averages by Difficulty Level:']);
+
+    const planningAverages = calculatePlanningTimeAverages();
+    Object.keys(planningAverages).sort((a, b) => Number(a) - Number(b)).forEach(level => {
+      rows.push([`${level}-Move Problems:`, `${planningAverages[level].toFixed(2)} ms`]);
+    });
 
 
     const csvContent = [
@@ -86,30 +142,46 @@ const TOLResults = ({ testData, totalScore, maxScore, onRestart }) => {
               <th>Problem</th>
               <th>Min Moves</th>
               <th>Score</th>
-              <th>Trial 1</th>
-              <th>Trial 2</th>
-              <th>Trial 3</th>
+              <th>Status</th>
+              <th>Moves Used</th>
+              <th>Details</th>
             </tr>
           </thead>
           <tbody>
             {testData.sort((a, b) => a.problemIndex - b.problemIndex).map(result => {
-              const getTrialResult = (trialNum) => {
-                const attempt = result.attempts.find(a => a.trial === trialNum);
-                if (!attempt) return <span className={styles.noAttempt}>-</span>;
-                if (attempt.skipped) return <span className={styles.failure}>Skipped</span>;
-                return attempt.success
-                  ? <span className={styles.success}>✓ ({attempt.moves}m)</span>
-                  : <span className={styles.failure}>✕ ({attempt.moves}m)</span>;
-              };
+              // Get the first attempt
+              const attempt = result.attempts[0];
 
-              const getTrialDetails = (trialNum) => {
-                const attempt = result.attempts.find(a => a.trial === trialNum);
+              // Determine status
+              let statusText = '-';
+              let statusClass = styles.noAttempt;
+              if (attempt) {
+                if (attempt.skipped) {
+                  statusText = 'Skipped';
+                  statusClass = styles.failure;
+                } else if (attempt.success) {
+                  if (attempt.moves <= result.minMoves) {
+                    statusText = 'Solved Successfully';
+                    statusClass = styles.successPerfect;
+                  } else {
+                    statusText = 'Solved (Too Many)';
+                    statusClass = styles.success;
+                  }
+                } else {
+                  statusText = 'Failed';
+                  statusClass = styles.failure;
+                }
+              }
+
+              const getDetails = () => {
                 if (!attempt) return null;
                 return (
                   <div className={styles.trialDetails}>
                     <div>Planning: {(attempt.planningTime / 1000).toFixed(2)}s</div>
                     <div>Execution: {(attempt.executionTime / 1000).toFixed(2)}s</div>
-                    <div>Pauses: {attempt.pauses.join(', ')}ms</div>
+                    {attempt.pauses && attempt.pauses.length > 0 && (
+                      <div>Pauses: {attempt.pauses.join(', ')}ms</div>
+                    )}
                   </div>
                 );
               };
@@ -119,14 +191,29 @@ const TOLResults = ({ testData, totalScore, maxScore, onRestart }) => {
                   <td>{result.problemIndex + 1}</td>
                   <td>{result.minMoves}</td>
                   <td>{result.score} / {TRIAL_SCORES[0]}</td>
-                  <td>{getTrialResult(1)}{getTrialDetails(1)}</td>
-                  <td>{getTrialResult(2)}{getTrialDetails(2)}</td>
-                  <td>{getTrialResult(3)}{getTrialDetails(3)}</td>
+                  <td><span className={statusClass}>{statusText}</span></td>
+                  <td>{attempt ? `${attempt.moves}` : '-'}</td>
+                  <td>{getDetails()}</td>
                 </tr>
               );
             })}
           </tbody>
         </table>
+      </div>
+
+      {/* Display planning time averages */}
+      <div className={styles.averagesSection}>
+        <h3>Planning Time Averages by Difficulty</h3>
+        <div className={styles.averagesGrid}>
+          {Object.entries(calculatePlanningTimeAverages())
+            .sort((a, b) => Number(a[0]) - Number(b[0]))
+            .map(([level, avgTime]) => (
+              <div key={level} className={styles.averageItem}>
+                <span className={styles.averageLabel}>{level}-Move Problems:</span>
+                <span className={styles.averageValue}>{(avgTime / 1000).toFixed(2)}s</span>
+              </div>
+            ))}
+        </div>
       </div>
 
 

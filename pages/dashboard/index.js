@@ -19,6 +19,12 @@ export default function DashboardHome() {
   const [selectedTestType, setSelectedTestType] = useState(TEST_TYPES[0]?.id || 'corsi');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Edit Study Modal States
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editingStudy, setEditingStudy] = useState(null);
+  const [editStudyName, setEditStudyName] = useState('');
+  const [editStudyDescription, setEditStudyDescription] = useState('');
+
   const fetchStudies = async () => {
     setIsLoading(true);
     setError(null);
@@ -77,6 +83,61 @@ export default function DashboardHome() {
       }
   };
 
+  const handleEditStudy = (study) => {
+      setEditingStudy(study);
+      setEditStudyName(study.name);
+      setEditStudyDescription(study.description || '');
+      setIsEditModalOpen(true);
+  };
+
+  const handleEditStudySubmit = async (e) => {
+      e.preventDefault();
+      if (!editStudyName.trim() || !editingStudy) return;
+      setIsSubmitting(true);
+      setError(null);
+      try {
+          const res = await fetch(`/api/studies/${editingStudy.id}`, {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                  name: editStudyName,
+                  description: editStudyDescription
+              }),
+          });
+          const data = await res.json();
+          if (!res.ok) {
+              throw new Error(data.message || 'Failed to update study');
+          }
+          setIsEditModalOpen(false);
+          setEditingStudy(null);
+          setEditStudyName('');
+          setEditStudyDescription('');
+          await fetchStudies(); // Refresh list
+      } catch (err) {
+          setError(err.message);
+      } finally {
+          setIsSubmitting(false);
+      }
+  };
+
+  const handleDeleteStudy = async (studyId, studyName) => {
+      if (!window.confirm(`Are you sure you want to delete the study "${studyName}"? This will permanently delete all participants, assignments, and results associated with this study. This cannot be undone.`)) {
+          return;
+      }
+      setError(null);
+      try {
+          const res = await fetch(`/api/studies/${studyId}`, { method: 'DELETE' });
+          if (!res.ok) {
+              const errData = await res.json();
+              throw new Error(errData.message || 'Failed to delete study');
+          }
+          await fetchStudies(); // Refresh list
+      } catch (err) {
+          setError(err.message);
+          alert(`Error: ${err.message}`);
+      }
+  };
+
   return (
     <DashboardLayout>
       <div className={styles.pageHeader}>
@@ -117,7 +178,22 @@ export default function DashboardHome() {
                       </div>
                   </div>
                 </Link>
-                {/* Add delete button here if needed */}
+                <div className={styles.listItemActions}>
+                  <button
+                    onClick={(e) => { e.stopPropagation(); handleEditStudy(study); }}
+                    className={styles.editButton}
+                    title="Edit study"
+                  >
+                    ✏️ Edit
+                  </button>
+                  <button
+                    onClick={(e) => { e.stopPropagation(); handleDeleteStudy(study.id, study.name); }}
+                    className={styles.deleteButton}
+                    title="Delete study"
+                  >
+                    🗑️ Delete
+                  </button>
+                </div>
               </div>
             );
           })}
@@ -171,6 +247,40 @@ export default function DashboardHome() {
                      <button type="button" onClick={() => setIsCreateModalOpen(false)} disabled={isSubmitting} className={styles.secondaryButtonModal}>Cancel</button>
                      <button type="submit" disabled={isSubmitting || !newStudyName.trim()} className={styles.primaryButtonModal}>
                         {isSubmitting ? 'Creating...' : 'Create Study'}
+                    </button>
+                </div>
+            </form>
+       </Modal>
+
+       {/* Edit Study Modal */}
+       <Modal isOpen={isEditModalOpen} onClose={() => setIsEditModalOpen(false)} title="Edit Study">
+            <form onSubmit={handleEditStudySubmit}>
+                 {error && <p className={styles.errorTextModal}>{error}</p>}
+                <div className={styles.formGroup}>
+                    <label htmlFor="editStudyName">Study Name *</label>
+                    <input
+                        type="text"
+                        id="editStudyName"
+                        value={editStudyName}
+                        onChange={(e) => setEditStudyName(e.target.value)}
+                        required
+                        disabled={isSubmitting}
+                    />
+                </div>
+                <div className={styles.formGroup}>
+                    <label htmlFor="editStudyDescription">Description (Optional)</label>
+                    <textarea
+                        id="editStudyDescription"
+                        value={editStudyDescription}
+                        onChange={(e) => setEditStudyDescription(e.target.value)}
+                        rows={3}
+                        disabled={isSubmitting}
+                    />
+                </div>
+                 <div className={styles.modalActions}>
+                     <button type="button" onClick={() => setIsEditModalOpen(false)} disabled={isSubmitting} className={styles.secondaryButtonModal}>Cancel</button>
+                     <button type="submit" disabled={isSubmitting || !editStudyName.trim()} className={styles.primaryButtonModal}>
+                        {isSubmitting ? 'Updating...' : 'Update Study'}
                     </button>
                 </div>
             </form>

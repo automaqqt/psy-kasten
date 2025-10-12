@@ -8,7 +8,7 @@ import  Modal  from '../../../components/ui/modal'; // Example path
 import { TEST_TYPES } from '../../../lib/testConfig'; // Define test types centrally
 
 // Reusable List Component (Extract later if needed)
-const ParticipantList = ({ participants, onDeleteParticipant, testType }) => {
+const ParticipantList = ({ participants, onDeleteParticipant, onEditParticipant, testType }) => {
     if (!participants || participants.length === 0) {
         return <p>No participants added to this study yet.</p>;
     }
@@ -72,6 +72,9 @@ const ParticipantList = ({ participants, onDeleteParticipant, testType }) => {
                                         </button>
                                     </>
                                 )}
+                                <button onClick={() => onEditParticipant(p)} className={styles.actionButtonEdit} title="Edit participant">
+                                    ✏️ Edit
+                                </button>
                                 <button onClick={() => onDeleteParticipant(p.id)} className={styles.actionButtonDelete} title="Delete participant">
                                     🗑️ Delete
                                 </button>
@@ -102,6 +105,16 @@ export default function StudyDetailPage() {
   const [isAddParticipantModalOpen, setIsAddParticipantModalOpen] = useState(false);
   const [newParticipantIdentifier, setNewParticipantIdentifier] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Edit Participant Modal States
+  const [isEditParticipantModalOpen, setIsEditParticipantModalOpen] = useState(false);
+  const [editingParticipant, setEditingParticipant] = useState(null);
+  const [editParticipantIdentifier, setEditParticipantIdentifier] = useState('');
+
+  // Edit Study Modal States
+  const [isEditStudyModalOpen, setIsEditStudyModalOpen] = useState(false);
+  const [editStudyName, setEditStudyName] = useState('');
+  const [editStudyDescription, setEditStudyDescription] = useState('');
 
   const fetchStudyData = useCallback(async () => {
     if (!studyId) return;
@@ -175,6 +188,93 @@ export default function StudyDetailPage() {
        }
   };
 
+  const handleEditParticipant = (participant) => {
+      setEditingParticipant(participant);
+      setEditParticipantIdentifier(participant.identifier);
+      setIsEditParticipantModalOpen(true);
+  };
+
+  const handleEditParticipantSubmit = async (e) => {
+      e.preventDefault();
+      if (!editParticipantIdentifier.trim() || !editingParticipant) return;
+      setIsSubmitting(true);
+      setError(null);
+      try {
+          const res = await fetch(`/api/participants/${editingParticipant.id}`, {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ identifier: editParticipantIdentifier }),
+          });
+          const data = await res.json();
+          if (!res.ok) {
+              throw new Error(data.message || 'Failed to update participant');
+          }
+          setIsEditParticipantModalOpen(false);
+          setEditingParticipant(null);
+          setEditParticipantIdentifier('');
+          fetchStudyData(); // Refresh data
+      } catch (err) {
+          setError(err.message);
+      } finally {
+          setIsSubmitting(false);
+      }
+  };
+
+  // --- Study Handlers ---
+  const handleEditStudy = () => {
+      setEditStudyName(study.name);
+      setEditStudyDescription(study.description || '');
+      setIsEditStudyModalOpen(true);
+  };
+
+  const handleEditStudySubmit = async (e) => {
+      e.preventDefault();
+      if (!editStudyName.trim()) return;
+      setIsSubmitting(true);
+      setError(null);
+      try {
+          const res = await fetch(`/api/studies/${studyId}`, {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                  name: editStudyName,
+                  description: editStudyDescription
+              }),
+          });
+          const data = await res.json();
+          if (!res.ok) {
+              throw new Error(data.message || 'Failed to update study');
+          }
+          setIsEditStudyModalOpen(false);
+          setEditStudyName('');
+          setEditStudyDescription('');
+          fetchStudyData(); // Refresh data
+      } catch (err) {
+          setError(err.message);
+      } finally {
+          setIsSubmitting(false);
+      }
+  };
+
+  const handleDeleteStudy = async () => {
+      if (!window.confirm(`Are you sure you want to delete the study "${study.name}"? This will permanently delete all participants, assignments, and results associated with this study. This cannot be undone.`)) {
+          return;
+      }
+      setError(null);
+      try {
+          const res = await fetch(`/api/studies/${studyId}`, { method: 'DELETE' });
+          if (!res.ok) {
+              const errData = await res.json();
+              throw new Error(errData.message || 'Failed to delete study');
+          }
+          // Redirect to dashboard after successful deletion
+          router.push('/dashboard');
+      } catch (err) {
+          setError(err.message);
+          alert(`Error: ${err.message}`);
+      }
+  };
+
 
   // --- Render ---
   if (isLoading) return <DashboardLayout><p className={styles.loadingText}>Loading study data...</p></DashboardLayout>;
@@ -186,7 +286,14 @@ export default function StudyDetailPage() {
     <DashboardLayout>
       <div className={styles.pageHeader}>
         <h1>Study: {study.name}</h1>
-         {/* Add Edit/Delete Study buttons here if needed */}
+        <div className={styles.headerActions}>
+          <button onClick={handleEditStudy} className={styles.editButton} title="Edit study">
+            ✏️ Edit Study
+          </button>
+          <button onClick={handleDeleteStudy} className={styles.deleteButton} title="Delete study">
+            🗑️ Delete Study
+          </button>
+        </div>
       </div>
       {error && <p className={styles.errorTextPage}>{error}</p>} {/* Show non-fatal errors */}
       <p className={styles.studyDescription}>{study.description || 'No description provided.'}</p>
@@ -199,6 +306,7 @@ export default function StudyDetailPage() {
            <ParticipantList
                 participants={participants}
                 onDeleteParticipant={handleDeleteParticipant}
+                onEditParticipant={handleEditParticipant}
                 testType={study.testType}
             />
        </section>
@@ -224,6 +332,66 @@ export default function StudyDetailPage() {
                      <button type="button" onClick={() => setIsAddParticipantModalOpen(false)} disabled={isSubmitting} className={styles.secondaryButtonModal}>Cancel</button>
                      <button type="submit" disabled={isSubmitting || !newParticipantIdentifier.trim()} className={styles.primaryButtonModal}>
                         {isSubmitting ? 'Adding...' : 'Add Participant'}
+                    </button>
+                </div>
+            </form>
+       </Modal>
+
+       {/* Edit Participant Modal */}
+       <Modal isOpen={isEditParticipantModalOpen} onClose={() => setIsEditParticipantModalOpen(false)} title="Edit Participant">
+            <form onSubmit={handleEditParticipantSubmit}>
+                 {error && <p className={styles.errorTextModal}>{error}</p>}
+                 <div className={styles.formGroup}>
+                     <label htmlFor="editParticipantIdentifier">Participant Identifier *</label>
+                     <input
+                         type="text"
+                         id="editParticipantIdentifier"
+                         value={editParticipantIdentifier}
+                         onChange={(e) => setEditParticipantIdentifier(e.target.value)}
+                         placeholder="e.g., Email, Subject ID, Code"
+                         required
+                         disabled={isSubmitting}
+                     />
+                      <small>Unique identifier for this participant within this study.</small>
+                 </div>
+                  <div className={styles.modalActions}>
+                     <button type="button" onClick={() => setIsEditParticipantModalOpen(false)} disabled={isSubmitting} className={styles.secondaryButtonModal}>Cancel</button>
+                     <button type="submit" disabled={isSubmitting || !editParticipantIdentifier.trim()} className={styles.primaryButtonModal}>
+                        {isSubmitting ? 'Updating...' : 'Update Participant'}
+                    </button>
+                </div>
+            </form>
+       </Modal>
+
+       {/* Edit Study Modal */}
+       <Modal isOpen={isEditStudyModalOpen} onClose={() => setIsEditStudyModalOpen(false)} title="Edit Study">
+            <form onSubmit={handleEditStudySubmit}>
+                 {error && <p className={styles.errorTextModal}>{error}</p>}
+                 <div className={styles.formGroup}>
+                     <label htmlFor="editStudyName">Study Name *</label>
+                     <input
+                         type="text"
+                         id="editStudyName"
+                         value={editStudyName}
+                         onChange={(e) => setEditStudyName(e.target.value)}
+                         required
+                         disabled={isSubmitting}
+                     />
+                 </div>
+                 <div className={styles.formGroup}>
+                     <label htmlFor="editStudyDescription">Description (Optional)</label>
+                     <textarea
+                         id="editStudyDescription"
+                         value={editStudyDescription}
+                         onChange={(e) => setEditStudyDescription(e.target.value)}
+                         rows={3}
+                         disabled={isSubmitting}
+                     />
+                 </div>
+                  <div className={styles.modalActions}>
+                     <button type="button" onClick={() => setIsEditStudyModalOpen(false)} disabled={isSubmitting} className={styles.secondaryButtonModal}>Cancel</button>
+                     <button type="submit" disabled={isSubmitting || !editStudyName.trim()} className={styles.primaryButtonModal}>
+                        {isSubmitting ? 'Updating...' : 'Update Study'}
                     </button>
                 </div>
             </form>

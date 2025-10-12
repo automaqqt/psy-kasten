@@ -35,14 +35,14 @@ const PREDEFINED_SEQUENCES = [
   [
     [3, 9, 2, 4, 8, 7],
     [3, 7, 8, 2, 9, 4],
-    [9, 2, 7, 6, 1, 0],
-    [3, 8, 9, 1, 7, 6, 4]
+    [9, 2, 7, 6, 1, 9],
+    [3, 8, 9, 1, 7, 4]
   ],
   // 7er Gruppe
   [
     [5, 9, 1, 7, 4, 2, 8],
     [5, 7, 9, 2, 8, 4, 6],
-    [1, 9, 6, 2, 7, 8, 9, 1],
+    [1, 9, 6, 2, 7, 9, 1],
     [9, 8, 5, 2, 1, 6, 3]
   ],
   // 8er Gruppe
@@ -71,7 +71,8 @@ export default function CorsiTest({ assignmentId, onComplete, isStandalone, t })
 
   // State for tracking failures and retries per category
   const [failuresPerLevel, setFailuresPerLevel] = useState({}); // Track failures per category (level)
-  const [usedSequencesPerLevel, setUsedSequencesPerLevel] = useState({}); // Track used sequences per level
+  const [currentSequenceIndexPerLevel, setCurrentSequenceIndexPerLevel] = useState({}); // Track current sequence index per level
+  const [skipUsedPerLevel, setSkipUsedPerLevel] = useState({}); // Track skip button usage per level
   const [settings, setSettings] = useState({
     blockHighlightDuration: 700,
     intervalBetweenBlocks: 300,
@@ -143,7 +144,7 @@ export default function CorsiTest({ assignmentId, onComplete, isStandalone, t })
   useEffect(() => {
     // Apply contrast and blink settings
     document.documentElement.style.setProperty('--block-color', '#000000');
-    document.documentElement.style.setProperty('--highlight-color', `hsl(48, 100%, ${30 + settings.blockBlinkIntensity * 0.5}%)`);
+    document.documentElement.style.setProperty('--highlight-color', `#f6d44c`);
   }, [settings.blockContrast, settings.blockBlinkIntensity]);
 
   // Demo animation effect
@@ -153,7 +154,7 @@ export default function CorsiTest({ assignmentId, onComplete, isStandalone, t })
 
       if (demoStep === 0) {
         // Step 0: Initial display
-        const timer = setTimeout(() => setDemoStep(1), 1000);
+        const timer = setTimeout(() => setDemoStep(1), 3000);
         return () => clearTimeout(timer);
       } else if (demoStep === 1) {
         // Step 1: Show sequence
@@ -177,7 +178,7 @@ export default function CorsiTest({ assignmentId, onComplete, isStandalone, t })
         showNextBlock();
       } else if (demoStep === 2) {
         // Step 2: Show clicking sequence
-        const timer = setTimeout(() => setDemoStep(3), 1500);
+        const timer = setTimeout(() => setDemoStep(3), 2500);
         return () => clearTimeout(timer);
       }
     }
@@ -187,8 +188,6 @@ export default function CorsiTest({ assignmentId, onComplete, isStandalone, t })
   const generateSequence = useCallback((targetLevel = null) => {
     const currentLevel = targetLevel || level;
     console.log(`🎮 generateSequence called for level: ${currentLevel}`);
-    console.log(`🔍 PREDEFINED_SEQUENCES length: ${PREDEFINED_SEQUENCES.length}`);
-    console.log(`🔍 PREDEFINED_SEQUENCES:`, PREDEFINED_SEQUENCES);
     const levelIndex = currentLevel - 3; // Convert level (3-8) to array index (0-5)
     console.log(`🔍 Calculated levelIndex: ${levelIndex} for level: ${currentLevel}`);
 
@@ -205,41 +204,25 @@ export default function CorsiTest({ assignmentId, onComplete, isStandalone, t })
       return PREDEFINED_SEQUENCES[0][0]; // Fallback to first sequence of level 3
     }
 
-    const usedForLevel = usedSequencesPerLevel[currentLevel] || [];
+    // Get current sequence index for this level (default to 0)
+    const currentIndex = currentSequenceIndexPerLevel[currentLevel] || 0;
 
-    console.log(`📝 Level ${currentLevel} sequences:`, levelSequences);
-    console.log(`🚫 Used sequences for level ${currentLevel}:`, usedForLevel);
+    console.log(`📝 Level ${currentLevel} - Using sequence index ${currentIndex} of ${levelSequences.length}`);
 
-    // Filter out already used sequences for this level
-    const availableSequences = levelSequences.filter((_, index) => !usedForLevel.includes(index));
-
-    if (availableSequences.length === 0) {
-      console.warn(`No more sequences available for level ${currentLevel}`);
-      // Reset used sequences for this level and pick first available
-      setUsedSequencesPerLevel(prev => ({ ...prev, [currentLevel]: [] }));
-      return levelSequences[0];
-    }
-
-    // Pick a random sequence from available ones
-    const randomIndex = Math.floor(Math.random() * availableSequences.length);
-    const selectedSequence = availableSequences[randomIndex];
+    // Get the sequence at the current index
+    const selectedSequence = levelSequences[currentIndex];
 
     console.log(`✅ Selected sequence for level ${currentLevel}:`, selectedSequence);
 
-    // Find the original index in the level sequences array
-    const originalIndex = levelSequences.findIndex(seq =>
-      seq.length === selectedSequence.length &&
-      seq.every((val, i) => val === selectedSequence[i])
-    );
-
-    // Mark this sequence as used for this level
-    setUsedSequencesPerLevel(prev => ({
+    // Increment the index for next time (loop back to 0 if we reach the end)
+    const nextIndex = (currentIndex + 1) % levelSequences.length;
+    setCurrentSequenceIndexPerLevel(prev => ({
       ...prev,
-      [currentLevel]: [...(prev[currentLevel] || []), originalIndex]
+      [currentLevel]: nextIndex
     }));
 
     return selectedSequence;
-  }, [level, usedSequencesPerLevel]);
+  }, [level, currentSequenceIndexPerLevel]);
 
   // Show a message overlay with fade in/out
   const showOverlayMessage = useCallback((textKey, duration = 1500, type = 'info') => {
@@ -252,10 +235,10 @@ export default function CorsiTest({ assignmentId, onComplete, isStandalone, t })
   // Show the sequence to the user
   const displaySequence = useCallback(async (seq) => {
     setShowingSequence(true);
-    
+
     // Show brief message
-    showOverlayMessage('watch_carefully', 1000);
-    
+    showOverlayMessage('watch_carefully', 2500);
+
     // Create a promise that resolves after showing the full sequence
     return new Promise((resolve) => {
       const showBlock = async (index) => {
@@ -265,7 +248,7 @@ export default function CorsiTest({ assignmentId, onComplete, isStandalone, t })
             setGameState('input');
             setRoundStartTime(Date.now()); // Start timing for user input
             setClickTimes([]);
-            showOverlayMessage('your_turn', 800);
+            showOverlayMessage('your_turn', 2000);
             resolve();
           }, 500);
           return;
@@ -331,7 +314,7 @@ export default function CorsiTest({ assignmentId, onComplete, isStandalone, t })
 
     setTimeout(() => {
       // Simple 2-block sequence for practice
-      const practiceSequence = [2, 5];
+      const practiceSequence = [3, 1, 2];
       setSequence(practiceSequence);
       setGameState('showing');
       displaySequence(practiceSequence);
@@ -387,7 +370,12 @@ export default function CorsiTest({ assignmentId, onComplete, isStandalone, t })
   // Handle user clicking a block
   const handleBlockClick = (blockId) => {
     if (gameState !== 'input' || showingSequence) return;
-    
+
+    // Prevent selecting the same block twice
+    if (userSequence.includes(blockId)) {
+      return;
+    }
+
     // Record click time
     const clickTime = Date.now();
     setClickTimes(prev => [...prev, {
@@ -396,35 +384,94 @@ export default function CorsiTest({ assignmentId, onComplete, isStandalone, t })
       timeFromStart: clickTime - roundStartTime,
       sequencePosition: userSequence.length
     }]);
-    
+
     // Update user sequence
     const newUserSequence = [...userSequence, blockId];
     setUserSequence(newUserSequence);
-    
+
     // Highlight the clicked block
-    setBlocks(prevBlocks => 
+    setBlocks(prevBlocks =>
       prevBlocks.map(block => ({
         ...block,
         active: block.id === blockId,
         clicked: block.id === blockId ? true : block.clicked
       }))
     );
-    
+
     // Remove highlight after a short delay
     setTimeout(() => {
-      setBlocks(prevBlocks => 
+      setBlocks(prevBlocks =>
         prevBlocks.map(block => ({
           ...block,
           active: false
         }))
       );
-      
+
       // Check if user has completed their sequence
       if (newUserSequence.length === sequence.length) {
         const totalResponseTime = Date.now() - roundStartTime;
         checkResult(newUserSequence, totalResponseTime);
       }
     }, 300);
+  };
+
+  // Handle skip button click
+  const handleSkip = () => {
+    if (gameState !== 'input' || showingSequence || isPractice) return;
+
+    const currentSkipCount = skipUsedPerLevel[level] || 0;
+    const totalResponseTime = Date.now() - roundStartTime;
+
+    // Update skip count for this level
+    setSkipUsedPerLevel(prev => ({ ...prev, [level]: currentSkipCount + 1 }));
+
+    // Record this round as skipped
+    const roundResults = {
+      level,
+      success: currentSkipCount === 0, // First skip counts as success
+      skipped: true,
+      skipCount: currentSkipCount + 1,
+      totalResponseTime,
+      avgClickInterval: 0,
+      clickTimes: [],
+      sequence: [...sequence],
+      userSequence: [],
+      timestamp: new Date().toISOString()
+    };
+
+    const updatedRoundData = [...roundData, roundResults];
+    setRoundData(updatedRoundData);
+
+    if (currentSkipCount === 0) {
+      // First skip at this level - no penalty, stay at same level with new sequence
+      showOverlayMessage('skipped_first_time', 4000, 'info');
+      setResults(prev => [...prev, { level, success: true, responseTime: totalResponseTime, skipped: true }]);
+
+      setTimeout(() => {
+        startGame(level); // Stay at same level with new sequence
+      }, 4200);
+    } else {
+      // Second or more skip at this level - counts as error
+      showOverlayMessage('skipped_counted_error', 4000, 'error');
+
+      const currentCategoryFailures = failuresPerLevel[level] || 0;
+      const newCategoryFailures = currentCategoryFailures + 1;
+
+      setFailuresPerLevel(prev => ({ ...prev, [level]: newCategoryFailures }));
+      setResults(prev => [...prev, { level, success: false, responseTime: totalResponseTime, skipped: true }]);
+
+      if (newCategoryFailures >= 3) {
+        // Third failure in this category - test ends
+        setTimeout(() => {
+          finishTest(updatedRoundData, false);
+        }, 4200);
+      } else {
+        // Allow retries - stay at same level with new sequence
+        setTimeout(() => {
+          startGame(level); // Stay at same level with new sequence
+        }, 4200);
+      }
+    }
   };
 
   // Check if the user's sequence matches the target sequence
@@ -434,18 +481,18 @@ export default function CorsiTest({ assignmentId, onComplete, isStandalone, t })
     // Handle practice mode separately
     if (isPractice) {
       if (isCorrect) {
-        showOverlayMessage('practice_correct', 2000, 'success');
+        showOverlayMessage('practice_correct', 4000, 'success');
         setTimeout(() => {
           if (isFullscreen) {
             exitFullscreen();
           }
           setGameState('practiceComplete');
-        }, 2200);
+        }, 4200);
       } else {
-        showOverlayMessage('practice_incorrect_retry', 2000, 'error');
+        showOverlayMessage('practice_incorrect_retry', 4000, 'error');
         setTimeout(() => {
           startPractice(); // Retry practice
-        }, 2200);
+        }, 4200);
       }
       return;
     }
@@ -479,7 +526,7 @@ export default function CorsiTest({ assignmentId, onComplete, isStandalone, t })
       // Success - move to next level
       setFeedback(translate('correct_feedback'));
       setScore(prevScore => prevScore + level);
-      showOverlayMessage('correct_feedback', 1500, 'success');
+      showOverlayMessage('correct_feedback', 3000, 'success');
       setResults(prev => [...prev, { level, success: true, responseTime: totalResponseTime }]);
 
       // Reset failures for this level since they succeeded
@@ -497,7 +544,7 @@ export default function CorsiTest({ assignmentId, onComplete, isStandalone, t })
           setLevel(nextLevel);
           startGame(nextLevel);
         }
-      }, 1700);
+      }, 3200);
     } else {
       // Failure - check category retry logic
       const currentCategoryFailures = failuresPerLevel[level] || 0;
@@ -509,19 +556,19 @@ export default function CorsiTest({ assignmentId, onComplete, isStandalone, t })
       if (newCategoryFailures >= 3) {
         // Third failure in this category - test ends
         const failureMessage = `${translate('incorrect_feedback')} ${translate('test_finished')}`;
-        showOverlayMessage('test_failed_category', 2500, 'error');
+        showOverlayMessage('test_failed_category', 5000, 'error');
         setFeedback(failureMessage);
         finishTest(updatedRoundData, false);
       } else {
         // Allow retries
         const retryMessage = translate('incorrect_feedback_retry') ||
                             `${translate('incorrect_feedback')} ${translate('try_again_same_category')}`;
-        showOverlayMessage('incorrect_retry', 2000, 'error');
+        showOverlayMessage('incorrect_retry', 4000, 'error');
         setFeedback(retryMessage);
 
         setTimeout(() => {
           startGame(); // Retry same category with different sequence
-        }, 2200);
+        }, 4200);
       }
     }
   };
@@ -540,7 +587,7 @@ export default function CorsiTest({ assignmentId, onComplete, isStandalone, t })
       `${finishMessage} (${translate('common:results_not_saved_standalone')})` :
       `${finishMessage} (${translate('common:submitting')})`;
 
-    showOverlayMessage(overlayMsg, 2000);
+    showOverlayMessage(overlayMsg, 4000);
     setFeedback(finishMessage);
 
     if (assignmentId) {
@@ -560,7 +607,7 @@ export default function CorsiTest({ assignmentId, onComplete, isStandalone, t })
 
     setTimeout(() => {
       setGameState('results');
-    }, 1500);
+    }, 4200);
   };
 
   // Calculate Corsi span (highest level completed successfully)
@@ -579,7 +626,8 @@ export default function CorsiTest({ assignmentId, onComplete, isStandalone, t })
     setGameState('welcome');
     // Reset failure tracking
     setFailuresPerLevel({});
-    setUsedSequencesPerLevel({});
+    setCurrentSequenceIndexPerLevel({});
+    setSkipUsedPerLevel({});
   };
 
   return (
@@ -746,7 +794,6 @@ export default function CorsiTest({ assignmentId, onComplete, isStandalone, t })
                     <div className={styles.countdownContent}>
                         <h2>{translate('get_ready')}</h2>
                         <div className={styles.countdownNumber}>{countdown}</div>
-                        <p>{translate('watch_sequence')}</p>
                     </div>
                 </div>
             )}
@@ -783,11 +830,22 @@ export default function CorsiTest({ assignmentId, onComplete, isStandalone, t })
                 ))}
               </div>
               </div>
-              
+
               {/* Progress indicator */}
               <div className={styles.progressIndicator}>
                 {userSequence.length} / {sequence.length}
               </div>
+
+              {/* Skip button (only during input phase, not during practice) */}
+              {gameState === 'input' && !isPractice && (
+                <button
+                  className={styles.skipButton}
+                  onClick={handleSkip}
+                  aria-label={translate('skip_button')}
+                >
+                  {translate('skip_button')}
+                </button>
+              )}
             </div>
           )}
           
