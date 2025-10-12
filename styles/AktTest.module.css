@@ -281,6 +281,17 @@
     transform: scale(1.05);
   }
 
+  /* Visual feedback for clicked symbols that can be deselected */
+  .symbolContainer.clicked {
+    background-color: rgba(40, 167, 69, 0.05);
+    border-radius: 8px;
+  }
+
+  .symbolContainer.clicked:hover {
+    transform: scale(1.05);
+    background-color: rgba(40, 167, 69, 0.1);
+  }
+
   .symbol {
     width: 60px;
     height: 30px;

@@ -92,16 +92,24 @@ const AktTest = ({ assignmentId, onComplete, isStandalone, t }) => {
   const handleSymbolClick = (index) => {
     if (gameState !== 'testing' && gameState !== 'practice') return;
 
-    const alreadyClicked = grid[index].clicked;
-    if (alreadyClicked) return;
-
     const symbol = grid[index];
-    setClicks(prev => [...prev, { index, symbol }]);
+    const alreadyClicked = symbol.clicked;
 
-    // Mark as clicked in grid
-    setGrid(prev => prev.map((item, i) =>
-      i === index ? { ...item, clicked: true } : item
-    ));
+    if (alreadyClicked) {
+      // Deselect: Remove from clicks array
+      setClicks(prev => prev.filter(click => click.index !== index));
+      // Mark as not clicked in grid
+      setGrid(prev => prev.map((item, i) =>
+        i === index ? { ...item, clicked: false } : item
+      ));
+    } else {
+      // Select: Add to clicks array
+      setClicks(prev => [...prev, { index, symbol }]);
+      // Mark as clicked in grid
+      setGrid(prev => prev.map((item, i) =>
+        i === index ? { ...item, clicked: true } : item
+      ));
+    }
   };
 
   const finishTest = () => {
@@ -110,7 +118,7 @@ const AktTest = ({ assignmentId, onComplete, isStandalone, t }) => {
 
     const numTargets = isPractice ? 3 : settings.numTargets;
     const R = clicks.filter(c => c.symbol.type === 'target').length;
-    const F = clicks.filter(c => c.symbol.type === 'distractor').length;
+
     // Error type classification (for distractor clicks only):
     // F1: Rechts-links Fehler (focuses on Lage, neglects Muster) - rotation 270
     // F2: Lage-Fehler (focuses on Muster, neglects Lage) - rotation 90
@@ -118,8 +126,15 @@ const AktTest = ({ assignmentId, onComplete, isStandalone, t }) => {
     const F1 = clicks.filter(c => c.symbol.type === 'distractor' && c.symbol.rotation === 270).length;
     const F2 = clicks.filter(c => c.symbol.type === 'distractor' && c.symbol.rotation === 90).length;
     const F3 = clicks.filter(c => c.symbol.type === 'distractor' && c.symbol.rotation === 0).length;
+
+    // Enforce formula: F = F1 + F2 + F3 (all false positives together)
+    const F = F1 + F2 + F3;
+
     const Omissions = numTargets - R;
-    const F_perc = (F / (R + F)) * 100 || 0;
+
+    // Enforce formula: F% = (F/(R + F)) • 100
+    const F_perc = (R + F) > 0 ? (F / (R + F)) * 100 : 0;
+
     const G = 35 - F + R; // Total correctly processed characters: distractors avoided + targets found
 
     const calculatedResults = { T, R, F, F1, F2, F3, Omissions, F_perc, G };
@@ -377,7 +392,11 @@ const AktTest = ({ assignmentId, onComplete, isStandalone, t }) => {
           </div>
           <div className={styles.testGrid} style={gameState === 'practice' ? { gridTemplateColumns: 'repeat(5, 1fr)', maxWidth: '500px' } : {}}>
             {grid.map((symbol, index) => (
-              <div key={index} className={styles.symbolContainer} onClick={() => handleSymbolClick(index)}>
+              <div
+                key={index}
+                className={`${styles.symbolContainer} ${symbol.clicked ? styles.clicked : ''}`}
+                onClick={() => handleSymbolClick(index)}
+              >
                 {renderSymbol(symbol)}
                 {symbol.clicked && <div className={styles.clickedMarker}></div>}
               </div>

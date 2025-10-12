@@ -128,6 +128,10 @@ export default function TOLTest({ assignmentId, onComplete, isStandalone, t }) {
     setPegState([['R'], ['G'], ['B']]);
     setHeldBall(null);
     setMoveHistory([]);
+    // Reset timing variables
+    setFirstMoveTime(null);
+    setLastMoveTime(null);
+    setTrialStartTime(Date.now());
     setFeedback(translate('practice_feedback'));
     setGameState('practice');
   };
@@ -145,11 +149,14 @@ export default function TOLTest({ assignmentId, onComplete, isStandalone, t }) {
     setCurrentTrial(1);
     setTotalScore(0);
     setProblemResults([]);
+    // Reset timing variables BEFORE starting
+    setFirstMoveTime(null);
+    setLastMoveTime(null);
+    setTrialStartTime(Date.now()); // Set BEFORE changing game state
     setupProblemBoard(0); // Setup board for the first problem
     // Ensure feedback uses the correct minMoves for the first problem
-    setFeedback(`${translate('problem_of', { current: 1, total: PROBLEMS.length })}. ${translate('trial_of', { current: 1, total: 3 })}. ${translate('try_to_solve', { moves: PROBLEMS[0].minMoves })}`);
+    setFeedback(`${translate('problem_of', { current: 1, total: PROBLEMS.length })}. ${translate('try_to_solve', { moves: PROBLEMS[0].minMoves })}`);
     setGameState('playing');
-    setTrialStartTime(Date.now());
   };
 
 
@@ -171,7 +178,8 @@ export default function TOLTest({ assignmentId, onComplete, isStandalone, t }) {
 
          // Count the turn immediately when ball is picked up
          const currentMoveNumber = moveHistory.length + 1;
-         const pauseTime = lastMoveTime ? Date.now() - lastMoveTime : 0;
+         // Only calculate pause if this is NOT the first move of the current problem
+         const pauseTime = (moveHistory.length > 0 && lastMoveTime) ? Date.now() - lastMoveTime : 0;
          setMoveHistory(prev => [...prev, { ball, from: pegIndex, to: null, pauseTime }]);
          setFeedback(translate('move_number', { number: currentMoveNumber }));
        }
@@ -386,7 +394,7 @@ export default function TOLTest({ assignmentId, onComplete, isStandalone, t }) {
        setTimeout(() => {
          // Check if PROBLEMS[nextIndex] exists before accessing minMoves
          if (PROBLEMS[nextIndex]) {
-             setFeedback(`${translate('problem_of', { current: nextIndex + 1, total: PROBLEMS.length })}. ${translate('trial_of', { current: 1, total: 3 })}. ${translate('try_to_solve', { moves: PROBLEMS[nextIndex].minMoves })}`);
+             setFeedback(`${translate('problem_of', { current: nextIndex + 1, total: PROBLEMS.length })}. ${translate('try_to_solve', { moves: PROBLEMS[nextIndex].minMoves })}`);
          }
        }, 100);
     } else {
@@ -511,7 +519,6 @@ export default function TOLTest({ assignmentId, onComplete, isStandalone, t }) {
            {gameState === 'playing' && currentProblem && (
              <div className={styles.gameInfo}>
                <span>{translate('problem_of', { current: currentProblemIndex + 1, total: PROBLEMS.length })}</span>
-               <span>{translate('trial_of', { current: currentTrial, total: 3 })}</span>
                <span>{translate('moves')}: {moveHistory.length}/{currentProblem.minMoves}</span>
                <span>{translate('score')}: {totalScore}</span>
                 <button onClick={endTestEarly} className={styles.stopButton}>
