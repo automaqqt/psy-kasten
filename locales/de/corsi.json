@@ -57,5 +57,13 @@
   "incorrect_retry": "Falsche Sequenz. Noch ein Versuch!",
   "skip_button": "Durchgang überspringen",
   "skipped_first_time": "Durchgang übersprungen (keine Strafe)",
-  "skipped_counted_error": "Durchgang übersprungen (als Fehler gewertet)"
+  "skipped_counted_error": "Durchgang übersprungen (als Fehler gewertet)",
+  "replacement_trial": "Ersatzdurchgang - Umgekehrte Sequenz",
+  "level_completed": "Level abgeschlossen! Wechsel zum nächsten Level.",
+  "three_consecutive_failures": "Test beendet: 3 aufeinanderfolgende Fehler",
+  "ubs": "UBS (Corsi-Spanne)",
+  "error_f1": "F1-Fehler",
+  "error_f2": "F2-Fehler",
+  "error_f1_description": "Sequenzfehler (richtige Blöcke, falsche Reihenfolge)",
+  "error_f2_description": "Falsche oder fehlende Blöcke"
 }

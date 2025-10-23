@@ -585,9 +585,10 @@ export default function WtbTest({ assignmentId, onComplete, isStandalone, t }) {
 
     if (isCorrect) {
       // Correct answer: move to next level
-      // Award 1 point + 1 bonus point if first attempt (2 points total on first try, 1 point on retries)
+      // Award 1 point + 1 bonus point if first attempt (starting from level 3)
+      // Level 2 (UT3_1) gets no bonus
       const levelPoints = 1;
-      const bonusPoints = (attemptsPerLevel[level] === 1) ? 1 : 0;
+      const bonusPoints = (level >= 3 && attemptsPerLevel[level] === 1) ? 1 : 0;
       const totalPoints = levelPoints + bonusPoints;
 
       setScore(prevScore => prevScore + totalPoints);

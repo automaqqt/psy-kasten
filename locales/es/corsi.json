@@ -57,5 +57,13 @@
   "incorrect_retry": "Secuencia incorrecta. ¡Un intento más!",
   "skip_button": "Omitir Ensayo",
   "skipped_first_time": "Ensayo omitido (sin penalización)",
-  "skipped_counted_error": "Ensayo omitido (contado como error)"
+  "skipped_counted_error": "Ensayo omitido (contado como error)",
+  "replacement_trial": "Ensayo de Reemplazo - Secuencia Invertida",
+  "level_completed": "¡Nivel completado! Avanzando al siguiente nivel.",
+  "three_consecutive_failures": "Prueba terminada: 3 fallos consecutivos",
+  "ubs": "UBS (Amplitud Corsi)",
+  "error_f1": "Errores F1",
+  "error_f2": "Errores F2",
+  "error_f1_description": "Errores de secuencia (bloques correctos, orden incorrecto)",
+  "error_f2_description": "Bloques incorrectos o faltantes"
 }

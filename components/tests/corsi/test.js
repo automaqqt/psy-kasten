@@ -69,10 +69,15 @@ export default function CorsiTest({ assignmentId, onComplete, isStandalone, t })
   const [demoStep, setDemoStep] = useState(0);
   const [demoHighlightIndex, setDemoHighlightIndex] = useState(-1);
 
-  // State for tracking failures and retries per category
-  const [failuresPerLevel, setFailuresPerLevel] = useState({}); // Track failures per category (level)
-  const currentSequenceIndexPerLevel = useRef({}); // Track current sequence index per level (using ref to avoid closure issues)
-  const [skipUsedPerLevel, setSkipUsedPerLevel] = useState({}); // Track skip button usage per level
+  // State for tracking sequence progression and failures
+  const [sequenceIndexInLevel, setSequenceIndexInLevel] = useState(0); // Track which of 4 sequences (0-3) we're on at current level
+  const [isReplacementTrial, setIsReplacementTrial] = useState(false); // Flag for replacement trial mode
+  const [replacementSequence, setReplacementSequence] = useState([]); // Store reversed sequence for replacement trial
+  const [consecutiveFailures, setConsecutiveFailures] = useState(0); // Count consecutive failures (resets on success)
+  const [successesPerLevel, setSuccessesPerLevel] = useState({}); // Track number of successes at each level {3: 2, 4: 3, ...}
+  const [skipUsedPerLevel, setSkipUsedPerLevel] = useState({}); // Track if first skip used per level (for replacement trial eligibility)
+  const [errorCountF1, setErrorCountF1] = useState(0); // Count of F1 errors (sequencing errors - correct blocks, wrong order)
+  const [errorCountF2, setErrorCountF2] = useState(0); // Count of F2 errors (wrong or missing blocks)
   const [settings, setSettings] = useState({
     blockHighlightDuration: 700,
     intervalBetweenBlocks: 300,
@@ -184,10 +189,11 @@ export default function CorsiTest({ assignmentId, onComplete, isStandalone, t })
     }
   }, [gameState, demoStep]);
 
-  // Generate a new sequence from predefined sequences for the current level
-  const generateSequence = useCallback((targetLevel = null) => {
+  // Generate a new sequence from predefined sequences for the current level and sequence index
+  const generateSequence = useCallback((targetLevel = null, seqIndex = null) => {
     const currentLevel = targetLevel || level;
-    console.log(`🎮 generateSequence called for level: ${currentLevel}`);
+    const currentSeqIndex = seqIndex !== null ? seqIndex : sequenceIndexInLevel;
+    console.log(`🎮 generateSequence called for level: ${currentLevel}, sequence index: ${currentSeqIndex}`);
     const levelIndex = currentLevel - 3; // Convert level (3-8) to array index (0-5)
     console.log(`🔍 Calculated levelIndex: ${levelIndex} for level: ${currentLevel}`);
 
@@ -204,18 +210,18 @@ export default function CorsiTest({ assignmentId, onComplete, isStandalone, t })
       return PREDEFINED_SEQUENCES[0][0]; // Fallback to first sequence of level 3
     }
 
-    // Get current sequence index for this level (default to 0)
-    const currentIndex = currentSequenceIndexPerLevel.current[currentLevel] || 0;
+    // Use the provided sequence index (0-3 for the 4 sequences per level)
+    const safeSeqIndex = Math.max(0, Math.min(currentSeqIndex, levelSequences.length - 1));
 
-    console.log(`📝 Level ${currentLevel} - Using sequence index ${currentIndex} of ${levelSequences.length}`);
+    console.log(`📝 Level ${currentLevel} - Using sequence ${safeSeqIndex + 1} of ${levelSequences.length}`);
 
-    // Get the sequence at the current index
-    const selectedSequence = levelSequences[currentIndex];
+    // Get the sequence at the specified index
+    const selectedSequence = levelSequences[safeSeqIndex];
 
     console.log(`✅ Selected sequence for level ${currentLevel}:`, selectedSequence);
 
     return selectedSequence;
-  }, [level]);
+  }, [level, sequenceIndexInLevel]);
 
   // Show a message overlay with fade in/out
   const showOverlayMessage = useCallback((textKey, duration = 1500, type = 'info') => {
@@ -314,8 +320,12 @@ export default function CorsiTest({ assignmentId, onComplete, isStandalone, t })
   }, [displaySequence, enterFullscreen, isFullscreen]);
 
   // Start a new round
-  const startGame = useCallback(async (targetLevel = null) => {
+  const startGame = useCallback(async (targetLevel = null, seqIndex = null) => {
     const currentLevel = targetLevel || level;
+    const currentSeqIndex = seqIndex !== null ? seqIndex : sequenceIndexInLevel;
+
+    console.log(`🎮 Starting game: Level ${currentLevel}, Sequence ${currentSeqIndex + 1}/4`);
+
     setIsPractice(false);
     // Reset game state
     if (!isFullscreen) {
@@ -350,13 +360,13 @@ export default function CorsiTest({ assignmentId, onComplete, isStandalone, t })
 
     setTimeout(() => {
       // Generate and show the sequence
-      const newSequence = generateSequence(currentLevel);
+      const newSequence = generateSequence(currentLevel, currentSeqIndex);
       setSequence(newSequence);
       setGameState('showing');
       displaySequence(newSequence);
       clearInterval(countdownInterval);
     }, 3000);
-  }, [displaySequence, generateSequence, enterFullscreen, isFullscreen, level]);
+  }, [displaySequence, generateSequence, enterFullscreen, isFullscreen, level, sequenceIndexInLevel]);
 
   // Handle user clicking a block
   const handleBlockClick = (blockId) => {
@@ -410,71 +420,143 @@ export default function CorsiTest({ assignmentId, onComplete, isStandalone, t })
   const handleSkip = () => {
     if (gameState !== 'input' || showingSequence || isPractice) return;
 
-    const currentSkipCount = skipUsedPerLevel[level] || 0;
+    const hasFirstSkipBeenUsed = skipUsedPerLevel[level] || false;
+    const hasClickedBlocks = userSequence.length > 0;
     const totalResponseTime = Date.now() - roundStartTime;
 
-    // Update skip count for this level
-    setSkipUsedPerLevel(prev => ({ ...prev, [level]: currentSkipCount + 1 }));
+    // Check if eligible for replacement trial
+    const isEligibleForReplacement = !hasFirstSkipBeenUsed && !hasClickedBlocks;
 
-    // Record this round as skipped
-    const roundResults = {
-      level,
-      success: currentSkipCount === 0, // First skip counts as success
-      skipped: true,
-      skipCount: currentSkipCount + 1,
-      totalResponseTime,
-      avgClickInterval: 0,
-      clickTimes: [],
-      sequence: [...sequence],
-      userSequence: [],
-      timestamp: new Date().toISOString()
-    };
+    if (isEligibleForReplacement) {
+      // First skip at level with no blocks clicked - offer replacement trial
+      console.log('🔄 Offering replacement trial - reversing sequence');
 
-    const updatedRoundData = [...roundData, roundResults];
-    setRoundData(updatedRoundData);
+      // Mark that first skip has been used for this level
+      setSkipUsedPerLevel(prev => ({ ...prev, [level]: true }));
 
-    if (currentSkipCount === 0) {
-      // First skip at this level - no penalty, stay at same level with new sequence
-      showOverlayMessage('skipped_first_time', 4000, 'info');
-      setResults(prev => [...prev, { level, success: true, responseTime: totalResponseTime, skipped: true }]);
+      // Create reversed sequence
+      const reversed = [...sequence].reverse();
+      setReplacementSequence(reversed);
+      setIsReplacementTrial(true);
 
-      // Increment sequence index for this level to get next sequence
-      const levelSequences = PREDEFINED_SEQUENCES[level - 3];
-      const currentIndex = currentSequenceIndexPerLevel.current[level] || 0;
-      const nextIndex = (currentIndex + 1) % levelSequences.length;
-      currentSequenceIndexPerLevel.current[level] = nextIndex;
+      // Record the skip
+      const roundResults = {
+        level,
+        success: false,
+        skipped: true,
+        isReplacementTrigger: true,
+        totalResponseTime,
+        avgClickInterval: 0,
+        clickTimes: [],
+        sequence: [...sequence],
+        userSequence: [],
+        timestamp: new Date().toISOString()
+      };
+      setRoundData(prev => [...prev, roundResults]);
+
+      // Show replacement trial with reversed sequence
+      showOverlayMessage('replacement_trial', 3000, 'info');
 
       setTimeout(() => {
-        startGame(level); // Stay at same level with new sequence
-      }, 4200);
+        setUserSequence([]);
+        setBlocks(prevBlocks =>
+          prevBlocks.map(block => ({
+            ...block,
+            active: false,
+            clicked: false
+          }))
+        );
+        setGameState('countdown');
+        setCountdown(3);
+
+        const countdownInterval = setInterval(() => {
+          setCountdown(prev => {
+            if (prev <= 1) {
+              clearInterval(countdownInterval);
+              return 0;
+            }
+            return prev - 1;
+          });
+        }, 1000);
+
+        setTimeout(() => {
+          setSequence(reversed);
+          setGameState('showing');
+          displaySequence(reversed);
+          clearInterval(countdownInterval);
+        }, 3000);
+      }, 3200);
     } else {
-      // Second or more skip at this level - counts as error
-      showOverlayMessage('skipped_counted_error', 4000, 'error');
+      // Not eligible for replacement - count as regular failure
+      console.log('❌ Skip counts as failure - consecutive failures:', consecutiveFailures + 1);
 
-      const currentCategoryFailures = failuresPerLevel[level] || 0;
-      const newCategoryFailures = currentCategoryFailures + 1;
+      const newConsecutiveFailures = consecutiveFailures + 1;
+      setConsecutiveFailures(newConsecutiveFailures);
 
-      setFailuresPerLevel(prev => ({ ...prev, [level]: newCategoryFailures }));
+      // Record the failure
+      const roundResults = {
+        level,
+        success: false,
+        skipped: true,
+        totalResponseTime,
+        avgClickInterval: 0,
+        clickTimes: [],
+        sequence: [...sequence],
+        userSequence: [...userSequence],
+        timestamp: new Date().toISOString()
+      };
+      setRoundData(prev => [...prev, roundResults]);
       setResults(prev => [...prev, { level, success: false, responseTime: totalResponseTime, skipped: true }]);
 
-      if (newCategoryFailures >= 3) {
-        // Third failure in this category - test ends
+      // Check if 3 consecutive failures
+      if (newConsecutiveFailures >= 3) {
+        showOverlayMessage('three_consecutive_failures', 3000, 'error');
         setTimeout(() => {
-          finishTest(updatedRoundData, false);
-        }, 4200);
+          finishTest([...roundData, roundResults], false);
+        }, 3200);
       } else {
-        // Allow retries - stay at same level with new sequence
-        // Increment sequence index for this level to get next sequence
-        const levelSequences = PREDEFINED_SEQUENCES[level - 3];
-        const currentIndex = currentSequenceIndexPerLevel.current[level] || 0;
-        const nextIndex = (currentIndex + 1) % levelSequences.length;
-        currentSequenceIndexPerLevel.current[level] = nextIndex;
+        // Move to next sequence in level or next level
+        const nextSeqIndex = sequenceIndexInLevel + 1;
 
-        setTimeout(() => {
-          startGame(level); // Stay at same level with new sequence
-        }, 4200);
+        if (nextSeqIndex >= 4) {
+          // Completed all 4 sequences at this level - move to next level
+          showOverlayMessage('level_completed', 3000, 'info');
+          setTimeout(() => {
+            setLevel(prev => prev + 1);
+            setSequenceIndexInLevel(0);
+            startGame(level + 1, 0);
+          }, 3200);
+        } else {
+          // Continue with next sequence at same level
+          showOverlayMessage('incorrect_retry', 3000, 'error');
+          setTimeout(() => {
+            setSequenceIndexInLevel(nextSeqIndex);
+            startGame(level, nextSeqIndex);
+          }, 3200);
+        }
       }
     }
+  };
+
+  // Classify error type for failed rounds
+  const classifyError = (sequence, userSequence) => {
+    // If different lengths, it's F2 (missing or extra blocks)
+    if (userSequence.length !== sequence.length) {
+      return 'F2';
+    }
+
+    // Check if user clicked all correct blocks but in wrong order
+    const sequenceSet = new Set(sequence);
+    const userSet = new Set(userSequence);
+
+    // If same set of unique blocks (all correct blocks clicked)
+    if (sequenceSet.size === userSet.size && [...sequenceSet].every(block => userSet.has(block))) {
+      // Same blocks but since we're here it's wrong order = F1 (sequencing error)
+      return 'F1';
+    }
+
+    // Different set of blocks = F2 (wrong blocks clicked)
+    return 'F2';
   };
 
   // Check if the user's sequence matches the target sequence
@@ -509,9 +591,15 @@ export default function CorsiTest({ assignmentId, onComplete, isStandalone, t })
     const avgClickInterval = clickIntervals.length ?
       clickIntervals.reduce((sum, interval) => sum + interval, 0) / clickIntervals.length : 0;
 
+    // Classify error type if incorrect
+    const errorType = isCorrect ? null : classifyError(sequence, userSeq);
+
     const roundResults = {
       level,
       success: isCorrect,
+      isReplacementTrial,
+      sequenceIndex: sequenceIndexInLevel,
+      errorType, // F1, F2, or null if success
       totalResponseTime,
       avgClickInterval,
       clickTimes: clickTimes,
@@ -523,64 +611,102 @@ export default function CorsiTest({ assignmentId, onComplete, isStandalone, t })
     // Add this round's data to round history
     const updatedRoundData = [...roundData, roundResults];
     setRoundData(updatedRoundData);
-
+    setResults(prev => [...prev, { level, success: isCorrect, responseTime: totalResponseTime, isReplacementTrial }]);
 
     if (isCorrect) {
-      // Success - move to next level
-      setFeedback(translate('correct_feedback'));
+      // Success - reset consecutive failures counter
+      console.log(`✅ Success! Resetting consecutive failures counter. Level ${level}, Sequence ${sequenceIndexInLevel + 1}/4`);
+      setConsecutiveFailures(0);
       setScore(prevScore => prevScore + level);
+
+      // Track success for this level
+      setSuccessesPerLevel(prev => ({
+        ...prev,
+        [level]: (prev[level] || 0) + 1
+      }));
+
+      // If replacement trial, clear the flag
+      if (isReplacementTrial) {
+        setIsReplacementTrial(false);
+      }
+
       showOverlayMessage('correct_feedback', 3000, 'success');
-      setResults(prev => [...prev, { level, success: true, responseTime: totalResponseTime }]);
 
-      // Reset failures for this level since they succeeded
-      setFailuresPerLevel(prev => ({ ...prev, [level]: 0 }));
-
-      // Reset sequence index for current level (clean state for potential future use)
-      currentSequenceIndexPerLevel.current[level] = 0;
+      // Move to next sequence or next level
+      const nextSeqIndex = sequenceIndexInLevel + 1;
 
       setTimeout(() => {
-        // Check if we've reached the maximum level (8)
-        if (level >= 8) {
-          // Test completed successfully at max level
-          console.log(`🎉 Test completed at max level ${level}`);
-          finishTest(updatedRoundData, true);
+        if (nextSeqIndex >= 4) {
+          // Completed all 4 sequences at this level - move to next level
+          const successCount = (successesPerLevel[level] || 0) + 1;
+          console.log(`📊 Level ${level} completed with ${successCount}/4 successes`);
+
+          if (level >= 8) {
+            // Reached maximum level
+            console.log(`🎉 Test completed at max level ${level}`);
+            finishTest(updatedRoundData, true);
+          } else {
+            showOverlayMessage('level_completed', 3000, 'success');
+            setTimeout(() => {
+              setLevel(prev => prev + 1);
+              setSequenceIndexInLevel(0);
+              startGame(level + 1, 0);
+            }, 3200);
+          }
         } else {
-          const nextLevel = level + 1;
-          console.log(`⬆️ Success! Moving from level ${level} to level ${nextLevel}`);
-          setLevel(nextLevel);
-          startGame(nextLevel);
+          // Continue with next sequence at same level
+          setSequenceIndexInLevel(nextSeqIndex);
+          startGame(level, nextSeqIndex);
         }
       }, 3200);
     } else {
-      // Failure - check category retry logic
-      const currentCategoryFailures = failuresPerLevel[level] || 0;
-      const newCategoryFailures = currentCategoryFailures + 1;
+      // Failure - increment error counters and consecutive failures
+      const newConsecutiveFailures = consecutiveFailures + 1;
+      console.log(`❌ Failure! Type: ${errorType}, Consecutive failures: ${newConsecutiveFailures}/3`);
 
-      setFailuresPerLevel(prev => ({ ...prev, [level]: newCategoryFailures }));
-      setResults(prev => [...prev, { level, success: false, responseTime: totalResponseTime }]);
+      // Increment appropriate error counter
+      if (errorType === 'F1') {
+        setErrorCountF1(prev => prev + 1);
+      } else if (errorType === 'F2') {
+        setErrorCountF2(prev => prev + 1);
+      }
 
-      if (newCategoryFailures >= 3) {
-        // Third failure in this category - test ends
-        const failureMessage = `${translate('incorrect_feedback')} ${translate('test_finished')}`;
-        showOverlayMessage('test_failed_category', 5000, 'error');
-        setFeedback(failureMessage);
-        finishTest(updatedRoundData, false);
-      } else {
-        // Allow retries
-        const retryMessage = translate('incorrect_feedback_retry') ||
-                            `${translate('incorrect_feedback')} ${translate('try_again_same_category')}`;
-        showOverlayMessage('incorrect_retry', 4000, 'error');
-        setFeedback(retryMessage);
+      setConsecutiveFailures(newConsecutiveFailures);
 
-        // Increment sequence index for this level to get next sequence on retry
-        const levelSequences = PREDEFINED_SEQUENCES[level - 3];
-        const currentIndex = currentSequenceIndexPerLevel.current[level] || 0;
-        const nextIndex = (currentIndex + 1) % levelSequences.length;
-        currentSequenceIndexPerLevel.current[level] = nextIndex;
+      // If replacement trial, clear the flag
+      if (isReplacementTrial) {
+        setIsReplacementTrial(false);
+      }
 
+      // Check if 3 consecutive failures
+      if (newConsecutiveFailures >= 3) {
+        showOverlayMessage('three_consecutive_failures', 3000, 'error');
         setTimeout(() => {
-          startGame(); // Retry same category with different sequence
-        }, 4200);
+          finishTest(updatedRoundData, false);
+        }, 3200);
+      } else {
+        // Move to next sequence in level or next level
+        const nextSeqIndex = sequenceIndexInLevel + 1;
+
+        if (nextSeqIndex >= 4) {
+          // Completed all 4 sequences at this level - move to next level
+          const successCount = successesPerLevel[level] || 0;
+          console.log(`📊 Level ${level} completed with ${successCount}/4 successes`);
+
+          showOverlayMessage('level_completed', 3000, 'info');
+          setTimeout(() => {
+            setLevel(prev => prev + 1);
+            setSequenceIndexInLevel(0);
+            startGame(level + 1, 0);
+          }, 3200);
+        } else {
+          // Continue with next sequence at same level
+          showOverlayMessage('incorrect_retry', 3000, 'error');
+          setTimeout(() => {
+            setSequenceIndexInLevel(nextSeqIndex);
+            startGame(level, nextSeqIndex);
+          }, 3200);
+        }
       }
     }
   };
@@ -604,13 +730,18 @@ export default function CorsiTest({ assignmentId, onComplete, isStandalone, t })
 
     if (assignmentId) {
       console.log("Test finished, attempting submission.");
+      const ubs = calculateCorsiSpan(); // UBS = Corsi Span
       const finalTestData = {
-        corsiSpan: calculateCorsiSpan(updatedRoundData),
+        corsiSpan: ubs,
+        ubs, // UBS (same value as corsiSpan)
         totalScore: score,
+        errorCountF1, // Sequencing errors
+        errorCountF2, // Wrong/missing blocks
         rounds: updatedRoundData,
         settingsUsed: { ...settings },
         completedSuccessfully,
-        failuresPerLevel: failuresPerLevel
+        consecutiveFailures,
+        successesPerLevel
       };
       onComplete(finalTestData);
     } else {
@@ -622,11 +753,14 @@ export default function CorsiTest({ assignmentId, onComplete, isStandalone, t })
     }, 4200);
   };
 
-  // Calculate Corsi span (highest level completed successfully)
+  // Calculate Corsi span (highest level with 2+ successes out of 4)
   const calculateCorsiSpan = () => {
-    // Find the highest level where success is true
-    const successfulLevels = results.filter(r => r.success).map(r => r.level);
-    return successfulLevels.length ? Math.max(...successfulLevels) : 0;
+    // Find the highest level where we got 2 or more successes
+    const levelsWithSuccess = Object.entries(successesPerLevel)
+      .filter(([_, successCount]) => successCount >= 2)
+      .map(([levelStr, _]) => parseInt(levelStr, 10));
+
+    return levelsWithSuccess.length ? Math.max(...levelsWithSuccess) : 0;
   };
 
   // Reset the game
@@ -636,10 +770,15 @@ export default function CorsiTest({ assignmentId, onComplete, isStandalone, t })
     setResults([]);
     setRoundData([]);
     setGameState('welcome');
-    // Reset failure tracking
-    setFailuresPerLevel({});
-    currentSequenceIndexPerLevel.current = {};
+    // Reset sequence tracking
+    setSequenceIndexInLevel(0);
+    setIsReplacementTrial(false);
+    setReplacementSequence([]);
+    setConsecutiveFailures(0);
+    setSuccessesPerLevel({});
     setSkipUsedPerLevel({});
+    setErrorCountF1(0);
+    setErrorCountF2(0);
   };
 
   return (
@@ -788,7 +927,20 @@ export default function CorsiTest({ assignmentId, onComplete, isStandalone, t })
                  <h2>{translate('practice_complete_title')}</h2>
                  <p>{translate('practice_complete_text')}</p>
                  <div className={styles.buttonContainer}>
-                    <button className={styles.primaryButton} onClick={startGame}>
+                    <button className={styles.primaryButton} onClick={() => {
+                      // Reset all tracking variables before starting real test
+                      setLevel(3);
+                      setSequenceIndexInLevel(0);
+                      setConsecutiveFailures(0);
+                      setSuccessesPerLevel({});
+                      setSkipUsedPerLevel({});
+                      setErrorCountF1(0);
+                      setErrorCountF2(0);
+                      setScore(0);
+                      setResults([]);
+                      setRoundData([]);
+                      startGame(3, 0);
+                    }}>
                     {translate('start_real_test')}
                     </button>
                     <button
@@ -866,6 +1018,9 @@ export default function CorsiTest({ assignmentId, onComplete, isStandalone, t })
                 <DetailedResults
                     roundData={roundData}
                     corsiSpan={calculateCorsiSpan}
+                    ubs={calculateCorsiSpan()} // UBS (same as corsiSpan)
+                    errorCountF1={errorCountF1}
+                    errorCountF2={errorCountF2}
                     isStandalone={isStandalone}
                     t={t} // Pass translation function down to Results
                 />

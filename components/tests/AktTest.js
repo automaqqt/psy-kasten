@@ -10,32 +10,55 @@ import { useFullscreen } from '../../hooks/useFullscreen';
 // Demo Grid: 2 rows × 3 columns (6 symbols, 2 targets) - Probe B
 // Target: rotation 0 (vertical split), Distractor: rotation 180 only
 const DEMO_GRID = [
-  { type: 'distractor', rotation: 180 },
-  { type: 'target', rotation: 0 },
-  { type: 'distractor', rotation: 180 },
-  { type: 'distractor', rotation: 180 },
-  { type: 'target', rotation: 0 },
-  { type: 'distractor', rotation: 180 }
+  { type: 'distractor', rotation: 270 },  { type: 'distractor', rotation: 90 }, { type: 'target', rotation: 0 }, { type: 'distractor', rotation: 180 },   { type: 'distractor', rotation: 90 }, 
+{ type: 'target', rotation: 0 },  { type: 'distractor', rotation: 180 }, { type: 'target', rotation: 0 },  { type: 'distractor', rotation: 270 },  { type: 'distractor', rotation: 90 }, { type: 'target', rotation: 0 },  { type: 'distractor', rotation: 180 },   { type: 'distractor', rotation: 270 },
+  { type: 'target', rotation: 0 },  { type: 'target', rotation: 0 }, { type: 'distractor', rotation: 270 }, { type: 'distractor', rotation: 90 }, { type: 'distractor', rotation: 180 }, { type: 'target', rotation: 0 },  { type: 'distractor', rotation: 180 }, { type: 'distractor', rotation: 270 }, { type: 'target', rotation: 0 },  { type: 'distractor', rotation: 90 }, { type: 'target', rotation: 0 },  { type: 'distractor', rotation: 180 },
+{ type: 'distractor', rotation: 270 }, { type: 'target', rotation: 0 },  { type: 'distractor', rotation: 180 },  { type: 'distractor', rotation: 90 }, { type: 'target', rotation: 0 },  { type: 'distractor', rotation: 180 }, { type: 'distractor', rotation: 270 }, { type: 'distractor', rotation: 90 }, { type: 'target', rotation: 0 }, { type: 'distractor', rotation: 180 }, { type: 'target', rotation: 0 },  { type: 'distractor', rotation: 90 },
+{ type: 'distractor', rotation: 90 }, { type: 'distractor', rotation: 180 }, { type: 'target', rotation: 0 },  { type: 'distractor', rotation: 270 }, { type: 'distractor', rotation: 180 }, { type: 'distractor', rotation: 270 }, { type: 'distractor', rotation: 180 }, { type: 'target', rotation: 0 }, { type: 'distractor', rotation: 90 }, { type: 'distractor', rotation: 180 }, { type: 'distractor', rotation: 270 }, { type: 'target', rotation: 0 }
 ];
 
 // Practice Grid: 3 rows × 5 columns (15 symbols, 3 targets) - Probe A
 // Target: rotation 180, Distractor: rotation 0, 90, or 270
 const PRACTICE_GRID = [
-  { type: 'distractor', rotation: 90 },
-  { type: 'target', rotation: 180 },
-  { type: 'distractor', rotation: 0 },
+  { type: 'distractor', rotation: 0 }, 
+{ type: 'distractor', rotation: 270 }, 
+{ type: 'target', rotation: 180 }, 
+{ type: 'distractor', rotation: 270 },
+ { type: 'distractor', rotation: 0 },
+ { type: 'target', rotation: 180 },
+ { type: 'distractor', rotation: 90 },
+ { type: 'distractor', rotation: 0 },
+ { type: 'target', rotation: 180 },
+ { type: 'distractor', rotation: 270 },
   { type: 'distractor', rotation: 270 },
-  { type: 'distractor', rotation: 90 },
-  { type: 'distractor', rotation: 0 },
-  { type: 'distractor', rotation: 270 },
-  { type: 'target', rotation: 180 },
-  { type: 'distractor', rotation: 90 },
-  { type: 'distractor', rotation: 0 },
-  { type: 'distractor', rotation: 270 },
-  { type: 'distractor', rotation: 90 },
-  { type: 'target', rotation: 180 },
-  { type: 'distractor', rotation: 0 },
-  { type: 'distractor', rotation: 270 }
+ { type: 'distractor', rotation: 0 },
+ { type: 'target', rotation: 180 },
+ { type: 'distractor', rotation: 0 }, 
+{ type: 'distractor', rotation: 90 }, 
+{ type: 'target', rotation: 180 },
+{ type: 'distractor', rotation: 0 }, 
+{ type: 'distractor', rotation: 90 }, 
+{ type: 'target', rotation: 180 }, 
+{ type: 'distractor', rotation: 270 },
+  { type: 'target', rotation: 180 }, 
+{ type: 'distractor', rotation: 90 }, 
+{ type: 'distractor', rotation: 270 }, 
+{ type: 'target', rotation: 180 }, 
+{ type: 'distractor', rotation: 0 }, 
+{ type: 'distractor', rotation: 90 }, 
+{ type: 'distractor', rotation: 0 }, 
+{ type: 'distractor', rotation: 0 }, 
+{ type: 'distractor', rotation: 270 }, 
+{ type: 'target', rotation: 180 },
+  { type: 'distractor', rotation: 90 }, 
+{ type: 'target', rotation: 180 }, 
+{ type: 'distractor', rotation: 270 }, 
+{ type: 'target', rotation: 180 }, 
+{ type: 'distractor', rotation: 0 }, 
+{ type: 'target', rotation: 180 }, 
+{ type: 'distractor', rotation: 90 }, 
+{ type: 'target', rotation: 180 }, 
+{ type: 'distractor', rotation: 270 }, { type: 'distractor', rotation: 90 }
 ];
 
 // Main Test Grid: 5 rows × 11 columns (55 symbols, 20 targets) - Form A

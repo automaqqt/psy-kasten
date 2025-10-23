@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import styles from '../../styles/Results.module.css';
 
-const DetailedResults = ({ roundData, calculateCorsiSpan, isStandalone, t }) => {
+const DetailedResults = ({ roundData, calculateCorsiSpan, ubs, errorCountF1, errorCountF2, isStandalone, t }) => {
   const [selectedRound, setSelectedRound] = useState(null);
   const translate = t || ((key) => key);
   // Calculate average response times per level
@@ -53,27 +53,39 @@ const DetailedResults = ({ roundData, calculateCorsiSpan, isStandalone, t }) => 
       'Round',
       'Level',
       'Success',
+      'Error_Type',
       'Total Response Time (ms)',
       'Average Click Interval (ms)',
       'Target Sequence',
       'User Sequence'
     ];
-    
+
     // Create row data
     const rows = roundData.map((round, index) => [
       index + 1,
       round.level,
       round.success ? 'Success' : 'Failure',
+      round.errorType || '', // F1, F2, or empty if success
       Math.round(round.totalResponseTime),
       Math.round(round.avgClickInterval || 0),
       round.sequence.join('-'),
       round.userSequence.join('-')
     ]);
-    
+
+    // Add summary rows
+    const summaryRows = [
+      [], // Empty row
+      ['SUMMARY', '', '', '', '', '', '', ''],
+      ['UBS (Corsi Span)', ubs || calculateCorsiSpan, '', '', '', '', '', ''],
+      ['Total F1 Errors (Sequencing)', errorCountF1 || 0, '', '', '', '', '', ''],
+      ['Total F2 Errors (Wrong/Missing)', errorCountF2 || 0, '', '', '', '', '', '']
+    ];
+
     // Create CSV content
     const csvContent = [
       headers.join(','),
-      ...rows.map(row => row.join(','))
+      ...rows.map(row => row.join(',')),
+      ...summaryRows.map(row => row.join(','))
     ].join('\n');
     
     // Create and trigger download
@@ -95,11 +107,21 @@ const DetailedResults = ({ roundData, calculateCorsiSpan, isStandalone, t }) => 
 
         <div className={styles.metricsGrid}>
           <div className={styles.metricCard}>
-            <h3>{translate('corsi:corsi_span')}</h3>
-            <div className={styles.metricValue}>{calculateCorsiSpan}</div>
+            <h3>{translate('corsi:ubs')}</h3>
+            <div className={styles.metricValue}>{ubs || calculateCorsiSpan}</div>
             <div className={styles.metricSubtext}>{translate('corsi:blocks')}</div>
           </div>
-           <div className={styles.metricCard}>
+          <div className={styles.metricCard}>
+            <h3>{translate('corsi:error_f1')}</h3>
+            <div className={styles.metricValue}>{errorCountF1 || 0}</div>
+            <div className={styles.metricSubtext}>{translate('corsi:error_f1_description')}</div>
+          </div>
+          <div className={styles.metricCard}>
+            <h3>{translate('corsi:error_f2')}</h3>
+            <div className={styles.metricValue}>{errorCountF2 || 0}</div>
+            <div className={styles.metricSubtext}>{translate('corsi:error_f2_description')}</div>
+          </div>
+          <div className={styles.metricCard}>
                 <h3>{translate('corsi:avg_response_time')}</h3>
                 <div className={styles.metricValue}>{formatTime(averageResponseTime)}</div>
                 <div className={styles.metricSubtext}>{translate('corsi:per_sequence')}</div>
@@ -109,7 +131,7 @@ const DetailedResults = ({ roundData, calculateCorsiSpan, isStandalone, t }) => 
                 <div className={styles.metricValue}>{formatTime(averageClickInterval)}</div>
                  <div className={styles.metricSubtext}>{translate('corsi:between_clicks')}</div>
             </div>
-             
+
         </div>
       
       <div className={styles.exportContainer}>

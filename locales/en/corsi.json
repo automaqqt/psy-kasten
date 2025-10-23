@@ -57,5 +57,13 @@
     "incorrect_retry": "Incorrect sequence. One more try!",
     "skip_button": "Skip Trial",
     "skipped_first_time": "Trial skipped (no penalty)",
-    "skipped_counted_error": "Trial skipped (counted as error)"
+    "skipped_counted_error": "Trial skipped (counted as error)",
+    "replacement_trial": "Replacement Trial - Reversed Sequence",
+    "level_completed": "Level completed! Moving to next level.",
+    "three_consecutive_failures": "Test ended: 3 consecutive failures",
+    "ubs": "UBS (Corsi Span)",
+    "error_f1": "F1 Errors",
+    "error_f2": "F2 Errors",
+    "error_f1_description": "Sequencing errors (correct blocks, wrong order)",
+    "error_f2_description": "Wrong or missing blocks"
   }

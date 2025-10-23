@@ -40,8 +40,8 @@ const WtbResults = ({ roundData, maxLevel, totalScore, isStandalone, t }) => {
       if (round.success) {
         levelSummary[level].solved = true;
 
-        // Check if it was solved on first try
-        if (round.attemptNumber === 1) {
+        // Check if it was solved on first try (level 2 does not get first-try bonus)
+        if (level >= 3 && round.attemptNumber === 1) {
           levelSummary[level].solvedOnFirstTry = true;
         }
       }
@@ -66,7 +66,8 @@ const WtbResults = ({ roundData, maxLevel, totalScore, isStandalone, t }) => {
   const calculatePoints = (round) => {
     if (!round.success) return 0;
     const levelPoints = 1;
-    const bonusPoints = round.attemptNumber === 1 ? 1 : 0;
+    // Level 2 (UT3_1) does not get first-try bonus
+    const bonusPoints = (round.level >= 3 && round.attemptNumber === 1) ? 1 : 0;
     return levelPoints + bonusPoints;
   };
 
@@ -76,7 +77,9 @@ const WtbResults = ({ roundData, maxLevel, totalScore, isStandalone, t }) => {
       'Level',
       'Success',
       'Attempt_Number',
-      'Points',
+      'Points_Level_Solved',
+      'Points_First_Try_Bonus',
+      'Points_Total',
       'Target_Sequence',
       'User_Sequence',
       'Timestamp_DE',
@@ -100,12 +103,19 @@ const WtbResults = ({ roundData, maxLevel, totalScore, isStandalone, t }) => {
         timeDiff = timestamp - prevTimestamp;
       }
 
+      // Calculate point breakdown
+      const levelSolvedPoints = round.success ? 1 : 0;
+      const firstTryBonusPoints = (round.success && round.level >= 3 && round.attemptNumber === 1) ? 1 : 0;
+      const totalPoints = levelSolvedPoints + firstTryBonusPoints;
+
       return [
         index + 1,
         mapLevelToUT3(round.level),
         round.success ? 'Yes' : 'No',
         round.attemptNumber || 0,
-        calculatePoints(round),
+        levelSolvedPoints,
+        firstTryBonusPoints,
+        totalPoints,
         round.sequence.join(' '),
         round.userSequence.join(' '),
         germanTime,
@@ -113,9 +123,21 @@ const WtbResults = ({ roundData, maxLevel, totalScore, isStandalone, t }) => {
       ];
     });
 
+    // Calculate totals
+    const totalLevelSolvedPoints = rows.reduce((sum, row) => sum + row[4], 0);
+    const totalFirstTryBonusPoints = rows.reduce((sum, row) => sum + row[5], 0);
+    const grandTotal = rows.reduce((sum, row) => sum + row[6], 0);
+
+    // Add summary rows
+    const summaryRows = [
+      ['', '', '', '', '', '', '', '', '', '', ''], // Empty row
+      ['TOTALS', '', '', '', totalLevelSolvedPoints, totalFirstTryBonusPoints, grandTotal, '', '', '', '']
+    ];
+
     const csvContent = [
       headers.join(','),
-      ...rows.map(row => row.join(','))
+      ...rows.map(row => row.join(',')),
+      ...summaryRows.map(row => row.join(','))
     ].join('\n');
 
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
@@ -232,7 +254,7 @@ const WtbResults = ({ roundData, maxLevel, totalScore, isStandalone, t }) => {
                     <span className={styles.detailLabel}>{translate('points_earned')}:</span>
                     <span className={styles.detailValue}>
                       {calculatePoints(round)}
-                      {round.attemptNumber === 1 && <span className={styles.bonusBadge}> (+1 {translate('first_try_bonus')})</span>}
+                      {round.level >= 3 && round.attemptNumber === 1 && <span className={styles.bonusBadge}> (+1 {translate('first_try_bonus')})</span>}
                     </span>
                   </div>
                 )}
