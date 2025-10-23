@@ -19,6 +19,44 @@ const WtbResults = ({ roundData, maxLevel, totalScore, isStandalone, t }) => {
     return mapping[level] || `Level ${level}`;
   };
 
+  // Process round data to create level summary
+  const createLevelSummary = () => {
+    const levelSummary = {};
+
+    // Process all rounds and group by level
+    roundData.forEach(round => {
+      const level = round.level;
+
+      if (!levelSummary[level]) {
+        levelSummary[level] = {
+          level: level,
+          attempted: true,
+          solved: false,
+          solvedOnFirstTry: false
+        };
+      }
+
+      // If this round was successful
+      if (round.success) {
+        levelSummary[level].solved = true;
+
+        // Check if it was solved on first try
+        if (round.attemptNumber === 1) {
+          levelSummary[level].solvedOnFirstTry = true;
+        }
+      }
+    });
+
+    // Convert to array and sort by level
+    return Object.values(levelSummary).sort((a, b) => a.level - b.level);
+  };
+
+  const levelSummary = createLevelSummary();
+
+  // Calculate new metrics
+  const total_points_success = levelSummary.filter(l => l.solved).length;
+  const point_first_try = levelSummary.filter(l => l.solvedOnFirstTry).length;
+
   // Calculate statistics
   const totalRounds = roundData.length;
   const successfulRounds = roundData.filter(r => r.success).length;
@@ -96,8 +134,19 @@ const WtbResults = ({ roundData, maxLevel, totalScore, isStandalone, t }) => {
 
       <div className={styles.metricsGrid}>
         <div className={styles.metricCard}>
+          <h3>{translate('total_points_success')}</h3>
+          <div className={styles.metricValue}>{total_points_success}</div>
+          <p className={styles.metricDescription}>{translate('levels_solved')}</p>
+        </div>
+        <div className={styles.metricCard}>
+          <h3>{translate('point_first_try')}</h3>
+          <div className={styles.metricValue}>{point_first_try}</div>
+          <p className={styles.metricDescription}>{translate('first_try_bonuses')}</p>
+        </div>
+        <div className={styles.metricCard}>
           <h3>{translate('total_score_label')}</h3>
           <div className={styles.metricValue}>{totalScore || 0}</div>
+          <p className={styles.metricDescription}>{translate('combined_score')}</p>
         </div>
         <div className={styles.metricCard}>
           <h3>{translate('max_level_label')}</h3>
@@ -111,9 +160,41 @@ const WtbResults = ({ roundData, maxLevel, totalScore, isStandalone, t }) => {
           <h3>{translate('total_rounds_label')}</h3>
           <div className={styles.metricValue}>{totalRounds}</div>
         </div>
-        <div className={styles.metricCard}>
-          <h3>{translate('successful_rounds_label')}</h3>
-          <div className={styles.metricValue}>{successfulRounds}</div>
+      </div>
+
+      <div className={styles.levelSummarySection}>
+        <h3>{translate('level_summary_title')}</h3>
+        <div className={styles.tableWrapper}>
+          <table className={styles.levelSummaryTable}>
+            <thead>
+              <tr>
+                <th>{translate('level_column')}</th>
+                <th>{translate('solved_column')}</th>
+                <th>{translate('first_try_column')}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {levelSummary.map((levelData) => (
+                <tr key={levelData.level}>
+                  <td className={styles.levelCell}>{mapLevelToUT3(levelData.level)}</td>
+                  <td className={styles.statusCell}>
+                    {levelData.solved ? (
+                      <span className={styles.successIcon}>✓</span>
+                    ) : (
+                      <span className={styles.failIcon}>✗</span>
+                    )}
+                  </td>
+                  <td className={styles.statusCell}>
+                    {levelData.solvedOnFirstTry ? (
+                      <span className={styles.successIcon}>✓</span>
+                    ) : (
+                      <span className={styles.failIcon}>✗</span>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
 

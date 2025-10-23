@@ -438,6 +438,12 @@ export default function CorsiTest({ assignmentId, onComplete, isStandalone, t })
       showOverlayMessage('skipped_first_time', 4000, 'info');
       setResults(prev => [...prev, { level, success: true, responseTime: totalResponseTime, skipped: true }]);
 
+      // Increment sequence index for this level to get next sequence
+      const levelSequences = PREDEFINED_SEQUENCES[level - 3];
+      const currentIndex = currentSequenceIndexPerLevel.current[level] || 0;
+      const nextIndex = (currentIndex + 1) % levelSequences.length;
+      currentSequenceIndexPerLevel.current[level] = nextIndex;
+
       setTimeout(() => {
         startGame(level); // Stay at same level with new sequence
       }, 4200);
@@ -458,6 +464,12 @@ export default function CorsiTest({ assignmentId, onComplete, isStandalone, t })
         }, 4200);
       } else {
         // Allow retries - stay at same level with new sequence
+        // Increment sequence index for this level to get next sequence
+        const levelSequences = PREDEFINED_SEQUENCES[level - 3];
+        const currentIndex = currentSequenceIndexPerLevel.current[level] || 0;
+        const nextIndex = (currentIndex + 1) % levelSequences.length;
+        currentSequenceIndexPerLevel.current[level] = nextIndex;
+
         setTimeout(() => {
           startGame(level); // Stay at same level with new sequence
         }, 4200);
