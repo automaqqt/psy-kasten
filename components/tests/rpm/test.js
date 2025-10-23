@@ -480,7 +480,6 @@ export default function RPMTest({ assignmentId, onComplete, isStandalone, t }) {
           )}
         </div>
 
-        <Footer />
 
         {/* Settings Modal */}
         {showSettings && (

@@ -348,7 +348,7 @@
   
   .heldBallFloating {
     position: absolute;
-    top: -120px; /* Position above the board */
+    top: 40px; /* Position within the game area */
     left: 50%;
     transform: translateX(-50%) scale(1.1);
     width: 84px; /* Slightly larger */
@@ -469,6 +469,13 @@
     color: var(--link-color, #0070f3);
   }
 
+  .practiceIndicator {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-secondary, #666);
+    margin-bottom: 0.5rem;
+  }
+
   .skipButton {
     background-color: #f44336;
     color: white;
@@ -558,7 +565,7 @@
     .heldBallFloating {
       width: 52px;
       height: 52px;
-      top: -80px;
+      top: 30px;
       font-size: 1rem;
     }
 

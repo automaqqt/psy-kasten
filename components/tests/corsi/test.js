@@ -71,7 +71,7 @@ export default function CorsiTest({ assignmentId, onComplete, isStandalone, t })
 
   // State for tracking failures and retries per category
   const [failuresPerLevel, setFailuresPerLevel] = useState({}); // Track failures per category (level)
-  const [currentSequenceIndexPerLevel, setCurrentSequenceIndexPerLevel] = useState({}); // Track current sequence index per level
+  const currentSequenceIndexPerLevel = useRef({}); // Track current sequence index per level (using ref to avoid closure issues)
   const [skipUsedPerLevel, setSkipUsedPerLevel] = useState({}); // Track skip button usage per level
   const [settings, setSettings] = useState({
     blockHighlightDuration: 700,
@@ -169,10 +169,10 @@ export default function CorsiTest({ assignmentId, onComplete, isStandalone, t })
                 if (highlightIndex < demoSequence.length) {
                   showNextBlock();
                 } else {
-                  setTimeout(() => setDemoStep(2), 500);
+                  setTimeout(() => setDemoStep(2), 2500);
                 }
               }, 300);
-            }, 700);
+            }, 2700);
           }
         };
         showNextBlock();
@@ -205,7 +205,7 @@ export default function CorsiTest({ assignmentId, onComplete, isStandalone, t })
     }
 
     // Get current sequence index for this level (default to 0)
-    const currentIndex = currentSequenceIndexPerLevel[currentLevel] || 0;
+    const currentIndex = currentSequenceIndexPerLevel.current[currentLevel] || 0;
 
     console.log(`📝 Level ${currentLevel} - Using sequence index ${currentIndex} of ${levelSequences.length}`);
 
@@ -214,15 +214,8 @@ export default function CorsiTest({ assignmentId, onComplete, isStandalone, t })
 
     console.log(`✅ Selected sequence for level ${currentLevel}:`, selectedSequence);
 
-    // Increment the index for next time (loop back to 0 if we reach the end)
-    const nextIndex = (currentIndex + 1) % levelSequences.length;
-    setCurrentSequenceIndexPerLevel(prev => ({
-      ...prev,
-      [currentLevel]: nextIndex
-    }));
-
     return selectedSequence;
-  }, [level, currentSequenceIndexPerLevel]);
+  }, [level]);
 
   // Show a message overlay with fade in/out
   const showOverlayMessage = useCallback((textKey, duration = 1500, type = 'info') => {
@@ -236,8 +229,6 @@ export default function CorsiTest({ assignmentId, onComplete, isStandalone, t })
   const displaySequence = useCallback(async (seq) => {
     setShowingSequence(true);
 
-    // Show brief message
-    showOverlayMessage('watch_carefully', 2500);
 
     // Create a promise that resolves after showing the full sequence
     return new Promise((resolve) => {
@@ -532,6 +523,9 @@ export default function CorsiTest({ assignmentId, onComplete, isStandalone, t })
       // Reset failures for this level since they succeeded
       setFailuresPerLevel(prev => ({ ...prev, [level]: 0 }));
 
+      // Reset sequence index for current level (clean state for potential future use)
+      currentSequenceIndexPerLevel.current[level] = 0;
+
       setTimeout(() => {
         // Check if we've reached the maximum level (8)
         if (level >= 8) {
@@ -565,6 +559,12 @@ export default function CorsiTest({ assignmentId, onComplete, isStandalone, t })
                             `${translate('incorrect_feedback')} ${translate('try_again_same_category')}`;
         showOverlayMessage('incorrect_retry', 4000, 'error');
         setFeedback(retryMessage);
+
+        // Increment sequence index for this level to get next sequence on retry
+        const levelSequences = PREDEFINED_SEQUENCES[level - 3];
+        const currentIndex = currentSequenceIndexPerLevel.current[level] || 0;
+        const nextIndex = (currentIndex + 1) % levelSequences.length;
+        currentSequenceIndexPerLevel.current[level] = nextIndex;
 
         setTimeout(() => {
           startGame(); // Retry same category with different sequence
@@ -626,7 +626,7 @@ export default function CorsiTest({ assignmentId, onComplete, isStandalone, t })
     setGameState('welcome');
     // Reset failure tracking
     setFailuresPerLevel({});
-    setCurrentSequenceIndexPerLevel({});
+    currentSequenceIndexPerLevel.current = {};
     setSkipUsedPerLevel({});
   };
 
@@ -867,7 +867,6 @@ export default function CorsiTest({ assignmentId, onComplete, isStandalone, t })
             )}
         </div>
 
-         <Footer />
         
         {/* Settings panel */}
         {showSettings && (

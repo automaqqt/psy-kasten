@@ -766,9 +766,6 @@ export default function PVTTest({ assignmentId, onComplete, isStandalone, t }) {
           />
         )}
 
-        <footer className={styles.footer}>
-          <p>{translate('footer_description')}</p>
-        </footer>
       </div>
     </div>
   );

@@ -418,6 +418,32 @@ export default function WtbTest({ assignmentId, onComplete, isStandalone, t }) {
     }
   }, [gameState, demoStep]);
 
+  // Demo speech synthesis - speak the numbers when they appear (demo only, no game state changes)
+  useEffect(() => {
+    if (gameState === 'intro' && demoStep === 0) {
+      const speakDemoSequence = async () => {
+        if (!synthesisRef.current) return;
+
+        synthesisRef.current.cancel();
+        const demoSequence = [5, 2, 9];
+
+        for (let i = 0; i < demoSequence.length; i++) {
+          await new Promise((resolve) => {
+            const utterance = new SpeechSynthesisUtterance(demoSequence[i].toString());
+            utterance.lang = settings.voiceLang;
+            utterance.rate = settings.speechRate;
+            utterance.onend = () => {
+              setTimeout(resolve, settings.interDigitPause);
+            };
+            synthesisRef.current.speak(utterance);
+          });
+        }
+      };
+
+      setTimeout(() => speakDemoSequence(), 500);
+    }
+  }, [gameState, demoStep, settings.voiceLang, settings.speechRate, settings.interDigitPause]);
+
   // Generate sequence
   
 
@@ -559,8 +585,8 @@ export default function WtbTest({ assignmentId, onComplete, isStandalone, t }) {
 
     if (isCorrect) {
       // Correct answer: move to next level
-      // Award points equal to level number + 1 bonus point if first attempt
-      const levelPoints = level;
+      // Award 1 point + 1 bonus point if first attempt (2 points total on first try, 1 point on retries)
+      const levelPoints = 1;
       const bonusPoints = (attemptsPerLevel[level] === 1) ? 1 : 0;
       const totalPoints = levelPoints + bonusPoints;
 
@@ -984,7 +1010,6 @@ export default function WtbTest({ assignmentId, onComplete, isStandalone, t }) {
           )}
         </div>
 
-        <Footer />
 
         {showSettings && (
           <WtbSettings

@@ -7,7 +7,18 @@ import Image from 'next/image';
 import Footer from '../ui/footer';
 import { useFullscreen } from '../../hooks/useFullscreen';
 
-// Practice Grid: 3 rows × 5 columns (15 symbols, 3 targets)
+// Demo Grid: 2 rows × 3 columns (6 symbols, 2 targets) - Probe B
+// Target: rotation 0 (vertical split), Distractor: rotation 180 only
+const DEMO_GRID = [
+  { type: 'distractor', rotation: 180 },
+  { type: 'target', rotation: 0 },
+  { type: 'distractor', rotation: 180 },
+  { type: 'distractor', rotation: 180 },
+  { type: 'target', rotation: 0 },
+  { type: 'distractor', rotation: 180 }
+];
+
+// Practice Grid: 3 rows × 5 columns (15 symbols, 3 targets) - Probe A
 // Target: rotation 180, Distractor: rotation 0, 90, or 270
 const PRACTICE_GRID = [
   { type: 'distractor', rotation: 90 },
@@ -27,7 +38,7 @@ const PRACTICE_GRID = [
   { type: 'distractor', rotation: 270 }
 ];
 
-// Main Test Grid: 5 rows × 11 columns (55 symbols, 20 targets)
+// Main Test Grid: 5 rows × 11 columns (55 symbols, 20 targets) - Form A
 const MAIN_GRID = [
   { type: 'distractor', rotation: 0 }, { type: 'distractor', rotation: 270 }, { type: 'target', rotation: 180 }, { type: 'distractor', rotation: 270 }, { type: 'distractor', rotation: 0 }, { type: 'target', rotation: 180 }, { type: 'distractor', rotation: 90 }, { type: 'distractor', rotation: 0 }, { type: 'target', rotation: 180 }, { type: 'distractor', rotation: 270 },
   { type: 'distractor', rotation: 270 }, { type: 'distractor', rotation: 0 }, { type: 'target', rotation: 180 }, { type: 'distractor', rotation: 0 }, { type: 'distractor', rotation: 90 }, { type: 'target', rotation: 180 }, { type: 'distractor', rotation: 0 }, { type: 'distractor', rotation: 90 }, { type: 'target', rotation: 180 }, { type: 'distractor', rotation: 270 },
@@ -57,6 +68,7 @@ const AktTest = ({ assignmentId, onComplete, isStandalone, t }) => {
   const { isFullscreen, enterFullscreen, exitFullscreen } = useFullscreen(gameArea);
 
   const generateGrid = useCallback((practiceMode = false) => {
+    // Practice and Test always use Form A grids
     const sourceGrid = practiceMode ? PRACTICE_GRID : MAIN_GRID;
     setGrid(sourceGrid.map((symbol, index) => ({ ...symbol, id: index, clicked: false })));
   }, []);
@@ -119,7 +131,7 @@ const AktTest = ({ assignmentId, onComplete, isStandalone, t }) => {
     const numTargets = isPractice ? 3 : settings.numTargets;
     const R = clicks.filter(c => c.symbol.type === 'target').length;
 
-    // Error type classification (for distractor clicks only):
+    // Form A error type classification (for distractor clicks only):
     // F1: Rechts-links Fehler (focuses on Lage, neglects Muster) - rotation 270
     // F2: Lage-Fehler (focuses on Muster, neglects Lage) - rotation 90
     // F3: Doppelfehler (both Muster and Lage differ) - rotation 0
@@ -147,7 +159,7 @@ const AktTest = ({ assignmentId, onComplete, isStandalone, t }) => {
         setGameState('practiceComplete');
       } else {
         if (isFullscreen) exitFullscreen();
-        const mustRetry = totalErrors > 5;
+        const mustRetry = totalErrors >= 5;
         setPracticeFailureData({ Omissions, F, totalErrors, mustRetry });
         setGameState('practiceFailed');
       }
@@ -201,11 +213,12 @@ const AktTest = ({ assignmentId, onComplete, isStandalone, t }) => {
     }
   }, [gameState, demoStep]);
 
-  const renderSymbol = (symbol) => {
+  const renderSymbol = (symbol, formType = 'A') => {
     const style = {
       transform: `rotate(${symbol.rotation}deg)`,
     };
-    return <div className={styles.symbol} style={style}></div>;
+    const symbolClass = formType === 'B' ? styles.symbolFormB : styles.symbol;
+    return <div className={symbolClass} style={style}></div>;
   };
 
   return (
@@ -269,17 +282,11 @@ const AktTest = ({ assignmentId, onComplete, isStandalone, t }) => {
                 <p>{translate('tutorial_step3_text')}</p>
               </div>
             </div>
-            <div className={styles.tutorialStep}>
-              <div className={styles.stepNumber}>4</div>
-              <div className={styles.stepText}>
-                <h3>{translate('tutorial_step4_title')}</h3>
-                <p>{translate('tutorial_step4_text')}</p>
-              </div>
-            </div>
+           
           </div>
           <div className={styles.targetReference}>
             <p>{translate('target_symbol_label')}</p>
-            {renderSymbol({ rotation: 180 })}
+            {renderSymbol({ rotation: 180 }, 'A')}
           </div>
           <div className={styles.buttonContainer}>
             <button className={styles.primaryButton} onClick={() => { setDemoStep(0); setGameState('intro'); }}>{translate('see_demo')}</button>
@@ -294,14 +301,7 @@ const AktTest = ({ assignmentId, onComplete, isStandalone, t }) => {
           <p>{translate('demo_intro')}</p>
           <div className={styles.demoContainer}>
             <div className={styles.demoGrid}>
-              {[
-                { rotation: 90, type: 'distractor' },
-                { rotation: 180, type: 'target' },
-                { rotation: 270, type: 'distractor' },
-                { rotation: 0, type: 'distractor' },
-                { rotation: 180, type: 'target' },
-                { rotation: 90, type: 'distractor' }
-              ].map((symbol, index) => (
+              {DEMO_GRID.map((symbol, index) => (
                 <div
                   key={index}
                   className={`${styles.demoSymbolContainer} ${
@@ -310,7 +310,7 @@ const AktTest = ({ assignmentId, onComplete, isStandalone, t }) => {
                     symbol.type === 'target' && demoStep >= 2 ? styles.demoClicked : ''
                   }`}
                 >
-                  {renderSymbol(symbol)}
+                  {renderSymbol(symbol, 'B')}
                 </div>
               ))}
             </div>
@@ -388,7 +388,7 @@ const AktTest = ({ assignmentId, onComplete, isStandalone, t }) => {
         <div>
           <div className={styles.targetReference}>
             <p>{translate('find_symbol')}</p>
-            {renderSymbol({ rotation: 180 })}
+            {renderSymbol({ rotation: 180 }, 'A')}
           </div>
           <div className={styles.testGrid} style={gameState === 'practice' ? { gridTemplateColumns: 'repeat(5, 1fr)', maxWidth: '500px' } : {}}>
             {grid.map((symbol, index) => (
@@ -397,7 +397,7 @@ const AktTest = ({ assignmentId, onComplete, isStandalone, t }) => {
                 className={`${styles.symbolContainer} ${symbol.clicked ? styles.clicked : ''}`}
                 onClick={() => handleSymbolClick(index)}
               >
-                {renderSymbol(symbol)}
+                {renderSymbol(symbol, 'A')}
                 {symbol.clicked && <div className={styles.clickedMarker}></div>}
               </div>
             ))}
@@ -422,7 +422,6 @@ const AktTest = ({ assignmentId, onComplete, isStandalone, t }) => {
       )}
     </div>
 
-    <Footer />
 
     </div>
     </div>

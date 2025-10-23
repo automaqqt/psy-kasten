@@ -65,5 +65,8 @@
   "num_targets": "Number of Targets",
   "countdown_duration": "Countdown (seconds)",
   "reset_to_defaults": "Reset to Defaults",
-  "save_and_close": "Save & Close"
+  "save_and_close": "Save & Close",
+  "form_selector_label": "Test Form",
+  "form_a_label": "Form A (Solid Black)",
+  "form_b_label": "Form B (Half Black/White)"
 }

@@ -27,7 +27,7 @@ const WtbResults = ({ roundData, maxLevel, totalScore, isStandalone, t }) => {
   // Calculate points breakdown
   const calculatePoints = (round) => {
     if (!round.success) return 0;
-    const levelPoints = round.level;
+    const levelPoints = 1;
     const bonusPoints = round.attemptNumber === 1 ? 1 : 0;
     return levelPoints + bonusPoints;
   };

@@ -680,10 +680,7 @@ export default function GNGTest({ assignmentId, onComplete, isStandalone, t }) {
                     />
                  )}
 
-                 {/* Footer */}
-                 <footer className={styles.footer}>
-                    <p>{translate('footer_description')}</p>
-                 </footer>
+
 
             </div>
         </div>

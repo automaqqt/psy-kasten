@@ -65,5 +65,8 @@
   "num_targets": "Número de Objetivos",
   "countdown_duration": "Cuenta regresiva (segundos)",
   "reset_to_defaults": "Restablecer a Predeterminados",
-  "save_and_close": "Guardar y Cerrar"
+  "save_and_close": "Guardar y Cerrar",
+  "form_selector_label": "Formulario de Prueba",
+  "form_a_label": "Forma A (Negro Sólido)",
+  "form_b_label": "Forma B (Mitad Negro/Blanco)"
 }

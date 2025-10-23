@@ -24,6 +24,20 @@ const statesAreEqual = (state1, state2) => {
   return true;
 };
 
+// Practice problems - two 2-move problems
+const PRACTICE_PROBLEMS = [
+  {
+    start: [['B'], ['R'], ['G']],
+    goal: [['B','G'], [], ['R']],
+    minMoves: 2
+  },
+  {
+    start: [['B','G'], [], ['R']],
+    goal: [['B','R'], ['G'], []],
+    minMoves: 2
+  }
+];
+
 
 export default function TOLTest({ assignmentId, onComplete, isStandalone, t }) {
   const [gameState, setGameState] = useState('welcome'); // welcome, tutorial, demo, practice, practiceComplete, playing, results
@@ -33,7 +47,6 @@ export default function TOLTest({ assignmentId, onComplete, isStandalone, t }) {
   const [pegState, setPegState] = useState(null); // Initialize as null, set in useEffect or startTest
   const [heldBall, setHeldBall] = useState(null);
   const [moveHistory, setMoveHistory] = useState([]);
-  const [totalScore, setTotalScore] = useState(0);
   const [problemResults, setProblemResults] = useState([]);
   const [feedback, setFeedback] = useState('');
   const [showSettings, setShowSettings] = useState(false);
@@ -45,6 +58,7 @@ export default function TOLTest({ assignmentId, onComplete, isStandalone, t }) {
   const [demoStep, setDemoStep] = useState(0);
   const [demoPegState, setDemoPegState] = useState(null);
   const [demoHeldBall, setDemoHeldBall] = useState(null);
+  const [practiceStep, setPracticeStep] = useState(0); // Track which practice problem (0 or 1)
 
   // Translation function with fallback
   const translate = t || ((key) => key);
@@ -55,7 +69,6 @@ export default function TOLTest({ assignmentId, onComplete, isStandalone, t }) {
 
   // Derived state - memoize if performance becomes an issue
   const currentProblem = PROBLEMS[currentProblemIndex];
-  const maxScore = PROBLEMS.length * TRIAL_SCORES[0];
 
   // --- Game Logic ---
 
@@ -114,8 +127,12 @@ export default function TOLTest({ assignmentId, onComplete, isStandalone, t }) {
   }, [gameState, demoStep]);
 
 
-  const startPractice = async () => {
+  const startPractice = async (resetStep = true) => {
     setIsPractice(true);
+    const stepToUse = resetStep ? 0 : practiceStep;
+    if (resetStep) {
+      setPracticeStep(0); // Reset to first practice problem
+    }
     if (!isFullscreen) {
       try {
         await enterFullscreen();
@@ -123,9 +140,9 @@ export default function TOLTest({ assignmentId, onComplete, isStandalone, t }) {
         console.warn('Could not enter fullscreen mode:', err);
       }
     }
-    // Practice problem: simple 2-move problem
-    // Start: [['R'], ['G'], ['B']], Goal: [[], ['G', 'B'], ['R']]
-    setPegState([['R'], ['G'], ['B']]);
+    // Use the appropriate practice problem
+    const currentPractice = PRACTICE_PROBLEMS[stepToUse];
+    setPegState(JSON.parse(JSON.stringify(currentPractice.start)));
     setHeldBall(null);
     setMoveHistory([]);
     // Reset timing variables
@@ -147,7 +164,6 @@ export default function TOLTest({ assignmentId, onComplete, isStandalone, t }) {
     }
     setCurrentProblemIndex(0);
     setCurrentTrial(1);
-    setTotalScore(0);
     setProblemResults([]);
     // Reset timing variables BEFORE starting
     setFirstMoveTime(null);
@@ -246,15 +262,33 @@ export default function TOLTest({ assignmentId, onComplete, isStandalone, t }) {
 
     // --- Check for Solution ---
     if (isPractice) {
-      // Practice goal: [[], ['G', 'B'], ['R']]
-      const practiceGoal = [[], ['G', 'B'], ['R']];
-      if (statesAreEqual(newState, practiceGoal)) {
+      // Use current practice problem goal
+      const currentPractice = PRACTICE_PROBLEMS[practiceStep];
+      if (statesAreEqual(newState, currentPractice.goal)) {
         setFeedback(translate('practice_correct'));
         setTimeout(() => {
           if (isFullscreen) {
             exitFullscreen();
           }
-          setGameState('practiceComplete');
+          // Check if there's another practice problem
+          if (practiceStep < PRACTICE_PROBLEMS.length - 1) {
+            // Move to next practice problem
+            setPracticeStep(practiceStep + 1);
+            const nextPractice = PRACTICE_PROBLEMS[practiceStep + 1];
+            setPegState(JSON.parse(JSON.stringify(nextPractice.start)));
+            setHeldBall(null);
+            setMoveHistory([]);
+            setFirstMoveTime(null);
+            setLastMoveTime(null);
+            setTrialStartTime(Date.now());
+            setFeedback(translate('practice_feedback'));
+            if (!isFullscreen) {
+              enterFullscreen().catch(err => console.warn('Could not enter fullscreen:', err));
+            }
+          } else {
+            // All practice problems completed
+            setGameState('practiceComplete');
+          }
         }, 1500);
       }
     } else {
@@ -273,16 +307,13 @@ export default function TOLTest({ assignmentId, onComplete, isStandalone, t }) {
 
  // Pass move number to success handler
  const handleTrialSuccess = (movesTaken) => {
-    const scoreForTrial = TRIAL_SCORES[currentTrial - 1];
-    setTotalScore(prev => prev + scoreForTrial);
-
     const planningTime = firstMoveTime ? firstMoveTime - trialStartTime : 0;
     const executionTime = firstMoveTime ? Date.now() - firstMoveTime : Date.now() - trialStartTime;
 
     const attemptData = { trial: currentTrial, success: true, moves: movesTaken, planningTime, executionTime };
     updateProblemResult(attemptData);
 
-    setFeedback(translate('correct_solved', { number: currentProblemIndex + 1, moves: movesTaken, score: scoreForTrial }));
+    setFeedback(translate('correct_solved', { number: currentProblemIndex + 1, moves: movesTaken }));
     // Delay slightly before moving to next to show feedback
     setTimeout(goToNextProblem, 1200); // 1.2 second delay
   };
@@ -354,12 +385,6 @@ export default function TOLTest({ assignmentId, onComplete, isStandalone, t }) {
             if (!updatedResults[existingEntryIndex].attempts.find(a => a.trial === attemptData.trial)) {
                  updatedResults[existingEntryIndex].attempts.push(attemptDataWithPauses);
             }
-            if (attemptData.success) {
-               updatedResults[existingEntryIndex].score = Math.max(
-                 updatedResults[existingEntryIndex].score || 0,
-                 TRIAL_SCORES[attemptData.trial - 1]
-               );
-            }
             return updatedResults;
           } else {
             return [
@@ -369,7 +394,6 @@ export default function TOLTest({ assignmentId, onComplete, isStandalone, t }) {
                 // Store start/goal for results display/export if needed
                 startState: JSON.parse(JSON.stringify(currentProblem.start)),
                 goalState: JSON.parse(JSON.stringify(currentProblem.goal)),
-                score: attemptData.success ? TRIAL_SCORES[attemptData.trial - 1] : 0,
                 minMoves: currentProblem.minMoves,
                 attempts: [attemptDataWithPauses]
               }
@@ -417,7 +441,6 @@ export default function TOLTest({ assignmentId, onComplete, isStandalone, t }) {
     setPegState(null); // Clear peg state, will be set by useEffect/startTest
     setHeldBall(null);
     setMoveHistory([]);
-    setTotalScore(0);
     setProblemResults([]);
     setFeedback('');
     setTrialStartTime(null);
@@ -520,7 +543,6 @@ export default function TOLTest({ assignmentId, onComplete, isStandalone, t }) {
              <div className={styles.gameInfo}>
                <span>{translate('problem_of', { current: currentProblemIndex + 1, total: PROBLEMS.length })}</span>
                <span>{translate('moves')}: {moveHistory.length}/{currentProblem.minMoves}</span>
-               <span>{translate('score')}: {totalScore}</span>
                 <button onClick={endTestEarly} className={styles.stopButton}>
                   <FaStopCircle />
                 </button>
@@ -618,25 +640,7 @@ export default function TOLTest({ assignmentId, onComplete, isStandalone, t }) {
               {/* Demo Board */}
               {demoPegState && (
                 <div className={styles.demoBoard}>
-                  <div className={styles.board}>
-                    {demoPegState.map((_, pegIndex) => (
-                      <div
-                        key={`demo-peg-${pegIndex}`}
-                        className={`${styles.peg} ${styles[`peg${pegIndex + 1}`]}`}
-                      >
-                        {renderDemoBalls(pegIndex)}
-                        <div className={`${styles.pegPost} ${styles[`pegPost${pegIndex + 1}`]}`} />
-                      </div>
-                    ))}
-                    {demoHeldBall && (
-                      <div
-                        className={styles.heldBallFloatingDemo}
-                        style={{ backgroundColor: BALL_COLORS[demoHeldBall.ball] }}
-                      />
-                    )}
-                  </div>
-
-                  {/* Demo Goal */}
+                  {/* Demo Goal - Target shown first */}
                   <div className={styles.goalContainer}>
                     <h4>{translate('target_config', { moves: 1 })}</h4>
                     <div className={styles.goalBoard}>
@@ -655,6 +659,25 @@ export default function TOLTest({ assignmentId, onComplete, isStandalone, t }) {
                         </div>
                       ))}
                     </div>
+                  </div>
+
+                  {/* Demo Test Board - Game board shown second */}
+                  <div className={styles.board}>
+                    {demoPegState.map((_, pegIndex) => (
+                      <div
+                        key={`demo-peg-${pegIndex}`}
+                        className={`${styles.peg} ${styles[`peg${pegIndex + 1}`]}`}
+                      >
+                        {renderDemoBalls(pegIndex)}
+                        <div className={`${styles.pegPost} ${styles[`pegPost${pegIndex + 1}`]}`} />
+                      </div>
+                    ))}
+                    {demoHeldBall && (
+                      <div
+                        className={styles.heldBallFloatingDemo}
+                        style={{ backgroundColor: BALL_COLORS[demoHeldBall.ball] }}
+                      />
+                    )}
                   </div>
                 </div>
               )}
@@ -700,30 +723,12 @@ export default function TOLTest({ assignmentId, onComplete, isStandalone, t }) {
           {/* Playing Area - Ensure currentProblem and pegState are loaded */}
           {(gameState === 'playing' || gameState === 'practice') && pegState && (
             <div className={styles.playingArea}>
-              {/* Board rendering uses pegState */}
-              <div className={styles.board}>
-                 {pegState.map((_, pegIndex) => (
-                   <div
-                     key={pegIndex}
-                     className={`${styles.peg} ${styles[`peg${pegIndex + 1}`]}`}
-                     onClick={() => handlePegClick(pegIndex)}
-                      role="button"
-                      aria-label={heldBall ? `Place ball on peg ${pegIndex + 1}` : `Peg ${pegIndex + 1}`}
-                      tabIndex={(gameState === 'playing' || gameState === 'practice') && heldBall ? 0 : -1}
-                   >
-                      {renderBalls(pegIndex)}
-                     <div className={`${styles.pegPost} ${styles[`pegPost${pegIndex + 1}`]}`} />
-                   </div>
-                 ))}
-                  {heldBall && ( <div className={styles.heldBallFloating} style={{ backgroundColor: BALL_COLORS[heldBall.ball] }} /> )}
-              </div>
-
-              {/* Goal rendering */}
+              {/* Goal rendering - Target configuration shown first */}
               {gameState === 'practice' ? (
                 <div className={styles.goalContainer}>
-                  <h4>{translate('target_config', { moves: 2 })}</h4>
+                  <h4>{translate('target_config', { moves: PRACTICE_PROBLEMS[practiceStep].minMoves })}</h4>
                   <div className={styles.goalBoard}>
-                    {[[], ['G', 'B'], ['R']].map((pegBalls, pegIndex) => (
+                    {PRACTICE_PROBLEMS[practiceStep].goal.map((pegBalls, pegIndex) => (
                       <div key={`goal-peg-${pegIndex}`} className={styles.goalPeg}>
                         <div className={styles.goalPegBalls}>
                           {pegBalls.map((ball, ballIndex) => (
@@ -743,11 +748,34 @@ export default function TOLTest({ assignmentId, onComplete, isStandalone, t }) {
                 renderGoal(currentProblem)
               )}
 
+              {/* Board rendering - Clickable game space shown second */}
+              <div className={styles.board}>
+                 {pegState.map((_, pegIndex) => (
+                   <div
+                     key={pegIndex}
+                     className={`${styles.peg} ${styles[`peg${pegIndex + 1}`]}`}
+                     onClick={() => handlePegClick(pegIndex)}
+                      role="button"
+                      aria-label={heldBall ? `Place ball on peg ${pegIndex + 1}` : `Peg ${pegIndex + 1}`}
+                      tabIndex={(gameState === 'playing' || gameState === 'practice') && heldBall ? 0 : -1}
+                   >
+                      {renderBalls(pegIndex)}
+                     <div className={`${styles.pegPost} ${styles[`pegPost${pegIndex + 1}`]}`} />
+                   </div>
+                 ))}
+                  {heldBall && ( <div className={styles.heldBallFloating} style={{ backgroundColor: BALL_COLORS[heldBall.ball] }} /> )}
+              </div>
+
               <div className={styles.feedbackArea}>
+                {isPractice && (
+                  <p className={styles.practiceIndicator}>
+                    Practice {practiceStep + 1} of {PRACTICE_PROBLEMS.length}
+                  </p>
+                )}
                 <p className={styles.feedbackText}>{feedback}</p>
                 {currentProblem && moveHistory.length >= currentProblem.minMoves + 2 && (
-                  <button 
-                    className={styles.skipButton} 
+                  <button
+                    className={styles.skipButton}
                     onClick={skipProblem}>
                     Weiter
                   </button>
@@ -760,8 +788,6 @@ export default function TOLTest({ assignmentId, onComplete, isStandalone, t }) {
           {gameState === 'results' && (
              <TOLResults
                testData={problemResults}
-               totalScore={totalScore}
-               maxScore={maxScore}
                onRestart={resetGame}
                // Pass true if using custom starts, results might want to show start/goal
                usesCustomStarts={true}
@@ -773,10 +799,7 @@ export default function TOLTest({ assignmentId, onComplete, isStandalone, t }) {
          {/* Settings panel remains the same */}
          {showSettings && ( <TOLSettings settings={settings} setSettings={setSettings} onClose={() => setShowSettings(false)} /> )}
 
-         {/* Footer remains the same */}
-         <footer className={styles.footer}>
-           <p>{translate('footer_description')}</p>
-         </footer>
+         
       </div>
     </div>
   );

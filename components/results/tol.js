@@ -2,9 +2,8 @@
 import React from 'react';
 import Link from 'next/link';
 import styles from '../../styles/TOLResults.module.css'; // Create this CSS file
-import { TRIAL_SCORES } from '../tests/tol/tolData';
 
-const TOLResults = ({ testData, totalScore, maxScore, onRestart }) => {
+const TOLResults = ({ testData, onRestart }) => {
 
   // Helper function to calculate planning time averages per difficulty level
   const calculatePlanningTimeAverages = () => {
@@ -36,12 +35,27 @@ const TOLResults = ({ testData, totalScore, maxScore, onRestart }) => {
     return averages;
   };
 
+  // Helper function to calculate total average planning time across all levels
+  const calculateTotalAveragePlanningTime = () => {
+    let totalTime = 0;
+    let count = 0;
+
+    testData.forEach(result => {
+      const firstAttempt = result.attempts[0];
+      if (firstAttempt && firstAttempt.planningTime > 0) {
+        totalTime += firstAttempt.planningTime;
+        count++;
+      }
+    });
+
+    return count > 0 ? totalTime / count : 0;
+  };
+
   // Optional: Function to export data
   const exportResultsToCSV = () => {
     const headers = [
         'Problem',
         'Min Moves',
-        'Score Awarded',
         'Status',
         'Moves Used',
         'Planning Time (ms)',
@@ -73,7 +87,6 @@ const TOLResults = ({ testData, totalScore, maxScore, onRestart }) => {
         const row = [
             result.problemIndex + 1,
             result.minMoves,
-            result.score,
             status,
             attempt ? attempt.moves : '-',
             attempt ? attempt.planningTime : '-',
@@ -86,7 +99,7 @@ const TOLResults = ({ testData, totalScore, maxScore, onRestart }) => {
 
     // Add summary rows
     rows.push([]); // Spacer
-    rows.push(['Total Score:', totalScore, `(Max: ${maxScore})`]);
+    rows.push(['Total Average Planning Time:', `${calculateTotalAveragePlanningTime().toFixed(2)} ms`]);
     rows.push([]);
     rows.push(['Planning Time Averages by Difficulty Level:']);
 
@@ -118,10 +131,9 @@ const TOLResults = ({ testData, totalScore, maxScore, onRestart }) => {
 
       <div className={styles.summaryMetrics}>
         <div className={styles.metric}>
-          <span className={styles.metricLabel}>Total Score</span>
-          <span className={styles.metricValue}>{totalScore} / {maxScore}</span>
+          <span className={styles.metricLabel}>Avg Planning Time</span>
+          <span className={styles.metricValue}>{(calculateTotalAveragePlanningTime() / 1000).toFixed(2)}s</span>
         </div>
-         {/* Add more summary metrics if needed, e.g., Avg Score per problem */}
       </div>
 
        <div className={styles.exportContainer}>
@@ -141,7 +153,6 @@ const TOLResults = ({ testData, totalScore, maxScore, onRestart }) => {
             <tr>
               <th>Problem</th>
               <th>Min Moves</th>
-              <th>Score</th>
               <th>Status</th>
               <th>Moves Used</th>
               <th>Details</th>
@@ -190,7 +201,6 @@ const TOLResults = ({ testData, totalScore, maxScore, onRestart }) => {
                 <tr key={result.problemIndex}>
                   <td>{result.problemIndex + 1}</td>
                   <td>{result.minMoves}</td>
-                  <td>{result.score} / {TRIAL_SCORES[0]}</td>
                   <td><span className={statusClass}>{statusText}</span></td>
                   <td>{attempt ? `${attempt.moves}` : '-'}</td>
                   <td>{getDetails()}</td>

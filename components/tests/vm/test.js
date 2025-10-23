@@ -471,7 +471,7 @@ export default function VMTest({ assignmentId, onComplete, isStandalone, t }) {
           )}
         </div>
 
-        <Footer />
+
         
         {/* Settings panel */}
         {showSettings && (
