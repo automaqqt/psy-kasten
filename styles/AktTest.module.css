@@ -100,7 +100,7 @@
     background-color: var(--bg-secondary, #eef2f7);
     border-radius: 15px;
     padding: 2rem;
-    max-width: 600px;
+    max-width: 1200px;
     width: 100%;
     box-shadow: 0 5px 20px var(--shadow-color, rgba(0, 0, 0, 0.1));
     z-index: 10;
@@ -295,21 +295,42 @@
   .symbol {
     width: 60px;
     height: 30px;
-    background-color: var(--text-primary, black);
+    background-color: #000;;
     border-radius: 50px 50px 0 0;
     transform-origin: center center;
     position: relative;
     top: 15px;
+    outline: 1px solid rgba(0, 0, 0, 0.4);
+    outline-offset: -1px;
   }
 
   .symbolFormB {
     width: 60px;
     height: 30px;
-    background: linear-gradient(90deg, var(--text-primary, black) 50%, white 50%);
+    background: linear-gradient(90deg, #000 50%, white 50%);
     border-radius: 50px 50px 0 0;
     transform-origin: center center;
     position: relative;
     top: 15px;
+    outline: 1px solid rgba(0, 0, 0, 0.4);
+    outline-offset: -1px;
+  }
+
+  /* Form B: Control gradient direction via blackSide data attribute */
+  .symbolFormB[data-black-side="left"] {
+    background: linear-gradient(90deg, #000 50%, white 50%);
+  }
+
+  .symbolFormB[data-black-side="right"] {
+    background: linear-gradient(90deg, white 50%, #000 50%);
+  }
+
+  .symbolFormB[data-black-side="top"] {
+    background: linear-gradient(180deg, #000 50%, white 50%);
+  }
+
+  .symbolFormB[data-black-side="bottom"] {
+    background: linear-gradient(180deg, white 50%, #000 50%);
   }
 
   .targetReference {
@@ -342,11 +363,13 @@
 
   .demoGrid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(12, 1fr);
     gap: 15px;
     padding: 1.5rem;
     background-color: rgba(0, 112, 243, 0.05);
     border-radius: 10px;
+    width: 100%;
+    max-width: 1800px;
   }
 
   .demoSymbolContainer {
