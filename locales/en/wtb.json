@@ -90,5 +90,8 @@
   "voice_language": "Voice Language",
   "countdown_duration": "Countdown Duration",
   "reset_to_defaults": "Reset to Defaults",
-  "save_and_close": "Save & Close"
+  "save_and_close": "Save & Close",
+  "audio_failed_visual_mode": "Audio unavailable - sequence displayed visually",
+  "continue_without_audio": "Continue Without Audio",
+  "read_sequence_visual": "Read the sequence"
 }

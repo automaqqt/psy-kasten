@@ -388,8 +388,15 @@
     transform: scale(0.95);
   }
   
-  .progressIndicator {
+  .controlsContainer {
     margin-top: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+  }
+
+  .progressIndicator {
     font-size: 1.2rem;
     font-weight: 600;
     color: var(--text-primary, #333);
@@ -400,10 +407,6 @@
   }
 
   .skipButton {
-    position: absolute;
-    right: 2rem;
-    top: 50%;
-    transform: translateY(-50%);
     padding: 0.6rem 1.2rem;
     background-color: #f44336;
     color: white;
@@ -416,15 +419,22 @@
     box-shadow: 0 2px 8px rgba(244, 67, 54, 0.3);
   }
 
-  .skipButton:hover {
+  .skipButton:hover:not(:disabled) {
     background-color: #d32f2f;
-    transform: translateY(-50%) translateY(-2px);
+    transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(244, 67, 54, 0.4);
   }
 
-  .skipButton:active {
-    transform: translateY(-50%) translateY(0);
+  .skipButton:active:not(:disabled) {
+    transform: translateY(0);
     box-shadow: 0 2px 6px rgba(244, 67, 54, 0.3);
+  }
+
+  .skipButton:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+    opacity: 0.6;
+    box-shadow: none;
   }
   
   /* Countdown */

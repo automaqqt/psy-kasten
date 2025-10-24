@@ -7,66 +7,100 @@ import Image from 'next/image';
 import Footer from '../ui/footer';
 import { useFullscreen } from '../../hooks/useFullscreen';
 
-// Demo Grid: 2 rows × 3 columns (6 symbols, 2 targets) - Probe B
-// Target: rotation 0 (vertical split), Distractor: rotation 180 only
+// Demo Grid: 5 rows × 11 columns (54 symbols) - Probe B
+// Target: rotation 0 (vertical split, black on left), Distractor: rotation 180/90/270
+// blackSide mapping: 0°=left, 90°=top, 180°=right, 270°=bottom
+// const DEMO_GRID = [
+//   { type: 'distractor', rotation: 270, blackSide: 'bottom' },  { type: 'distractor', rotation: 90, blackSide: 'top' }, { type: 'target', rotation: 0, blackSide: 'left' }, { type: 'distractor', rotation: 180, blackSide: 'right' },   { type: 'distractor', rotation: 90, blackSide: 'top' },
+// { type: 'target', rotation: 0, blackSide: 'left' },  { type: 'distractor', rotation: 180, blackSide: 'right' }, { type: 'target', rotation: 0, blackSide: 'left' },  { type: 'distractor', rotation: 270, blackSide: 'bottom' },  { type: 'distractor', rotation: 90, blackSide: 'top' }, { type: 'target', rotation: 0, blackSide: 'left' },  { type: 'distractor', rotation: 180, blackSide: 'right' },   { type: 'distractor', rotation: 270, blackSide: 'bottom' },
+//   { type: 'target', rotation: 0, blackSide: 'left' },  { type: 'target', rotation: 0, blackSide: 'left' }, { type: 'distractor', rotation: 270, blackSide: 'bottom' }, { type: 'distractor', rotation: 90, blackSide: 'top' }, { type: 'distractor', rotation: 180, blackSide: 'right' }, { type: 'target', rotation: 0, blackSide: 'left' },  { type: 'distractor', rotation: 180, blackSide: 'right' }, { type: 'distractor', rotation: 270, blackSide: 'bottom' }, { type: 'target', rotation: 0, blackSide: 'left' },  { type: 'distractor', rotation: 90, blackSide: 'top' }, { type: 'target', rotation: 0, blackSide: 'left' },  { type: 'distractor', rotation: 180, blackSide: 'right' },
+// { type: 'distractor', rotation: 270, blackSide: 'bottom' }, { type: 'target', rotation: 0, blackSide: 'left' },  { type: 'distractor', rotation: 180, blackSide: 'right' },  { type: 'distractor', rotation: 90, blackSide: 'top' }, { type: 'target', rotation: 0, blackSide: 'left' },  { type: 'distractor', rotation: 180, blackSide: 'right' }, { type: 'distractor', rotation: 270, blackSide: 'bottom' }, { type: 'distractor', rotation: 90, blackSide: 'top' }, { type: 'target', rotation: 0, blackSide: 'left' }, { type: 'distractor', rotation: 180, blackSide: 'right' }, { type: 'target', rotation: 0, blackSide: 'left' },  { type: 'distractor', rotation: 90, blackSide: 'top' },
+// { type: 'distractor', rotation: 90, blackSide: 'top' }, { type: 'distractor', rotation: 180, blackSide: 'right' }, { type: 'target', rotation: 0, blackSide: 'left' },  { type: 'distractor', rotation: 270, blackSide: 'bottom' }, { type: 'distractor', rotation: 180, blackSide: 'right' }, { type: 'distractor', rotation: 270, blackSide: 'bottom' }, { type: 'distractor', rotation: 180, blackSide: 'right' }, { type: 'target', rotation: 0, blackSide: 'left' }, { type: 'distractor', rotation: 90, blackSide: 'top' }, { type: 'distractor', rotation: 180, blackSide: 'right' }, { type: 'distractor', rotation: 270, blackSide: 'bottom' }, { type: 'target', rotation: 0, blackSide: 'left' }
+// ];
+
+// Practice Grid: 8 rows × 5 columns (40 symbols, 14 targets) - Probe A
+// Target: rotation 180 (black on right), Distractor: rotation 0, 90, or 270
+// blackSide mapping: 0°=left, 90°=top, 180°=right, 270°=bottom
+// const PRACTICE_GRID = [
+//   { type: 'distractor', rotation: 0, blackSide: 'left' },
+// { type: 'distractor', rotation: 270, blackSide: 'bottom' },
+// { type: 'target', rotation: 180, blackSide: 'right' },
+// { type: 'distractor', rotation: 270, blackSide: 'bottom' },
+//  { type: 'distractor', rotation: 0, blackSide: 'left' },
+//  { type: 'target', rotation: 180, blackSide: 'right' },
+//  { type: 'distractor', rotation: 90, blackSide: 'top' },
+//  { type: 'distractor', rotation: 0, blackSide: 'left' },
+//  { type: 'target', rotation: 180, blackSide: 'right' },
+//  { type: 'distractor', rotation: 270, blackSide: 'bottom' },
+//   { type: 'distractor', rotation: 270, blackSide: 'bottom' },
+//  { type: 'distractor', rotation: 0, blackSide: 'left' },
+//  { type: 'target', rotation: 180, blackSide: 'right' },
+//  { type: 'distractor', rotation: 0, blackSide: 'left' },
+// { type: 'distractor', rotation: 90, blackSide: 'top' },
+// { type: 'target', rotation: 180, blackSide: 'right' },
+// { type: 'distractor', rotation: 0, blackSide: 'left' },
+// { type: 'distractor', rotation: 90, blackSide: 'top' },
+// { type: 'target', rotation: 180, blackSide: 'right' },
+// { type: 'distractor', rotation: 270, blackSide: 'bottom' },
+//   { type: 'target', rotation: 180, blackSide: 'right' },
+// { type: 'distractor', rotation: 90, blackSide: 'top' },
+// { type: 'distractor', rotation: 270, blackSide: 'bottom' },
+// { type: 'target', rotation: 180, blackSide: 'right' },
+// { type: 'distractor', rotation: 0, blackSide: 'left' },
+// { type: 'distractor', rotation: 90, blackSide: 'top' },
+// { type: 'distractor', rotation: 0, blackSide: 'left' },
+// { type: 'distractor', rotation: 0, blackSide: 'left' },
+// { type: 'distractor', rotation: 270, blackSide: 'bottom' },
+// { type: 'target', rotation: 180, blackSide: 'right' },
+//   { type: 'distractor', rotation: 90, blackSide: 'top' },
+// { type: 'target', rotation: 180, blackSide: 'right' },
+// { type: 'distractor', rotation: 270, blackSide: 'bottom' },
+// { type: 'target', rotation: 180, blackSide: 'right' },
+// { type: 'distractor', rotation: 0, blackSide: 'left' },
+// { type: 'target', rotation: 180, blackSide: 'right' },
+// { type: 'distractor', rotation: 90, blackSide: 'top' },
+// { type: 'target', rotation: 180, blackSide: 'right' },
+// { type: 'distractor', rotation: 270, blackSide: 'bottom' }, { type: 'distractor', rotation: 90, blackSide: 'top' }
+// ];
+
+// Form A Demo Grid: 4 rows × 12 columns + 1 trailing = 49 symbols, 14 targets
+// Target = rotation 180 (black on right), Distractors = rotation 0/90/270
 const DEMO_GRID = [
-  { type: 'distractor', rotation: 270 },  { type: 'distractor', rotation: 90 }, { type: 'target', rotation: 0 }, { type: 'distractor', rotation: 180 },   { type: 'distractor', rotation: 90 }, 
-{ type: 'target', rotation: 0 },  { type: 'distractor', rotation: 180 }, { type: 'target', rotation: 0 },  { type: 'distractor', rotation: 270 },  { type: 'distractor', rotation: 90 }, { type: 'target', rotation: 0 },  { type: 'distractor', rotation: 180 },   { type: 'distractor', rotation: 270 },
-  { type: 'target', rotation: 0 },  { type: 'target', rotation: 0 }, { type: 'distractor', rotation: 270 }, { type: 'distractor', rotation: 90 }, { type: 'distractor', rotation: 180 }, { type: 'target', rotation: 0 },  { type: 'distractor', rotation: 180 }, { type: 'distractor', rotation: 270 }, { type: 'target', rotation: 0 },  { type: 'distractor', rotation: 90 }, { type: 'target', rotation: 0 },  { type: 'distractor', rotation: 180 },
-{ type: 'distractor', rotation: 270 }, { type: 'target', rotation: 0 },  { type: 'distractor', rotation: 180 },  { type: 'distractor', rotation: 90 }, { type: 'target', rotation: 0 },  { type: 'distractor', rotation: 180 }, { type: 'distractor', rotation: 270 }, { type: 'distractor', rotation: 90 }, { type: 'target', rotation: 0 }, { type: 'distractor', rotation: 180 }, { type: 'target', rotation: 0 },  { type: 'distractor', rotation: 90 },
-{ type: 'distractor', rotation: 90 }, { type: 'distractor', rotation: 180 }, { type: 'target', rotation: 0 },  { type: 'distractor', rotation: 270 }, { type: 'distractor', rotation: 180 }, { type: 'distractor', rotation: 270 }, { type: 'distractor', rotation: 180 }, { type: 'target', rotation: 0 }, { type: 'distractor', rotation: 90 }, { type: 'distractor', rotation: 180 }, { type: 'distractor', rotation: 270 }, { type: 'target', rotation: 0 }
+  // Row 1 (12 symbols)
+  { type: 'distractor', rotation: 270 }, { type: 'distractor', rotation: 90 }, { type: 'target', rotation: 180 }, { type: 'distractor', rotation: 0 }, { type: 'distractor', rotation: 90 }, { type: 'target', rotation: 180 }, { type: 'distractor', rotation: 0 }, { type: 'distractor', rotation: 270 }, { type: 'target', rotation: 180 }, { type: 'distractor', rotation: 90 }, { type: 'distractor', rotation: 0 }, { type: 'distractor', rotation: 270 },
+  // Row 2 (12 symbols)
+  { type: 'target', rotation: 180 }, { type: 'distractor', rotation: 0 }, { type: 'distractor', rotation: 90 }, { type: 'target', rotation: 180 }, { type: 'distractor', rotation: 270 }, { type: 'distractor', rotation: 0 }, { type: 'distractor', rotation: 90 }, { type: 'target', rotation: 180 }, { type: 'distractor', rotation: 0 }, { type: 'distractor', rotation: 270 }, { type: 'target', rotation: 180 }, { type: 'distractor', rotation: 90 },
+  // Row 3 (12 symbols)
+  { type: 'distractor', rotation: 0 }, { type: 'distractor', rotation: 270 }, { type: 'target', rotation: 180 }, { type: 'distractor', rotation: 90 }, { type: 'distractor', rotation: 0 }, { type: 'target', rotation: 180 }, { type: 'distractor', rotation: 270 }, { type: 'distractor', rotation: 90 }, { type: 'target', rotation: 180 }, { type: 'distractor', rotation: 0 }, { type: 'distractor', rotation: 270 }, { type: 'target', rotation: 180 },
+  // Row 4 (12 symbols)
+  { type: 'distractor', rotation: 90 }, { type: 'target', rotation: 180 }, { type: 'distractor', rotation: 0 }, { type: 'distractor', rotation: 270 }, { type: 'distractor', rotation: 90 }, { type: 'distractor', rotation: 0 }, { type: 'target', rotation: 180 }, { type: 'distractor', rotation: 270 }, { type: 'distractor', rotation: 90 }, { type: 'distractor', rotation: 0 }, { type: 'target', rotation: 180 }, { type: 'distractor', rotation: 270 },
+  // Trailing symbol
+  { type: 'distractor', rotation: 90 }
 ];
 
-// Practice Grid: 3 rows × 5 columns (15 symbols, 3 targets) - Probe A
-// Target: rotation 180, Distractor: rotation 0, 90, or 270
+// Form A Practice Grid: 4 rows × 12 columns + 1 trailing = 49 symbols, 14 targets
+// Target = rotation 180 (black on right), Distractors = rotation 0/90/270
 const PRACTICE_GRID = [
-  { type: 'distractor', rotation: 0 }, 
-{ type: 'distractor', rotation: 270 }, 
-{ type: 'target', rotation: 180 }, 
-{ type: 'distractor', rotation: 270 },
- { type: 'distractor', rotation: 0 },
- { type: 'target', rotation: 180 },
- { type: 'distractor', rotation: 90 },
- { type: 'distractor', rotation: 0 },
- { type: 'target', rotation: 180 },
- { type: 'distractor', rotation: 270 },
-  { type: 'distractor', rotation: 270 },
- { type: 'distractor', rotation: 0 },
- { type: 'target', rotation: 180 },
- { type: 'distractor', rotation: 0 }, 
-{ type: 'distractor', rotation: 90 }, 
-{ type: 'target', rotation: 180 },
-{ type: 'distractor', rotation: 0 }, 
-{ type: 'distractor', rotation: 90 }, 
-{ type: 'target', rotation: 180 }, 
-{ type: 'distractor', rotation: 270 },
-  { type: 'target', rotation: 180 }, 
-{ type: 'distractor', rotation: 90 }, 
-{ type: 'distractor', rotation: 270 }, 
-{ type: 'target', rotation: 180 }, 
-{ type: 'distractor', rotation: 0 }, 
-{ type: 'distractor', rotation: 90 }, 
-{ type: 'distractor', rotation: 0 }, 
-{ type: 'distractor', rotation: 0 }, 
-{ type: 'distractor', rotation: 270 }, 
-{ type: 'target', rotation: 180 },
-  { type: 'distractor', rotation: 90 }, 
-{ type: 'target', rotation: 180 }, 
-{ type: 'distractor', rotation: 270 }, 
-{ type: 'target', rotation: 180 }, 
-{ type: 'distractor', rotation: 0 }, 
-{ type: 'target', rotation: 180 }, 
-{ type: 'distractor', rotation: 90 }, 
-{ type: 'target', rotation: 180 }, 
-{ type: 'distractor', rotation: 270 }, { type: 'distractor', rotation: 90 }
+  // Row 1 (12 symbols)
+  { type: 'distractor', rotation: 0 }, { type: 'distractor', rotation: 270 }, { type: 'target', rotation: 180 }, { type: 'distractor', rotation: 270 }, { type: 'distractor', rotation: 0 }, { type: 'target', rotation: 180 }, { type: 'distractor', rotation: 90 }, { type: 'distractor', rotation: 0 }, { type: 'target', rotation: 180 }, { type: 'distractor', rotation: 270 }, { type: 'distractor', rotation: 90 }, { type: 'distractor', rotation: 0 },
+  // Row 2 (12 symbols)
+  { type: 'target', rotation: 180 }, { type: 'distractor', rotation: 0 }, { type: 'distractor', rotation: 90 }, { type: 'target', rotation: 180 }, { type: 'distractor', rotation: 0 }, { type: 'distractor', rotation: 270 }, { type: 'target', rotation: 180 }, { type: 'distractor', rotation: 90 }, { type: 'distractor', rotation: 270 }, { type: 'distractor', rotation: 0 }, { type: 'target', rotation: 180 }, { type: 'distractor', rotation: 90 },
+  // Row 3 (12 symbols)
+  { type: 'distractor', rotation: 270 }, { type: 'target', rotation: 180 }, { type: 'distractor', rotation: 0 }, { type: 'distractor', rotation: 90 }, { type: 'target', rotation: 180 }, { type: 'distractor', rotation: 270 }, { type: 'distractor', rotation: 0 }, { type: 'distractor', rotation: 90 }, { type: 'target', rotation: 180 }, { type: 'distractor', rotation: 0 }, { type: 'distractor', rotation: 270 }, { type: 'target', rotation: 180 },
+  // Row 4 (12 symbols)
+  { type: 'distractor', rotation: 90 }, { type: 'distractor', rotation: 0 }, { type: 'target', rotation: 180 }, { type: 'distractor', rotation: 270 }, { type: 'distractor', rotation: 90 }, { type: 'distractor', rotation: 0 }, { type: 'target', rotation: 180 }, { type: 'distractor', rotation: 270 }, { type: 'distractor', rotation: 0 }, { type: 'distractor', rotation: 90 }, { type: 'target', rotation: 180 }, { type: 'distractor', rotation: 270 },
+  // Trailing symbol
+  { type: 'distractor', rotation: 90 }
 ];
-
-// Main Test Grid: 5 rows × 11 columns (55 symbols, 20 targets) - Form A
+// Main Test Grid: 4 rows × 11 columns (40 symbols, 14 targets) - Form B
+// Form B uses: 0° black left, 0° black right (target), 180° black left, 180° black right
+// Target: rotation 0 + blackSide right
 const MAIN_GRID = [
-  { type: 'distractor', rotation: 0 }, { type: 'distractor', rotation: 270 }, { type: 'target', rotation: 180 }, { type: 'distractor', rotation: 270 }, { type: 'distractor', rotation: 0 }, { type: 'target', rotation: 180 }, { type: 'distractor', rotation: 90 }, { type: 'distractor', rotation: 0 }, { type: 'target', rotation: 180 }, { type: 'distractor', rotation: 270 },
-  { type: 'distractor', rotation: 270 }, { type: 'distractor', rotation: 0 }, { type: 'target', rotation: 180 }, { type: 'distractor', rotation: 0 }, { type: 'distractor', rotation: 90 }, { type: 'target', rotation: 180 }, { type: 'distractor', rotation: 0 }, { type: 'distractor', rotation: 90 }, { type: 'target', rotation: 180 }, { type: 'distractor', rotation: 270 },
-  { type: 'target', rotation: 180 }, { type: 'distractor', rotation: 90 }, { type: 'distractor', rotation: 270 }, { type: 'target', rotation: 180 }, { type: 'distractor', rotation: 0 }, { type: 'distractor', rotation: 90 }, { type: 'distractor', rotation: 0 }, { type: 'distractor', rotation: 0 }, { type: 'distractor', rotation: 270 }, { type: 'target', rotation: 180 },
-  { type: 'distractor', rotation: 90 }, { type: 'target', rotation: 180 }, { type: 'distractor', rotation: 270 }, { type: 'target', rotation: 180 }, { type: 'distractor', rotation: 0 }, { type: 'target', rotation: 180 }, { type: 'distractor', rotation: 90 }, { type: 'target', rotation: 180 }, { type: 'distractor', rotation: 270 }, { type: 'distractor', rotation: 90 }
+  { type: 'target', rotation: 0, blackSide: 'right' }, { type: 'distractor', rotation: 180, blackSide: 'left' }, { type: 'distractor', rotation: 0, blackSide: 'left' }, { type: 'target', rotation: 0, blackSide: 'right' }, { type: 'distractor', rotation: 180, blackSide: 'right' }, { type: 'distractor', rotation: 0, blackSide: 'left' }, { type: 'distractor', rotation: 180, blackSide: 'right' }, { type: 'distractor', rotation: 180, blackSide: 'left' }, { type: 'target', rotation: 0, blackSide: 'right' }, { type: 'distractor', rotation: 0, blackSide: 'left'}, { type: 'distractor', rotation: 180, blackSide: 'left' },
+  { type: 'distractor', rotation: 180, blackSide: 'right' }, { type: 'target', rotation: 0, blackSide: 'right' }, { type: 'distractor', rotation: 0, blackSide: 'left' }, { type: 'distractor', rotation: 180, blackSide: 'left' }, { type: 'target', rotation: 0, blackSide: 'right' }, { type: 'distractor', rotation: 180, blackSide: 'right' }, { type: 'distractor', rotation: 0, blackSide: 'left' }, { type: 'target', rotation: 0, blackSide: 'right' }, { type: 'distractor', rotation: 180, blackSide: 'left' }, { type: 'distractor', rotation: 180, blackSide: 'right' }, { type: 'target', rotation: 0, blackSide: 'right' },
+  { type: 'target', rotation: 0, blackSide: 'right' }, { type: 'distractor', rotation: 0, blackSide: 'left' }, { type: 'distractor', rotation: 180, blackSide: 'right' }, { type: 'target', rotation: 0, blackSide: 'right' }, { type: 'distractor', rotation: 180, blackSide: 'left' }, { type: 'target', rotation: 0, blackSide: 'right' }, { type: 'distractor', rotation: 0, blackSide: 'left' }, { type: 'distractor', rotation: 180, blackSide: 'left' }, { type: 'target', rotation: 0, blackSide: 'right' }, { type: 'distractor', rotation: 180, blackSide: 'left' }, { type: 'distractor', rotation: 180, blackSide: 'right' },
+  { type: 'distractor', rotation: 180, blackSide: 'right' }, { type: 'distractor', rotation: 0, blackSide: 'left' }, { type: 'distractor', rotation: 0, blackSide: 'left' }, { type: 'target', rotation: 0, blackSide: 'right' }, { type: 'distractor', rotation: 180, blackSide: 'left' }, { type: 'distractor', rotation: 180, blackSide: 'right' }, { type: 'target', rotation: 0, blackSide: 'right' }, { type: 'target', rotation: 0, blackSide: 'right' }, { type: 'distractor', rotation: 180, blackSide: 'right' }, { type: 'target', rotation: 0, blackSide: 'right' }, { type: 'distractor', rotation: 0, blackSide: 'left' },
+  { type: 'target', rotation: 0, blackSide: 'right' }, { type: 'distractor', rotation: 180, blackSide: 'right' }, { type: 'target', rotation: 0, blackSide: 'right' }, { type: 'distractor', rotation: 180, blackSide: 'left' }, { type: 'distractor', rotation: 0, blackSide: 'left' }, { type: 'target', rotation: 0, blackSide: 'right' }, { type: 'distractor', rotation: 0, blackSide: 'left' }, { type: 'distractor', rotation: 180, blackSide: 'right' }, { type: 'target', rotation: 0, blackSide: 'right' }, { type: 'distractor', rotation: 180, blackSide: 'left' }, { type: 'target', rotation: 0, blackSide: 'right' }
 ];
 
 const AktTest = ({ assignmentId, onComplete, isStandalone, t }) => {
@@ -240,7 +274,16 @@ const AktTest = ({ assignmentId, onComplete, isStandalone, t }) => {
     const style = {
       transform: `rotate(${symbol.rotation}deg)`,
     };
+
+    // Form A uses solid black, Form B uses gradient with blackSide control
     const symbolClass = formType === 'B' ? styles.symbolFormB : styles.symbol;
+
+    // Form B requires blackSide data attribute for CSS gradient control
+    if (formType === 'B' && symbol.blackSide) {
+      return <div className={symbolClass} style={style} data-black-side={symbol.blackSide}></div>;
+    }
+
+    // Form A uses rotation only with solid black
     return <div className={symbolClass} style={style}></div>;
   };
 
@@ -333,7 +376,7 @@ const AktTest = ({ assignmentId, onComplete, isStandalone, t }) => {
                     symbol.type === 'target' && demoStep >= 2 ? styles.demoClicked : ''
                   }`}
                 >
-                  {renderSymbol(symbol, 'B')}
+                  {renderSymbol(symbol, 'A')}
                 </div>
               ))}
             </div>
@@ -411,16 +454,22 @@ const AktTest = ({ assignmentId, onComplete, isStandalone, t }) => {
         <div>
           <div className={styles.targetReference}>
             <p>{translate('find_symbol')}</p>
-            {renderSymbol({ rotation: 180 }, 'A')}
+            {gameState === 'practice'
+              ? renderSymbol({ rotation: 180 }, 'A')
+              : renderSymbol({ rotation: 0, blackSide: 'right' }, 'B')
+            }
           </div>
-          <div className={styles.testGrid} style={gameState === 'practice' ? { gridTemplateColumns: 'repeat(5, 1fr)', maxWidth: '500px' } : {}}>
+          <div className={styles.testGrid} style={gameState === 'practice' ? { gridTemplateColumns: 'repeat(12, 1fr)', maxWidth: '1200px' } : {}}>
             {grid.map((symbol, index) => (
               <div
                 key={index}
                 className={`${styles.symbolContainer} ${symbol.clicked ? styles.clicked : ''}`}
                 onClick={() => handleSymbolClick(index)}
               >
-                {renderSymbol(symbol, 'A')}
+                {gameState === 'practice'
+                  ? renderSymbol(symbol, 'A')
+                  : renderSymbol(symbol, 'B')
+                }
                 {symbol.clicked && <div className={styles.clickedMarker}></div>}
               </div>
             ))}

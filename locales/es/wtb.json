@@ -90,5 +90,8 @@
   "voice_language": "Idioma de Voz",
   "countdown_duration": "Duración de Cuenta Regresiva",
   "reset_to_defaults": "Restablecer a Predeterminados",
-  "save_and_close": "Guardar y Cerrar"
+  "save_and_close": "Guardar y Cerrar",
+  "audio_failed_visual_mode": "Audio no disponible - secuencia mostrada visualmente",
+  "continue_without_audio": "Continuar Sin Audio",
+  "read_sequence_visual": "Lea la secuencia"
 }

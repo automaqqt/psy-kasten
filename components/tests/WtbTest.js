@@ -56,6 +56,9 @@ export default function WtbTest({ assignmentId, onComplete, isStandalone, t }) {
   const [microphonePermission, setMicrophonePermission] = useState(null);
   const [debugInfo, setDebugInfo] = useState('');
   const [showDebug, setShowDebug] = useState(false);
+  const [speechSynthesisWorking, setSpeechSynthesisWorking] = useState(true);
+  const [visualSequence, setVisualSequence] = useState([]);
+  const [showContinueButton, setShowContinueButton] = useState(false);
 
   const gameArea = useRef(null);
   const recognitionRef = useRef(null);
@@ -99,26 +102,93 @@ export default function WtbTest({ assignmentId, onComplete, isStandalone, t }) {
   }, [isFullscreen, exitFullscreen, results, score, settings, sequenceIndexPerLevel, attemptsPerLevel, assignmentId, onComplete, translate, showOverlayMessage]);
 
   const speakSequence = useCallback(async (seq) => {
-    if (!synthesisRef.current) return;
+    if (!synthesisRef.current) {
+      addDebug('Speech synthesis not available, using visual fallback');
+      setSpeechSynthesisWorking(false);
+      setVisualSequence(seq);
+      setIsSpeaking(false);
+
+      // Show sequence visually for 2 seconds then proceed
+      setTimeout(() => {
+        setVisualSequence([]);
+        setGameState(isPractice ? 'practice' : 'listening');
+      }, 2000 + seq.length * 1000);
+      return;
+    }
 
     synthesisRef.current.cancel();
     setIsSpeaking(true);
+    setShowContinueButton(false);
 
-    for (let i = 0; i < seq.length; i++) {
-      await new Promise((resolve) => {
-        const utterance = new SpeechSynthesisUtterance(seq[i].toString());
-        utterance.lang = settings.voiceLang;
-        utterance.rate = settings.speechRate;
-        utterance.onend = () => {
-          setTimeout(resolve, settings.interDigitPause);
-        };
-        synthesisRef.current.speak(utterance);
-      });
+    let speechFailed = false;
+
+    try {
+      for (let i = 0; i < seq.length; i++) {
+        const digitSpoken = await new Promise((resolve, reject) => {
+          const utterance = new SpeechSynthesisUtterance(seq[i].toString());
+          utterance.lang = settings.voiceLang;
+          utterance.rate = settings.speechRate;
+
+          let resolved = false;
+
+          // Timeout protection: 3 seconds per digit
+          const timeout = setTimeout(() => {
+            if (!resolved) {
+              resolved = true;
+              addDebug(`Speech synthesis timeout for digit ${seq[i]}`);
+              reject(new Error('timeout'));
+            }
+          }, 3000);
+
+          utterance.onend = () => {
+            if (!resolved) {
+              resolved = true;
+              clearTimeout(timeout);
+              addDebug(`Successfully spoke digit ${seq[i]}`);
+              setTimeout(() => resolve(true), settings.interDigitPause);
+            }
+          };
+
+          utterance.onerror = (event) => {
+            if (!resolved) {
+              resolved = true;
+              clearTimeout(timeout);
+              addDebug(`Speech synthesis error for digit ${seq[i]}: ${event.error}`);
+              reject(new Error(event.error));
+            }
+          };
+
+          synthesisRef.current.speak(utterance);
+
+          // Fallback: Also show a "Continue" button after 5 seconds
+          setTimeout(() => {
+            if (isSpeaking && !resolved) {
+              addDebug('Speech may be stuck, showing continue button');
+              setShowContinueButton(true);
+            }
+          }, 5000);
+        });
+      }
+
+      addDebug('All digits spoken successfully');
+    } catch (error) {
+      addDebug(`Speech synthesis failed: ${error.message}, switching to visual mode`);
+      speechFailed = true;
+      setSpeechSynthesisWorking(false);
+
+      // Show visual fallback
+      setVisualSequence(seq);
+      showOverlayMessage('audio_failed_visual_mode', 3000, 'info');
+
+      // Wait to show sequence, then proceed
+      await new Promise(resolve => setTimeout(resolve, 2000 + seq.length * 1000));
+      setVisualSequence([]);
     }
 
     setIsSpeaking(false);
+    setShowContinueButton(false);
     setGameState(isPractice ? 'practice' : 'listening');
-  }, [settings, isPractice]);
+  }, [settings, isPractice, isSpeaking, showOverlayMessage]);
   
   const generateSequence = useCallback((targetLevel = null) => {
     const currentLevel = targetLevel || level;
@@ -422,27 +492,63 @@ export default function WtbTest({ assignmentId, onComplete, isStandalone, t }) {
   useEffect(() => {
     if (gameState === 'intro' && demoStep === 0) {
       const speakDemoSequence = async () => {
-        if (!synthesisRef.current) return;
+        if (!synthesisRef.current) {
+          addDebug('Demo: Speech synthesis not available');
+          return;
+        }
 
         synthesisRef.current.cancel();
         const demoSequence = [5, 2, 9];
 
-        for (let i = 0; i < demoSequence.length; i++) {
-          await new Promise((resolve) => {
-            const utterance = new SpeechSynthesisUtterance(demoSequence[i].toString());
-            utterance.lang = settings.voiceLang;
-            utterance.rate = settings.speechRate;
-            utterance.onend = () => {
-              setTimeout(resolve, settings.interDigitPause);
-            };
-            synthesisRef.current.speak(utterance);
-          });
+        try {
+          for (let i = 0; i < demoSequence.length; i++) {
+            await new Promise((resolve, reject) => {
+              const utterance = new SpeechSynthesisUtterance(demoSequence[i].toString());
+              utterance.lang = settings.voiceLang;
+              utterance.rate = settings.speechRate;
+
+              let resolved = false;
+
+              // Timeout protection: 3 seconds per digit
+              const timeout = setTimeout(() => {
+                if (!resolved) {
+                  resolved = true;
+                  addDebug(`Demo: Timeout for digit ${demoSequence[i]}`);
+                  reject(new Error('timeout'));
+                }
+              }, 3000);
+
+              utterance.onend = () => {
+                if (!resolved) {
+                  resolved = true;
+                  clearTimeout(timeout);
+                  addDebug(`Demo: Successfully spoke digit ${demoSequence[i]}`);
+                  setTimeout(resolve, settings.interDigitPause);
+                }
+              };
+
+              utterance.onerror = (event) => {
+                if (!resolved) {
+                  resolved = true;
+                  clearTimeout(timeout);
+                  addDebug(`Demo: Speech error for digit ${demoSequence[i]}: ${event.error}`);
+                  reject(new Error(event.error));
+                }
+              };
+
+              synthesisRef.current.speak(utterance);
+            });
+          }
+          addDebug('Demo: All digits spoken successfully');
+        } catch (error) {
+          addDebug(`Demo: Speech synthesis failed: ${error.message}`);
+          // Demo continues even if speech fails
         }
       };
 
       setTimeout(() => speakDemoSequence(), 500);
     }
-  }, [gameState, demoStep, settings.voiceLang, settings.speechRate, settings.interDigitPause]);
+  }, [gameState, demoStep, settings.voiceLang, settings.speechRate, settings.interDigitPause, addDebug]);
 
   // Generate sequence
   
@@ -876,6 +982,31 @@ export default function WtbTest({ assignmentId, onComplete, isStandalone, t }) {
                   <>
                     <div className={styles.speakerIcon}>🔊</div>
                     <h3>{translate('listening_instruction')}</h3>
+                    {visualSequence.length > 0 && (
+                      <div className={styles.visualSequenceDisplay}>
+                        <p className={styles.visualSequenceLabel}>{translate('read_sequence_visual')}:</p>
+                        <div className={styles.visualSequenceNumbers}>
+                          {visualSequence.map((digit, idx) => (
+                            <span key={idx} className={styles.visualDigit}>{digit}</span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    {showContinueButton && (
+                      <button
+                        className={styles.continueButton}
+                        onClick={() => {
+                          setIsSpeaking(false);
+                          setShowContinueButton(false);
+                          if (synthesisRef.current) {
+                            synthesisRef.current.cancel();
+                          }
+                          setGameState(isPractice ? 'practice' : 'listening');
+                        }}
+                      >
+                        {translate('continue_without_audio')}
+                      </button>
+                    )}
                   </>
                 ) : (
                   <>
@@ -949,6 +1080,31 @@ export default function WtbTest({ assignmentId, onComplete, isStandalone, t }) {
                     <div className={styles.speakerIcon}>🔊</div>
                     <h3>{translate('listening_instruction')}</h3>
                     <p>{translate('listen_carefully')}</p>
+                    {visualSequence.length > 0 && (
+                      <div className={styles.visualSequenceDisplay}>
+                        <p className={styles.visualSequenceLabel}>{translate('read_sequence_visual')}:</p>
+                        <div className={styles.visualSequenceNumbers}>
+                          {visualSequence.map((digit, idx) => (
+                            <span key={idx} className={styles.visualDigit}>{digit}</span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    {showContinueButton && (
+                      <button
+                        className={styles.continueButton}
+                        onClick={() => {
+                          setIsSpeaking(false);
+                          setShowContinueButton(false);
+                          if (synthesisRef.current) {
+                            synthesisRef.current.cancel();
+                          }
+                          setGameState('practice');
+                        }}
+                      >
+                        {translate('continue_without_audio')}
+                      </button>
+                    )}
                   </>
                 ) : (
                   <>
