@@ -90,8 +90,5 @@
   "voice_language": "Sprachausgabe",
   "countdown_duration": "Countdown-Dauer",
   "reset_to_defaults": "Auf Standard zurücksetzen",
-  "save_and_close": "Speichern & Schließen",
-  "audio_failed_visual_mode": "Audio nicht verfügbar - Sequenz wird visuell angezeigt",
-  "continue_without_audio": "Ohne Audio fortfahren",
-  "read_sequence_visual": "Lesen Sie die Sequenz"
+  "save_and_close": "Speichern & Schließen"
 }

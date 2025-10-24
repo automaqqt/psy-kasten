@@ -78,7 +78,6 @@ export default function CorsiTest({ assignmentId, onComplete, isStandalone, t })
   const [skipUsedPerLevel, setSkipUsedPerLevel] = useState({}); // Track if first skip used per level (for replacement trial eligibility)
   const [errorCountF1, setErrorCountF1] = useState(0); // Count of F1 errors (sequencing errors - correct blocks, wrong order)
   const [errorCountF2, setErrorCountF2] = useState(0); // Count of F2 errors (wrong or missing blocks)
-  const [skipButtonDisabled, setSkipButtonDisabled] = useState(false); // Disable skip button after click until next sequence
   const [settings, setSettings] = useState({
     blockHighlightDuration: 700,
     intervalBetweenBlocks: 300,
@@ -364,7 +363,6 @@ export default function CorsiTest({ assignmentId, onComplete, isStandalone, t })
       const newSequence = generateSequence(currentLevel, currentSeqIndex);
       setSequence(newSequence);
       setGameState('showing');
-      setSkipButtonDisabled(false); // Re-enable skip button for new sequence
       displaySequence(newSequence);
       clearInterval(countdownInterval);
     }, 3000);
@@ -421,9 +419,6 @@ export default function CorsiTest({ assignmentId, onComplete, isStandalone, t })
   // Handle skip button click
   const handleSkip = () => {
     if (gameState !== 'input' || showingSequence || isPractice) return;
-
-    // Disable skip button immediately to prevent multiple clicks
-    setSkipButtonDisabled(true);
 
     const hasFirstSkipBeenUsed = skipUsedPerLevel[level] || false;
     const hasClickedBlocks = userSequence.length > 0;
@@ -487,7 +482,6 @@ export default function CorsiTest({ assignmentId, onComplete, isStandalone, t })
         setTimeout(() => {
           setSequence(reversed);
           setGameState('showing');
-          setSkipButtonDisabled(false); // Re-enable skip button for replacement trial
           displaySequence(reversed);
           clearInterval(countdownInterval);
         }, 3000);
@@ -1001,24 +995,21 @@ export default function CorsiTest({ assignmentId, onComplete, isStandalone, t })
               </div>
               </div>
 
-              {/* Progress indicator and Skip button container */}
-              <div className={styles.controlsContainer}>
-                <div className={styles.progressIndicator}>
-                  {userSequence.length} / {sequence.length}
-                </div>
-
-                {/* Skip button (always visible, disabled when not applicable) */}
-                {!isPractice && (
-                  <button
-                    className={styles.skipButton}
-                    onClick={handleSkip}
-                    disabled={skipButtonDisabled || gameState !== 'input' || showingSequence}
-                    aria-label={translate('skip_button')}
-                  >
-                    {translate('skip_button')}
-                  </button>
-                )}
+              {/* Progress indicator */}
+              <div className={styles.progressIndicator}>
+                {userSequence.length} / {sequence.length}
               </div>
+
+              {/* Skip button (only during input phase, not during practice) */}
+              {gameState === 'input' && !isPractice && (
+                <button
+                  className={styles.skipButton}
+                  onClick={handleSkip}
+                  aria-label={translate('skip_button')}
+                >
+                  {translate('skip_button')}
+                </button>
+              )}
             </div>
           )}
           
