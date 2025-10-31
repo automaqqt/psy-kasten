@@ -59,6 +59,17 @@ export default async function handler(req, res) {
                  }
              },
          });
+
+         // Add full test links to assignments
+         const baseUrl = process.env.NEXTAUTH_URL || `${req.headers['x-forwarded-proto'] || 'http'}://${req.headers.host}`;
+         detailedStudy.participants = detailedStudy.participants.map(participant => ({
+             ...participant,
+             assignments: participant.assignments.map(assignment => ({
+                 ...assignment,
+                 testLink: `${baseUrl}/${assignment.testType}?assignmentId=${assignment.accessKey}`
+             }))
+         }));
+
          return res.status(200).json(detailedStudy);
      } catch (error) {
          console.error(`Error fetching detailed study ${studyId}:`, error);

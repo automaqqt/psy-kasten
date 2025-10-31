@@ -1,12 +1,25 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
+import Link from 'next/link';
 import DashboardLayout from '../../../components/layouts/DashboardLayout';
+import ExportConfigModal from '../../../components/export/ExportConfigModal';
 import styles from '../../../styles/ResultsPage.module.css'; // Create this CSS file
 
 // Basic Results Table Component (Extract later)
 const ResultTable = ({ results }) => {
      if (!results || results.length === 0) {
-        return <p>No results found matching your criteria.</p>;
+        return (
+            <div style={{ padding: '3rem', textAlign: 'center', backgroundColor: '#f8f9fa', borderRadius: '8px', marginTop: '2rem' }}>
+                <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>📊</div>
+                <h3>No Results Found</h3>
+                <p style={{ color: '#6c757d', marginBottom: '1rem' }}>
+                    No test results match your current filter criteria.
+                </p>
+                <p style={{ color: '#6c757d', fontSize: '0.9rem' }}>
+                    Make sure participants have completed their assigned tests, or adjust your filters.
+                </p>
+            </div>
+        );
     }
      return (
          <table className={styles.resultsTable}>
@@ -40,7 +53,9 @@ const ResultTable = ({ results }) => {
                              <td>{res.testAssignment?.completedAt ? new Date(res.testAssignment.completedAt).toLocaleString() : 'Incomplete'}</td>
                               <td>{mainScore}</td>
                              <td>
-                                 <button className={styles.actionButtonView}>View Details</button> {/* TODO: Implement Detail View */}
+                                 <Link href={`/dashboard/results/${res.id}`}>
+                                     <button className={styles.actionButtonView}>View Details</button>
+                                 </Link>
                              </td>
                          </tr>
                      );
@@ -57,6 +72,7 @@ export default function ResultsPage() {
     const [participants, setParticipants] = useState([]); // For filtering
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [isExportModalOpen, setIsExportModalOpen] = useState(false);
 
     // Filter State
     const [selectedStudyId, setSelectedStudyId] = useState('');
@@ -109,65 +125,11 @@ export default function ResultsPage() {
         fetchData();
     }, [selectedStudyId, selectedParticipantId]); // Add other filter dependencies here
 
-    const exportResultsToCSV = () => {
-        if (!results || results.length === 0) {
-            alert('No results to export');
-            return;
+    const getStudyName = () => {
+        if (selectedStudyId) {
+            return studies.find(s => s.id === selectedStudyId)?.name.replace(/[^a-zA-Z0-9]/g, '_') || 'study';
         }
-
-        // Headers for CSV
-        const headers = [
-            'Result_ID',
-            'Study',
-            'Participant_ID',
-            'Test_Type',
-            'Completed_At_DE',
-            'Data_JSON'
-        ];
-
-        // Map results to CSV rows
-        const rows = results.map(res => {
-            const completedAt = res.testAssignment?.completedAt
-                ? new Date(res.testAssignment.completedAt).toLocaleString('de-DE', {
-                    timeZone: 'Europe/Berlin',
-                    year: 'numeric',
-                    month: '2-digit',
-                    day: '2-digit',
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    second: '2-digit'
-                })
-                : 'Incomplete';
-
-            return [
-                res.id,
-                res.testAssignment?.study?.name ?? 'N/A',
-                res.testAssignment?.participant?.identifier ?? 'N/A',
-                res.testAssignment?.testType ?? 'Unknown',
-                completedAt,
-                JSON.stringify(res.data).replace(/"/g, '""') // Escape quotes in JSON
-            ];
-        });
-
-        // Create CSV content
-        const csvContent = [
-            headers.join(','),
-            ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
-        ].join('\n');
-
-        // Create and download file
-        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.setAttribute('href', url);
-        const timestamp = new Date().toISOString().split('T')[0];
-        const studyName = selectedStudyId
-            ? studies.find(s => s.id === selectedStudyId)?.name.replace(/[^a-zA-Z0-9]/g, '_')
-            : 'all-studies';
-        link.setAttribute('download', `results-${studyName}-${timestamp}.csv`);
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+        return 'all-studies';
     };
 
     return (
@@ -175,12 +137,12 @@ export default function ResultsPage() {
             <div className={styles.pageHeader}>
                 <h1>Test Results</h1>
                 <button
-                    onClick={exportResultsToCSV}
+                    onClick={() => setIsExportModalOpen(true)}
                     disabled={!results || results.length === 0}
                     className={styles.exportButton}
-                    title="Export filtered results to CSV"
+                    title="Export filtered results in various formats"
                 >
-                    📥 Export Results (CSV)
+                    📥 Export Results
                 </button>
             </div>
 
@@ -207,6 +169,14 @@ export default function ResultsPage() {
             {!isLoading && !error && (
                 <ResultTable results={results} />
             )}
+
+            {/* Export Configuration Modal */}
+            <ExportConfigModal
+                isOpen={isExportModalOpen}
+                onClose={() => setIsExportModalOpen(false)}
+                results={results}
+                studyName={getStudyName()}
+            />
 
         </DashboardLayout>
     );

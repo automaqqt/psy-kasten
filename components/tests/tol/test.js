@@ -197,7 +197,7 @@ export default function TOLTest({ assignmentId, onComplete, isStandalone, t }) {
          // Only calculate pause if this is NOT the first move of the current problem
          const pauseTime = (moveHistory.length > 0 && lastMoveTime) ? Date.now() - lastMoveTime : 0;
          setMoveHistory(prev => [...prev, { ball, from: pegIndex, to: null, pauseTime }]);
-         setFeedback(translate('move_number', { number: currentMoveNumber }));
+         setFeedback(`${translate('move_number', { number: currentMoveNumber })}. ${translate('try_to_solve', { moves: PROBLEMS[0].minMoves })}`);
        }
    };
 

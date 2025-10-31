@@ -14,17 +14,22 @@ export default async function handler(req, res) {
 
   // --- POST: Create a new participant for a study ---
   if (req.method === 'POST') {
-    const { studyId, identifier } = req.body;
+    const { studyId, identifier, metadata } = req.body;
 
     if (!studyId || !identifier || typeof identifier !== 'string' || identifier.trim().length === 0) {
       return res.status(400).json({ message: 'Study ID and Participant Identifier are required' });
     }
 
+    // Validate metadata if provided
+    if (metadata !== undefined && metadata !== null && typeof metadata !== 'object') {
+      return res.status(400).json({ message: 'Metadata must be an object' });
+    }
+
     try {
-      // Verify researcher owns the target study and get test type
+      // Verify researcher owns the target study and get test types
       const study = await prisma.study.findUnique({
         where: { id: studyId },
-        select: { researcherId: true, testType: true } // Get test type
+        select: { researcherId: true, testType: true, testTypes: true }
       });
 
       if (!study) {
@@ -34,25 +39,38 @@ export default async function handler(req, res) {
         return res.status(403).json({ message: 'Forbidden: You do not own this study' });
       }
 
+      // Determine which test types to create assignments for
+      let testTypesToAssign = [];
+      if (study.testTypes && Array.isArray(study.testTypes) && study.testTypes.length > 0) {
+        testTypesToAssign = study.testTypes;
+      } else if (study.testType) {
+        // Fallback to legacy single test type
+        testTypesToAssign = [study.testType];
+      } else {
+        return res.status(500).json({ message: 'Study has no test types configured' });
+      }
+
       // Create the participant (Prisma handles the unique constraint within the study)
       const newParticipant = await prisma.participant.create({
         data: {
           identifier: identifier.trim(), // Consider lowercasing emails here if identifier is email
           studyId: studyId,
+          metadata: metadata || undefined, // Only include if provided
         },
       });
 
-      // Automatically create test assignment for the participant
-      const accessKey = crypto.randomBytes(24).toString('hex'); // 48 characters hex
-
-      await prisma.testAssignment.create({
-        data: {
-          participantId: newParticipant.id,
-          studyId: studyId,
-          testType: study.testType,
-          accessKey: accessKey,
-        },
-      });
+      // Create test assignments for ALL test types in the study
+      for (const testType of testTypesToAssign) {
+        const accessKey = crypto.randomBytes(24).toString('hex');
+        await prisma.testAssignment.create({
+          data: {
+            participantId: newParticipant.id,
+            studyId: studyId,
+            testType: testType,
+            accessKey: accessKey,
+          },
+        });
+      }
 
       return res.status(201).json(newParticipant);
 

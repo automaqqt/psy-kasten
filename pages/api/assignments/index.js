@@ -3,6 +3,7 @@ import prisma from '../../../lib/prisma';
 import { authOptions } from '../auth/[...nextauth]';
 import { getServerSession } from "next-auth/next";
 import crypto from 'crypto'; // For generating secure access keys
+import { TEST_TYPES } from '../../../lib/testConfig';
 
 export default async function handler(req, res) {
     const session = await getServerSession(req, res, authOptions); // Or getSession({ req });
@@ -19,10 +20,10 @@ export default async function handler(req, res) {
         if (!participantId || !testType) {
             return res.status(400).json({ message: 'Participant ID and Test Type are required' });
         }
-        // Basic validation for testType - expand this list as you add tests
-         const validTestTypes = ['corsi', 'stroop', 'sart', 'rpm', 'fome', 'gng-sst'];
+        // Validate testType against configured tests
+         const validTestTypes = TEST_TYPES.map(t => t.id);
          if (!validTestTypes.includes(testType)) {
-             return res.status(400).json({ message: `Invalid test type: ${testType}` });
+             return res.status(400).json({ message: `Invalid test type: ${testType}. Valid types: ${validTestTypes.join(', ')}` });
          }
 
 
@@ -53,7 +54,6 @@ export default async function handler(req, res) {
                     // expiresAt: Optional: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // Example: 7 days expiry
                 },
             });
-            console.log(newAssignment.id)
 
              // Construct the full link (ensure NEXTAUTH_URL is set correctly)
              const testLink = `${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/${testType}/?assignmentId=${accessKey}`;

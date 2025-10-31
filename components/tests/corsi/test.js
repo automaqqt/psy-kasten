@@ -78,6 +78,7 @@ export default function CorsiTest({ assignmentId, onComplete, isStandalone, t })
   const [skipUsedPerLevel, setSkipUsedPerLevel] = useState({}); // Track if first skip used per level (for replacement trial eligibility)
   const [errorCountF1, setErrorCountF1] = useState(0); // Count of F1 errors (sequencing errors - correct blocks, wrong order)
   const [errorCountF2, setErrorCountF2] = useState(0); // Count of F2 errors (wrong or missing blocks)
+  const [errorCountF3, setErrorCountF3] = useState(0); // Count of F3 errors (duplicate clicks)
   const [skipButtonDisabled, setSkipButtonDisabled] = useState(false);
   const [settings, setSettings] = useState({
     blockHighlightDuration: 700,
@@ -142,6 +143,7 @@ export default function CorsiTest({ assignmentId, onComplete, isStandalone, t })
       ...position,
       active: false,
       clicked: false,
+      error: false,
     }));
 
     setBlocks(initialBlocks);
@@ -374,9 +376,43 @@ export default function CorsiTest({ assignmentId, onComplete, isStandalone, t })
   const handleBlockClick = (blockId) => {
     if (gameState !== 'input' || showingSequence) return;
 
-    // Prevent selecting the same block twice
-    if (userSequence.includes(blockId)) {
-      return;
+    // Check if block was already clicked (duplicate)
+    const isDuplicate = userSequence.includes(blockId);
+
+    if (isDuplicate) {
+      // Track duplicate click but don't add to sequence
+      const clickTime = Date.now();
+      setClickTimes(prev => [...prev, {
+        blockId,
+        time: clickTime,
+        timeFromStart: clickTime - roundStartTime,
+        sequencePosition: userSequence.length,
+        isDuplicate: true  // Flag this as a duplicate click
+      }]);
+
+      // Increment F3 error counter
+      setErrorCountF3(prev => prev + 1);
+
+      // Visual feedback (flash the block red)
+      setBlocks(prevBlocks =>
+        prevBlocks.map(block => ({
+          ...block,
+          active: block.id === blockId,
+          error: block.id === blockId
+        }))
+      );
+
+      setTimeout(() => {
+        setBlocks(prevBlocks =>
+          prevBlocks.map(block => ({
+            ...block,
+            active: false,
+            error: false
+          }))
+        );
+      }, 300);
+
+      return; // Don't add to userSequence
     }
 
     // Record click time
@@ -385,7 +421,8 @@ export default function CorsiTest({ assignmentId, onComplete, isStandalone, t })
       blockId,
       time: clickTime,
       timeFromStart: clickTime - roundStartTime,
-      sequencePosition: userSequence.length
+      sequencePosition: userSequence.length,
+      isDuplicate: false
     }]);
 
     // Update user sequence
@@ -742,6 +779,7 @@ export default function CorsiTest({ assignmentId, onComplete, isStandalone, t })
         totalScore: score,
         errorCountF1, // Sequencing errors
         errorCountF2, // Wrong/missing blocks
+        errorCountF3, // Duplicate clicks
         rounds: updatedRoundData,
         settingsUsed: { ...settings },
         completedSuccessfully,
@@ -784,6 +822,7 @@ export default function CorsiTest({ assignmentId, onComplete, isStandalone, t })
     setSkipUsedPerLevel({});
     setErrorCountF1(0);
     setErrorCountF2(0);
+    setErrorCountF3(0);
   };
 
   return (
@@ -941,6 +980,7 @@ export default function CorsiTest({ assignmentId, onComplete, isStandalone, t })
                       setSkipUsedPerLevel({});
                       setErrorCountF1(0);
                       setErrorCountF2(0);
+                      setErrorCountF3(0);
                       setScore(0);
                       setResults([]);
                       setRoundData([]);
@@ -1029,6 +1069,7 @@ export default function CorsiTest({ assignmentId, onComplete, isStandalone, t })
                     ubs={calculateCorsiSpan()} // UBS (same as corsiSpan)
                     errorCountF1={errorCountF1}
                     errorCountF2={errorCountF2}
+                    errorCountF3={errorCountF3}
                     isStandalone={isStandalone}
                     t={t} // Pass translation function down to Results
                 />

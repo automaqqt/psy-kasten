@@ -101,7 +101,8 @@ model Study {
   id          String    @id @default(cuid())
   name        String
   description String?
-  testType    String    @default("corsi") // Test type assigned to this study (e.g., 'corsi', 'pvt', 'gng-sst')
+  testType    String?   @default("corsi") // Legacy: Single test type (deprecated, use testTypes instead)
+  testTypes   Json?     // Array of test types assigned to this study (e.g., ["corsi", "pvt", "gng-sst"])
   researcherId String
   researcher  User      @relation(fields: [researcherId], references: [id], onDelete: Cascade) // Link to researcher
 
@@ -119,6 +120,7 @@ model Participant { // Represents a Test Person
   // Identifier: Could be email, a generated code, or name. Must be unique *within a study*.
   // Use a separate 'externalId' or 'code' if you need non-email identifiers.
   identifier  String
+  metadata    Json?     // Optional metadata fields (age, gender, group, etc.)
   studyId     String
   study       Study     @relation(fields: [studyId], references: [id], onDelete: Cascade)
 

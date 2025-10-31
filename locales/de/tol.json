@@ -28,7 +28,7 @@
   "practice_complete_text2": "",
   "start_real_test": "Echten Test starten",
   "practice_again": "Noch einmal üben",
-  "practice_feedback": "Übung: Versuchen Sie nur 2 Kugeln zu bewegen. Klicken Sie auf eine Kugel um sie zunehmen. Klicken Sie zum Platzieren einen Stab.",
+  "practice_feedback": "Übung: Versuchen Sie nur 2 Kugeln zu bewegen. Klicken Sie auf eine Kugel um sie zu nehmen. Klicken Sie zum Platzieren einen Stab.",
   "practice_correct": "Richtig! Übung abgeschlossen.",
   "invalid_move": "Ungültiger Zug: Stab ist voll.",
   "problem_of": "Problem {{current}} von {{total}}",

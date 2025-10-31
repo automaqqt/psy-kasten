@@ -388,6 +388,18 @@
     transform: scale(0.95);
   }
 
+  .block.error {
+    background-color: #dc3545 !important;
+    animation: shake 0.3s;
+    box-shadow: 0 0 20px rgba(220, 53, 69, 0.6);
+  }
+
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+  }
+
   .controlsContainer {
     margin-top: 1rem;
     display: flex;

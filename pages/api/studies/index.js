@@ -37,14 +37,21 @@ export default async function handler(req, res) {
   }
   // --- POST: Create a new study ---
   else if (req.method === 'POST') {
-    const { name, description, testType } = req.body;
+    const { name, description, testType, testTypes } = req.body;
 
     if (!name || typeof name !== 'string' || name.trim().length === 0) {
       return res.status(400).json({ message: 'Study name is required' });
     }
 
-    if (!testType || typeof testType !== 'string') {
-      return res.status(400).json({ message: 'Test type is required' });
+    // Support both old (single testType) and new (multiple testTypes) formats
+    let typesArray = [];
+    if (testTypes && Array.isArray(testTypes) && testTypes.length > 0) {
+      typesArray = testTypes;
+    } else if (testType && typeof testType === 'string') {
+      // Backward compatibility: convert single testType to array
+      typesArray = [testType];
+    } else {
+      return res.status(400).json({ message: 'At least one test type is required' });
     }
 
     try {
@@ -52,7 +59,8 @@ export default async function handler(req, res) {
         data: {
           name: name.trim(),
           description: description?.trim() || null,
-          testType: testType,
+          testType: typesArray[0], // For backward compatibility
+          testTypes: typesArray,
           researcherId: researcherId,
         },
       });

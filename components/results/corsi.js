@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import styles from '../../styles/Results.module.css';
 
-const DetailedResults = ({ roundData, calculateCorsiSpan, ubs, errorCountF1, errorCountF2, isStandalone, t }) => {
+const DetailedResults = ({ roundData, calculateCorsiSpan, ubs, errorCountF1, errorCountF2, errorCountF3, isStandalone, t }) => {
   const [selectedRound, setSelectedRound] = useState(null);
   const translate = t || ((key) => key);
   // Calculate average response times per level
@@ -78,7 +78,8 @@ const DetailedResults = ({ roundData, calculateCorsiSpan, ubs, errorCountF1, err
       ['SUMMARY', '', '', '', '', '', '', ''],
       ['UBS (Corsi Span)', ubs || calculateCorsiSpan, '', '', '', '', '', ''],
       ['Total F1 Errors (Sequencing)', errorCountF1 || 0, '', '', '', '', '', ''],
-      ['Total F2 Errors (Wrong/Missing)', errorCountF2 || 0, '', '', '', '', '', '']
+      ['Total F2 Errors (Wrong/Missing)', errorCountF2 || 0, '', '', '', '', '', ''],
+      ['Total F3 Errors (Duplicate Clicks)', errorCountF3 || 0, '', '', '', '', '', '']
     ];
 
     // Create CSV content
@@ -120,6 +121,11 @@ const DetailedResults = ({ roundData, calculateCorsiSpan, ubs, errorCountF1, err
             <h3>{translate('corsi:error_f2')}</h3>
             <div className={styles.metricValue}>{errorCountF2 || 0}</div>
             <div className={styles.metricSubtext}>{translate('corsi:error_f2_description')}</div>
+          </div>
+          <div className={styles.metricCard}>
+            <h3>{translate('corsi:error_f3')}</h3>
+            <div className={styles.metricValue}>{errorCountF3 || 0}</div>
+            <div className={styles.metricSubtext}>{translate('corsi:error_f3_description')}</div>
           </div>
           <div className={styles.metricCard}>
                 <h3>{translate('corsi:avg_response_time')}</h3>
@@ -201,15 +207,17 @@ const DetailedResults = ({ roundData, calculateCorsiSpan, ubs, errorCountF1, err
                 <div>Position</div>
                 <div>Time from Start</div>
                 <div>Interval</div>
+                <div>Status</div>
               </div>
-              
+
               {roundData[selectedRound].clickTimes.map((click, i) => (
-                <div key={i} className={styles.timingRow}>
+                <div key={i} className={`${styles.timingRow} ${click.isDuplicate ? styles.duplicateClick : ''}`}>
                   <div>Click {i + 1}</div>
                   <div>{formatTime(click.timeFromStart)}</div>
                   <div>
                     {i === 0 ? '-' : formatTime(click.time - roundData[selectedRound].clickTimes[i-1].time)}
                   </div>
+                  <div>{click.isDuplicate ? '🔄 Duplicate' : '✓ Valid'}</div>
                 </div>
               ))}
             </div>

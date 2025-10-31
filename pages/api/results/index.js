@@ -2,11 +2,27 @@ import { getSession } from 'next-auth/react'; // or getServerSession
 import prisma from '../../../lib/prisma';
 import { authOptions } from '../auth/[...nextauth]';
 import { getServerSession } from "next-auth/next";
+import rateLimit from '../../../lib/rateLimit';
+
+// Create rate limiter: 20 submissions per minute per IP
+const limiter = rateLimit({
+  interval: 60 * 1000, // 1 minute
+  maxRequests: 20,
+});
 
 
 export default async function handler(req, res) {
 
     if (req.method === 'POST') {
+        // Apply rate limiting to prevent spam
+        const rateLimitResult = limiter.check(req);
+        if (!rateLimitResult.success) {
+          return res.status(429).json({
+            message: 'Too many requests. Please try again later.',
+            retryAfter: Math.ceil((rateLimitResult.reset - Date.now()) / 1000),
+          });
+        }
+
         const { assignmentId, testData } = req.body;
     
         // 1. Basic Validation
@@ -20,24 +36,28 @@ export default async function handler(req, res) {
             // === VERIFICATION ===
             const assignment = await tx.testAssignment.findUnique({
               where: { accessKey: assignmentId },
-              select: { completedAt: true, testType: true } // Select fields needed for checks
+              select: { completedAt: true, testType: true, expiresAt: true } // Select fields needed for checks
             });
-            console.log(assignmentId)
-            console.log(assignment)
-    
+
             // Check 1: Does the assignment exist?
             if (!assignment) {
               console.warn(`Result submission attempt for non-existent assignment: ${assignmentId}`);
               throw new Error('AssignmentNotFound');
             }
-    
+
             // Check 2: Has it already been completed?
             if (assignment.completedAt) {
                console.warn(`Result submission attempt for already completed assignment: ${assignmentId}`);
                throw new Error('AssignmentAlreadyCompleted');
             }
-            // Optional Check 3: Does testData structure match assignment.testType? (More advanced)
-    
+
+            // Check 3: Has the assignment expired?
+            if (assignment.expiresAt && new Date(assignment.expiresAt) < new Date()) {
+               console.warn(`Result submission attempt for expired assignment: ${assignmentId}`);
+               throw new Error('AssignmentExpired');
+            }
+            // Optional Check 4: Does testData structure match assignment.testType? (More advanced)
+
             // === END VERIFICATION ===
     
             // 3. Create Result
@@ -67,6 +87,9 @@ export default async function handler(req, res) {
           }
           if (error.message === 'AssignmentAlreadyCompleted') {
             return res.status(409).json({ message: 'Results for this test have already been submitted.' });
+          }
+          if (error.message === 'AssignmentExpired') {
+            return res.status(410).json({ message: 'This test assignment has expired. Please contact the researcher for a new test link.' });
           }
           return res.status(500).json({ message: 'An internal error occurred while submitting results.' });
         }
@@ -127,7 +150,8 @@ export default async function handler(req, res) {
                          completedAt: true,
                          participantId: true,
                          studyId: true,
-                         participant: { select: { identifier: true } } // Get participant ID
+                         participant: { select: { identifier: true } }, // Get participant ID
+                         study: { select: { name: true } } // Include study name for CSV export
                      }
                  }
              }

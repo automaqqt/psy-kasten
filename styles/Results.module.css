@@ -199,17 +199,22 @@
   
   .timingHeader {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
     background: #f0f0f0;
     font-weight: 600;
     padding: 0.5rem;
   }
-  
+
   .timingRow {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
     padding: 0.5rem;
     border-top: 1px solid #eaeaea;
+  }
+
+  .duplicateClick {
+    background-color: #fff3cd;
+    color: #856404;
   }
   
   .sequenceComparison {
@@ -247,12 +252,13 @@
     .detailsGrid {
       grid-template-columns: 1fr;
     }
-    
+
     .timingHeader, .timingRow {
       grid-template-columns: 1fr 1fr;
     }
-    
-    .timingHeader div:last-child, .timingRow div:last-child {
+
+    .timingHeader div:nth-child(3), .timingRow div:nth-child(3),
+    .timingHeader div:nth-child(4), .timingRow div:nth-child(4) {
       display: none;
     }
   }

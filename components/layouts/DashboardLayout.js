@@ -44,7 +44,7 @@ export default function DashboardLayout({ children }) {
         <nav className={styles.nav}>
             <Link href="/dashboard"><div className={router.pathname === "/dashboard" ? styles.activeLink : ""}>Studies</div></Link>
             <Link href="/dashboard/results"><div className={router.pathname === "/dashboard/results" ? styles.activeLink : ""}>Results</div></Link>
-            <Link href="/dashboard/proposals/new"><div className={router.pathname === "/dashboard/results/proposals/new" ? styles.activeLink : ""}>Propose</div></Link>
+            <Link href="/dashboard/proposals/new"><div className={router.pathname === "/dashboard/proposals/new" ? styles.activeLink : ""}>Propose</div></Link>
             {/* Add more nav links as needed */}
         </nav>
         <div className={styles.userArea}>

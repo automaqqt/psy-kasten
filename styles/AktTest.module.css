@@ -266,6 +266,16 @@
     box-shadow: 0 5px 20px var(--shadow-color, rgba(0, 0, 0, 0.1));
   }
 
+  /* Practice Grid: Rows 1-3 have 12 symbols, Row 4 has 13 (extends to the right) */
+  .practiceGrid .symbolContainer:nth-child(13),
+  .practiceGrid .symbolContainer:nth-child(25) {
+    grid-column: 1; /* Start new row at column 1 */
+  }
+
+  .practiceGrid .symbolContainer:nth-child(37) {
+    grid-column: 1; /* Row 4 starts at column 1 and naturally spans all 13 columns */
+  }
+
   .symbolContainer {
     position: relative;
     width: 100%;
@@ -363,13 +373,31 @@
 
   .demoGrid {
     display: grid;
-    grid-template-columns: repeat(12, 1fr);
+    grid-template-columns: repeat(13, 1fr);
     gap: 15px;
     padding: 1.5rem;
     background-color: rgba(0, 112, 243, 0.05);
     border-radius: 10px;
     width: 100%;
     max-width: 1800px;
+  }
+
+  /* Row 2: Items 14-25 start at column 2 (12 symbols with left offset) */
+  .demoGrid .demoSymbolContainer:nth-child(n+14):nth-child(-n+25) {
+    grid-column: auto / span 1;
+  }
+  .demoGrid .demoSymbolContainer:nth-child(14) {
+    grid-column: 2;
+  }
+
+  /* Row 3: Items 26-37 start at column 2 (12 symbols with left offset) */
+  .demoGrid .demoSymbolContainer:nth-child(26) {
+    grid-column: 2;
+  }
+
+  /* Row 4: Items 38-49 start at column 2 (12 symbols with left offset) */
+  .demoGrid .demoSymbolContainer:nth-child(38) {
+    grid-column: 2;
   }
 
   .demoSymbolContainer {

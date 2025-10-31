@@ -64,6 +64,8 @@
   "ubs": "UBS (Amplitud Corsi)",
   "error_f1": "Errores F1",
   "error_f2": "Errores F2",
+  "error_f3": "Errores F3",
   "error_f1_description": "Errores de secuencia (bloques correctos, orden incorrecto)",
-  "error_f2_description": "Bloques incorrectos o faltantes"
+  "error_f2_description": "Bloques incorrectos o faltantes",
+  "error_f3_description": "Clics duplicados en el mismo bloque"
 }

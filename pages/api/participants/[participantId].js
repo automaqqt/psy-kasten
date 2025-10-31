@@ -19,10 +19,15 @@ export default async function handler(req, res) {
     // --- PUT: Update a participant ---
     if (req.method === 'PUT') {
         try {
-            const { identifier } = req.body;
+            const { identifier, metadata } = req.body;
 
             if (!identifier || typeof identifier !== 'string' || identifier.trim() === '') {
                 return res.status(400).json({ message: 'Identifier is required' });
+            }
+
+            // Validate metadata if provided
+            if (metadata !== undefined && metadata !== null && typeof metadata !== 'object') {
+                return res.status(400).json({ message: 'Metadata must be an object' });
             }
 
             // Verify ownership via the study the participant belongs to
@@ -52,10 +57,16 @@ export default async function handler(req, res) {
                 return res.status(409).json({ message: 'A participant with this identifier already exists in this study' });
             }
 
+            // Build update data
+            const updateData = { identifier: identifier.trim() };
+            if (metadata !== undefined) {
+                updateData.metadata = metadata;
+            }
+
             // Update the participant
             const updatedParticipant = await prisma.participant.update({
                 where: { id: participantId },
-                data: { identifier: identifier.trim() },
+                data: updateData,
             });
 
             console.log(`Participant ${participantId} updated by user ${researcherId}`);
