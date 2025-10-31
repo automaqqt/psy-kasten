@@ -365,7 +365,7 @@ const AktTest = ({ assignmentId, onComplete, isStandalone, t }) => {
           </div>
           <div className={styles.targetReference}>
             <p>{translate('target_symbol_label')}</p>
-            {renderSymbol({ rotation: 180 }, 'A')}
+            {renderSymbol({ rotation: 0 }, 'A')}
           </div>
           <div className={styles.buttonContainer}>
             <button className={styles.primaryButton} onClick={() => { setDemoStep(0); setGameState('intro'); }}>{translate('see_demo')}</button>
@@ -468,7 +468,7 @@ const AktTest = ({ assignmentId, onComplete, isStandalone, t }) => {
           <div className={styles.targetReference}>
             <p>{translate('find_symbol')}</p>
             {gameState === 'practice'
-              ? renderSymbol({ rotation: 180 }, 'A')
+              ? renderSymbol({ rotation: 0 }, 'A')
               : renderSymbol({ rotation: 0, blackSide: 'right' }, 'B')
             }
           </div>

@@ -379,61 +379,31 @@ export default function CorsiTest({ assignmentId, onComplete, isStandalone, t })
     // Check if block was already clicked (duplicate)
     const isDuplicate = userSequence.includes(blockId);
 
+    // Increment F3 error counter if duplicate
     if (isDuplicate) {
-      // Track duplicate click but don't add to sequence
-      const clickTime = Date.now();
-      setClickTimes(prev => [...prev, {
-        blockId,
-        time: clickTime,
-        timeFromStart: clickTime - roundStartTime,
-        sequencePosition: userSequence.length,
-        isDuplicate: true  // Flag this as a duplicate click
-      }]);
-
-      // Increment F3 error counter
       setErrorCountF3(prev => prev + 1);
-
-      // Visual feedback (flash the block red)
-      setBlocks(prevBlocks =>
-        prevBlocks.map(block => ({
-          ...block,
-          active: block.id === blockId,
-          error: block.id === blockId
-        }))
-      );
-
-      setTimeout(() => {
-        setBlocks(prevBlocks =>
-          prevBlocks.map(block => ({
-            ...block,
-            active: false,
-            error: false
-          }))
-        );
-      }, 300);
-
-      return; // Don't add to userSequence
     }
 
-    // Record click time
+    // Record click time with duplicate flag
     const clickTime = Date.now();
     setClickTimes(prev => [...prev, {
       blockId,
       time: clickTime,
       timeFromStart: clickTime - roundStartTime,
       sequencePosition: userSequence.length,
-      isDuplicate: false
+      isDuplicate: isDuplicate
     }]);
 
-    // Update user sequence
+    // Update user sequence (now includes duplicates)
     const newUserSequence = [...userSequence, blockId];
     setUserSequence(newUserSequence);
 
-    // Highlight the clicked block
+    // Highlight the clicked block (with error state if duplicate)
     setBlocks(prevBlocks =>
       prevBlocks.map(block => ({
         ...block,
         active: block.id === blockId,
+        error: isDuplicate && block.id === blockId,
         clicked: block.id === blockId ? true : block.clicked
       }))
     );
@@ -443,7 +413,8 @@ export default function CorsiTest({ assignmentId, onComplete, isStandalone, t })
       setBlocks(prevBlocks =>
         prevBlocks.map(block => ({
           ...block,
-          active: false
+          active: false,
+          error: false
         }))
       );
 
