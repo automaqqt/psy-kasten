@@ -30,58 +30,58 @@ const DEMO_GRID = [
 // Practice Grid: 4 rows with Rows 1-3 having 12 symbols, Row 4 having 13 symbols (49 symbols total)
 // Target: rotation 180, Distractor: rotation 0, 90, or 270
 const PRACTICE_GRID = [
-  { type: 'target', rotation: 180 }, 
+ { type: 'target', rotation: 0 }, 
 { type: 'distractor', rotation: 270 }, 
-{ type: 'distractor', rotation: 0 },
+{ type: 'distractor', rotation: 180 },
 { type: 'distractor', rotation: 90 },
- { type: 'distractor', rotation: 0 },
- { type: 'target', rotation: 180 },
+ { type: 'target', rotation: 0 },
+ { type: 'distractor', rotation: 180 },
  { type: 'distractor', rotation: 90 },
- { type: 'distractor', rotation: 0 }, 
+ { type: 'distractor', rotation: 180 }, 
 { type: 'distractor', rotation: 270 }, 
- { type: 'target', rotation: 180 },
-{ type: 'distractor', rotation: 0 },
+ { type: 'target', rotation: 0 },
+{ type: 'distractor', rotation: 180 },
  { type: 'distractor', rotation: 90 },
 
   { type: 'distractor', rotation: 90 },
- { type: 'target', rotation: 180 },
- { type: 'distractor', rotation: 0 }, 
-{ type: 'target', rotation: 180 },
+ { type: 'target', rotation: 0 },
+ { type: 'distractor', rotation: 180 }, 
+{ type: 'target', rotation: 0 },
 { type: 'distractor', rotation: 90 }, 
 { type: 'distractor', rotation: 270 },
-{ type: 'distractor', rotation: 0 }, 
-  { type: 'target', rotation: 180 }, 
+{ type: 'distractor', rotation: 180 }, 
+  { type: 'target', rotation: 0 }, 
 { type: 'distractor', rotation: 90 }, 
-{ type: 'distractor', rotation: 0 }, 
-  { type: 'target', rotation: 180 }, 
+{ type: 'distractor', rotation: 180 }, 
+  { type: 'target', rotation: 0 }, 
 { type: 'distractor', rotation: 270 }, 
 
-{ type: 'distractor', rotation: 0 }, 
-  { type: 'target', rotation: 180 }, 
+{ type: 'distractor', rotation: 180 }, 
+  { type: 'target', rotation: 0 }, 
 { type: 'distractor', rotation: 90 }, 
-  { type: 'target', rotation: 180 }, 
+  { type: 'target', rotation: 0 }, 
 { type: 'distractor', rotation: 270 }, 
-{ type: 'distractor', rotation: 0 }, 
-{ type: 'target', rotation: 180 }, 
-{ type: 'distractor', rotation: 0 }, 
-{ type: 'distractor', rotation: 90 }, 
-{ type: 'distractor', rotation: 270 }, 
-
-{ type: 'target', rotation: 180 }, 
-{ type: 'target', rotation: 180 }, 
-
-{ type: 'distractor', rotation: 270 }, 
-{ type: 'distractor', rotation: 0 }, 
-{ type: 'target', rotation: 180 }, 
+{ type: 'distractor', rotation: 180 }, 
+{ type: 'target', rotation: 0 }, 
+{ type: 'distractor', rotation: 180 }, 
 { type: 'distractor', rotation: 90 }, 
 { type: 'distractor', rotation: 270 }, 
 
-{ type: 'target', rotation: 180 }, 
-{ type: 'distractor', rotation: 0 }, 
-{ type: 'target', rotation: 180 }, 
+{ type: 'target', rotation: 0 }, 
+{ type: 'target', rotation: 0 }, 
+
+{ type: 'distractor', rotation: 270 }, 
+{ type: 'distractor', rotation: 180 }, 
+{ type: 'target', rotation: 0 }, 
 { type: 'distractor', rotation: 90 }, 
-{ type: 'distractor', rotation: 0 }, 
-{ type: 'target', rotation: 180 }, 
+{ type: 'distractor', rotation: 270 }, 
+
+{ type: 'target', rotation: 0 }, 
+{ type: 'distractor', rotation: 180 }, 
+{ type: 'target', rotation: 0 }, 
+{ type: 'distractor', rotation: 90 }, 
+{ type: 'distractor', rotation: 180 }, 
+{ type: 'target', rotation: 0 }, 
 { type: 'distractor', rotation: 90 },
 { type: 'distractor', rotation: 270 }
 ];
@@ -365,7 +365,7 @@ const AktTest = ({ assignmentId, onComplete, isStandalone, t }) => {
           </div>
           <div className={styles.targetReference}>
             <p>{translate('target_symbol_label')}</p>
-            {renderSymbol({ rotation: 0 }, 'A')}
+            {renderSymbol({ rotation: 180 }, 'A')}
           </div>
           <div className={styles.buttonContainer}>
             <button className={styles.primaryButton} onClick={() => { setDemoStep(0); setGameState('intro'); }}>{translate('see_demo')}</button>
@@ -378,6 +378,10 @@ const AktTest = ({ assignmentId, onComplete, isStandalone, t }) => {
         <div className={styles.welcomeCard}>
           <h2>{translate('demo_title')}</h2>
           <p>{translate('demo_intro')}</p>
+          <div className={styles.targetReference}>
+                    <p>{translate('find_symbol')}</p>
+                   {renderSymbol({ rotation: 180 }, 'A')}
+           </div>
           <div className={styles.demoContainer}>
             <div className={styles.demoGrid}>
               {DEMO_GRID.map((symbol, index) => (

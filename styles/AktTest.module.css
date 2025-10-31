@@ -383,9 +383,6 @@
   }
 
   /* Row 2: Items 14-25 start at column 2 (12 symbols with left offset) */
-  .demoGrid .demoSymbolContainer:nth-child(n+14):nth-child(-n+25) {
-    grid-column: auto / span 1;
-  }
   .demoGrid .demoSymbolContainer:nth-child(14) {
     grid-column: 2;
   }
