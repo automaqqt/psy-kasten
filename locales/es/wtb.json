@@ -89,6 +89,8 @@
   "inter_digit_pause": "Pausa Entre Dígitos",
   "voice_language": "Idioma de Voz",
   "countdown_duration": "Duración de Cuenta Regresiva",
+  "type_numbers_placeholder": "Escriba los números aquí...",
+  "or_use_speech": "o usar entrada de voz",
   "reset_to_defaults": "Restablecer a Predeterminados",
   "save_and_close": "Guardar y Cerrar"
 }

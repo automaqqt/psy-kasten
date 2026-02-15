@@ -48,6 +48,7 @@ export default function WtbTest({ assignmentId, onComplete, isStandalone, t }) {
     voiceLang: 'de-DE',
     countdownDuration: 3,
   });
+  const [textInput, setTextInput] = useState('');
   const [showSettings, setShowSettings] = useState(false);
   const [showMessage, setShowMessage] = useState(false);
   const [message, setMessage] = useState('');
@@ -155,6 +156,7 @@ export default function WtbTest({ assignmentId, onComplete, isStandalone, t }) {
     setAttemptsPerLevel(prev => ({ ...prev, [currentLevel]: (prev[currentLevel] || 0) + 1 }));
 
     setUserInput('');
+    setTextInput('');
     setCountdown(settings.countdownDuration);
     setGameState('countdown');
 
@@ -271,8 +273,7 @@ export default function WtbTest({ assignmentId, onComplete, isStandalone, t }) {
       if (SpeechRecognition) {
         addDebug('✓ Speech Recognition (STT) supported');
       } else {
-        addDebug('✗ Speech Recognition (STT) NOT supported');
-        alert('Speech recognition is not supported in your browser. Please use Chrome, Edge, or Safari.');
+        addDebug('✗ Speech Recognition (STT) NOT supported - text input still available');
       }
 
       // Check microphone permissions
@@ -541,12 +542,13 @@ export default function WtbTest({ assignmentId, onComplete, isStandalone, t }) {
   
 
   // Check user response
-  const checkResponse = useCallback(() => {
-    addDebug(`checkResponse called with userInput: "${userInput}"`);
+  const checkResponse = useCallback((overrideInput) => {
+    const inputToCheck = overrideInput !== undefined ? overrideInput : userInput;
+    addDebug(`checkResponse called with input: "${inputToCheck}"`);
     addDebug(`Expected sequence: [${sequence.join(', ')}]`);
 
     // Extract digits from user input
-    const userDigits = userInput.match(/\d/g) || [];
+    const userDigits = inputToCheck.match(/\d/g) || [];
     const userSequence = userDigits.map(d => parseInt(d, 10));
 
     addDebug(`Extracted digits: [${userSequence.join(', ')}]`);
@@ -575,7 +577,7 @@ export default function WtbTest({ assignmentId, onComplete, isStandalone, t }) {
       success: isCorrect,
       sequence: [...sequence],
       userSequence,
-      userInput,
+      userInput: inputToCheck,
       timestamp: new Date().toISOString(),
       attemptNumber: attemptsPerLevel[level] || 0
     };
@@ -641,6 +643,7 @@ export default function WtbTest({ assignmentId, onComplete, isStandalone, t }) {
     const practiceSeq = [2, 5];
     setSequence(practiceSeq);
     setUserInput('');
+    setTextInput('');
     setGameState('playing');
     setTimeout(() => speakSequence(practiceSeq), 500);
   }, [isFullscreen, enterFullscreen, speakSequence]);
@@ -720,7 +723,6 @@ export default function WtbTest({ assignmentId, onComplete, isStandalone, t }) {
                 <button
                   className={styles.primaryButton}
                   onClick={() => setGameState('tutorial')}
-                  disabled={microphonePermission === 'denied'}
                 >
                   {translate('start_tutorial')}
                 </button>
@@ -783,7 +785,6 @@ export default function WtbTest({ assignmentId, onComplete, isStandalone, t }) {
                 <button
                   className={styles.primaryButton}
                   onClick={() => { setDemoStep(0); setGameState('intro'); }}
-                  disabled={microphonePermission !== 'granted'}
                 >
                   {translate('see_demo')}
                 </button>
@@ -895,6 +896,50 @@ export default function WtbTest({ assignmentId, onComplete, isStandalone, t }) {
                 <div className={styles.microphoneIcon}>🎤</div>
                 <h3>{translate('your_turn')}</h3>
                 <p>{translate('repeat_numbers')}</p>
+
+                {/* Text input option */}
+                <div className={styles.textInputSection}>
+                  <div className={styles.textInputWrapper}>
+                    <input
+                      type="text"
+                      className={styles.numberInput}
+                      value={textInput}
+                      onChange={(e) => setTextInput(e.target.value.replace(/[^0-9\s]/g, ''))}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' && textInput.trim()) {
+                          const digits = textInput.match(/\d/g);
+                          if (digits) {
+                            const parsed = digits.join(' ');
+                            setUserInput(parsed);
+                            checkResponse(parsed);
+                          }
+                        }
+                      }}
+                      placeholder={translate('type_numbers_placeholder')}
+                      autoFocus
+                    />
+                    <button
+                      className={styles.submitButton}
+                      onClick={() => {
+                        const digits = textInput.match(/\d/g);
+                        if (digits) {
+                          const parsed = digits.join(' ');
+                          setUserInput(parsed);
+                          checkResponse(parsed);
+                        }
+                      }}
+                      disabled={!textInput.trim()}
+                    >
+                      ✓ {translate('submit')}
+                    </button>
+                  </div>
+                </div>
+
+                <div className={styles.inputDivider}>
+                  <span>{translate('or_use_speech')}</span>
+                </div>
+
+                {/* Speech input option */}
                 {microphonePermission === 'denied' && (
                   <div className={styles.permissionWarning}>
                     ⚠️ Microphone access denied. Please enable microphone in your browser settings.
@@ -955,6 +1000,48 @@ export default function WtbTest({ assignmentId, onComplete, isStandalone, t }) {
                     <div className={styles.microphoneIcon}>🎤</div>
                     <h3>{translate('your_turn')}</h3>
                     <p>{translate('repeat_numbers')}</p>
+
+                    {/* Text input option */}
+                    <div className={styles.textInputSection}>
+                      <div className={styles.textInputWrapper}>
+                        <input
+                          type="text"
+                          className={styles.numberInput}
+                          value={textInput}
+                          onChange={(e) => setTextInput(e.target.value.replace(/[^0-9\s]/g, ''))}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' && textInput.trim()) {
+                              const digits = textInput.match(/\d/g);
+                              if (digits) {
+                                setUserInput(digits.join(' '));
+                                setTimeout(() => checkResponse(), 0);
+                              }
+                            }
+                          }}
+                          placeholder={translate('type_numbers_placeholder')}
+                          autoFocus
+                        />
+                        <button
+                          className={styles.submitButton}
+                          onClick={() => {
+                            const digits = textInput.match(/\d/g);
+                            if (digits) {
+                              setUserInput(digits.join(' '));
+                              setTimeout(() => checkResponse(), 0);
+                            }
+                          }}
+                          disabled={!textInput.trim()}
+                        >
+                          ✓ {translate('submit')}
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className={styles.inputDivider}>
+                      <span>{translate('or_use_speech')}</span>
+                    </div>
+
+                    {/* Speech input option */}
                     {!isRecording && !userInput && (
                       <button className={styles.recordButton} onClick={startRecording}>
                         {translate('start_recording')}

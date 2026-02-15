@@ -89,6 +89,8 @@
   "inter_digit_pause": "Pause Between Digits",
   "voice_language": "Voice Language",
   "countdown_duration": "Countdown Duration",
+  "type_numbers_placeholder": "Type the numbers here...",
+  "or_use_speech": "or use speech input",
   "reset_to_defaults": "Reset to Defaults",
   "save_and_close": "Save & Close"
 }
