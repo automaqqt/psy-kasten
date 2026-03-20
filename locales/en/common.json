@@ -31,6 +31,7 @@
   "search_tests_placeholder": "Search tests by name or description...",
   "filter_by_tag": "Filter by Tag:",
   "clear_tags": "Clear",
+  "all_tests_section_title": "All Tests",
   "no_tests_found": "No tests found matching your criteria.",
   "show_tags": "Show Tags",
   "hide_tags": "Hide Tags",

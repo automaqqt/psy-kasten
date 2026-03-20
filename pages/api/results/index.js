@@ -3,6 +3,8 @@ import prisma from '../../../lib/prisma';
 import { authOptions } from '../auth/[...nextauth]';
 import { getServerSession } from "next-auth/next";
 import rateLimit from '../../../lib/rateLimit';
+import { validateTestResult } from '../../../lib/validations/testResults';
+import { checkCsrf } from '../../../lib/csrf';
 
 // Create rate limiter: 20 submissions per minute per IP
 const limiter = rateLimit({
@@ -15,12 +17,18 @@ export default async function handler(req, res) {
 
     if (req.method === 'POST') {
         // Apply rate limiting to prevent spam
-        const rateLimitResult = limiter.check(req);
+        const rateLimitResult = await limiter.check(req);
         if (!rateLimitResult.success) {
           return res.status(429).json({
             message: 'Too many requests. Please try again later.',
             retryAfter: Math.ceil((rateLimitResult.reset - Date.now()) / 1000),
           });
+        }
+
+        // Validate CSRF token
+        const csrfValid = await checkCsrf(req, res);
+        if (!csrfValid) {
+          return; // Response already sent by checkCsrf
         }
 
         const { assignmentId, testData } = req.body;
@@ -56,7 +64,16 @@ export default async function handler(req, res) {
                console.warn(`Result submission attempt for expired assignment: ${assignmentId}`);
                throw new Error('AssignmentExpired');
             }
-            // Optional Check 4: Does testData structure match assignment.testType? (More advanced)
+
+            // Check 4: Validate testData structure matches assignment.testType
+            const validation = validateTestResult(assignment.testType, testData);
+            if (!validation.valid) {
+               console.warn(`Invalid testData structure for ${assignment.testType}:`, validation.errors);
+               throw new Error('InvalidTestData');
+            }
+            if (validation.warning) {
+               console.warn(`Validation warning for ${assignment.testType}:`, validation.warning);
+            }
 
             // === END VERIFICATION ===
     
@@ -90,6 +107,9 @@ export default async function handler(req, res) {
           }
           if (error.message === 'AssignmentExpired') {
             return res.status(410).json({ message: 'This test assignment has expired. Please contact the researcher for a new test link.' });
+          }
+          if (error.message === 'InvalidTestData') {
+            return res.status(400).json({ message: 'Test data validation failed. The submitted data does not match the expected format.' });
           }
           return res.status(500).json({ message: 'An internal error occurred while submitting results.' });
         }

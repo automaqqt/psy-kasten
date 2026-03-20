@@ -3,6 +3,7 @@ import prisma from '../../../lib/prisma';
 import { authOptions } from '../auth/[...nextauth]';
 import { getServerSession } from "next-auth/next";
 import crypto from 'crypto'; // For generating secure access keys
+import { sanitizeIdentifier, sanitizeObject } from '../../../lib/sanitize';
 
 export default async function handler(req, res) {
   const session = await getServerSession(req, res, authOptions); // Or getSession({ req });
@@ -50,12 +51,20 @@ export default async function handler(req, res) {
         return res.status(500).json({ message: 'Study has no test types configured' });
       }
 
+      // Sanitize inputs to prevent XSS
+      const sanitizedIdentifier = sanitizeIdentifier(identifier);
+      const sanitizedMetadata = metadata ? sanitizeObject(metadata) : undefined;
+
+      if (!sanitizedIdentifier || sanitizedIdentifier.length === 0) {
+        return res.status(400).json({ message: 'Participant identifier cannot be empty after sanitization' });
+      }
+
       // Create the participant (Prisma handles the unique constraint within the study)
       const newParticipant = await prisma.participant.create({
         data: {
-          identifier: identifier.trim(), // Consider lowercasing emails here if identifier is email
+          identifier: sanitizedIdentifier,
           studyId: studyId,
-          metadata: metadata || undefined, // Only include if provided
+          metadata: sanitizedMetadata,
         },
       });
 

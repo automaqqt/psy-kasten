@@ -186,7 +186,9 @@ const AktTest = ({ assignmentId, onComplete, isStandalone, t }) => {
     const endTime = Date.now();
     const T = (endTime - startTime) / 1000;
 
-    const numTargets = isPractice ? 3 : settings.numTargets;
+    const numTargets = isPractice
+      ? PRACTICE_GRID.filter(s => s.type === 'target').length
+      : settings.numTargets;
     const R = clicks.filter(c => c.symbol.type === 'target').length;
 
     // Error type classification for distractor clicks (relative to target: rotation 0°, blackSide 'right'):

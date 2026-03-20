@@ -73,6 +73,8 @@ model User {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([role]) // Index for admin/role-based queries
 }
 
 model TestProposal {
@@ -154,6 +156,7 @@ model TestAssignment {
   @@index([participantId])
   @@index([studyId])
   @@index([accessKey]) // Important for fast link lookup
+  @@index([participantId, testType]) // Composite index for duplicate test type checks
 }
 
 // Stores the results of a completed test
@@ -170,4 +173,5 @@ model TestResult {
   submittedAt    DateTime @default(now()) // Different from TestAssignment.completedAt, marks submission time
 
   @@index([testAssignmentId])
+  @@index([submittedAt]) // Index for ordering results by submission time
 }

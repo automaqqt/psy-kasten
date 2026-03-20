@@ -441,109 +441,114 @@
 
 .heroSection {
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: 100vh; /* Keep full height */
-  padding: 3rem 1.5rem;
-  text-align: center;
-  background-color: var(--bg-primary, #eef2f7); /* Use CSS var */
+  min-height: 75vh;
+  padding: 8rem 2rem 3rem;
+  background-color: var(--bg-primary, #eef2f7);
   box-sizing: border-box;
-  margin-top: 0; /* Adjusted for transparent initial header */
-  position: relative; /* Needed for absolute positioning of floating elements */
-  overflow: hidden; /* Prevent elements floating outside */
-}
-
-.heroContent {
-  max-width: 800px;
-  animation: fadeInHero 1s ease-out;
-  z-index: 2; /* Ensure content is above floating elements */
-  position: relative; /* Needed if floating elements use z-index */
-}
-
-/* ... Keep other hero styles (title, description, buttons) ... */
-
-
-/* --- NEW: Floating Elements Styles --- */
-.floatingElementsContainer {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none; /* Prevent interaction with floating items */
+  position: relative;
   overflow: hidden;
-  z-index: 1; /* Behind hero text content */
 }
 
-.floatingElement {
+.heroSection::before {
+  content: '';
   position: absolute;
-  font-size: 2rem; /* Adjust size of emojis */
-  opacity: 0.15; /* Make them subtle */
-  animation-name: float;
-  animation-timing-function: ease-in-out;
-  animation-iteration-count: infinite;
-  /* Prevent selection */
-  user-select: none;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background:
+    radial-gradient(ellipse at 20% 50%, rgba(0, 112, 243, 0.08) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, rgba(156, 39, 176, 0.06) 0%, transparent 50%),
+    radial-gradient(ellipse at 60% 80%, rgba(0, 112, 243, 0.05) 0%, transparent 50%);
+  animation: meshShift 20s ease-in-out infinite alternate;
+  z-index: 0;
+  pointer-events: none;
 }
 
-/* --- Float Animation --- */
-@keyframes float {
-  0% { transform: translateY(0px) rotate(0deg); }
-  50% { transform: translateY(-15px) rotate(5deg); } /* Move up slightly and rotate */
-  100% { transform: translateY(0px) rotate(0deg); }
+html[data-theme="dark"] .heroSection::before {
+  background:
+    radial-gradient(ellipse at 20% 50%, rgba(0, 112, 243, 0.12) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, rgba(156, 39, 176, 0.10) 0%, transparent 50%),
+    radial-gradient(ellipse at 60% 80%, rgba(0, 112, 243, 0.08) 0%, transparent 50%);
 }
 
-/* --- Individual Element Positioning & Animation Delays --- */
-/* Position elements around the hero section using top/left/right/bottom */
-/* Vary animation duration and delay for a more natural effect */
-
-.pencil1 {
-  font-size: 2.5rem;
-  top: 15%;
-  left: 10%;
-  animation-duration: 8s;
-  animation-delay: 0s;
-  transform: rotate(-20deg); /* Initial rotation */
+@keyframes meshShift {
+  0% { transform: translate(0, 0) rotate(0deg); }
+  100% { transform: translate(3%, 2%) rotate(3deg); }
 }
 
-.questionnaire1 {
-  font-size: 3rem;
-  top: 20%;
-  right: 12%;
-  animation-duration: 10s;
-  animation-delay: 1s;
-   transform: rotate(15deg);
+.heroInner {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 4rem;
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+  z-index: 1;
+  position: relative;
+  animation: fadeInHero 1s ease-out;
 }
 
-.pencil2 {
-  font-size: 2rem;
-  bottom: 25%;
-  left: 20%;
-  animation-duration: 9s;
-  animation-delay: 2.5s;
-   transform: rotate(10deg);
+.heroTextColumn {
+  flex: 1;
+  text-align: left;
 }
 
-.questionnaire2 {
-  font-size: 2.8rem;
-  bottom: 15%;
-  right: 25%;
-  animation-duration: 7s;
-  animation-delay: 0.5s;
-   transform: rotate(-10deg);
+.heroTestsColumn {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
 }
 
-.pencil3 {
-  font-size: 2.2rem;
-  top: 60%;
-  left: 5%;
-  animation-duration: 8.5s;
-  animation-delay: 1.8s;
-  transform: rotate(30deg);
+/* --- Mini Card Styles --- */
+.miniCard {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.85rem 1rem;
+  border-radius: 12px;
+  border: 1px solid var(--bg-accent, #dde3ea);
+  background-color: var(--bg-secondary, #fff);
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.miniCard:hover {
+  transform: scale(1.03);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  border-color: var(--mini-card-color);
+}
+
+.miniCardIcon {
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+  background: color-mix(in srgb, var(--mini-card-color) 15%, transparent);
+}
+
+.miniCardTitle {
+  font-weight: 600;
+  font-size: 0.9rem;
+  line-height: 1.3;
+}
+
+/* --- All Tests Section Title --- */
+.allTestsTitle {
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  color: var(--text-primary, #333);
 }
 
 @keyframes fadeInHero {
@@ -746,9 +751,16 @@
     height: 60px;
     width: 60px;
   }
-.heroSection { min-height: 100vh; padding: 2rem 1rem;}
+.heroSection { min-height: auto; padding: 6rem 1rem 2rem; }
+.heroInner { flex-direction: column; gap: 2rem; }
+.heroTextColumn { text-align: center; }
+.heroTestsColumn { grid-template-columns: repeat(2, 1fr); gap: 0.75rem; }
 .heroTitle { font-size: 2.2rem; }
-.heroDescription { font-size: 1rem; }
+.heroDescription { font-size: 1rem; margin-left: auto; margin-right: auto; }
+.heroActions { justify-content: center; }
+.miniCard { padding: 0.7rem 0.75rem; }
+.miniCardIcon { width: 34px; height: 34px; min-width: 34px; font-size: 1.1rem; }
+.miniCardTitle { font-size: 0.82rem; }
 .testsOverviewSection { padding: 2rem 1rem; scroll-margin-top: 70px;}
 .filtersContainer { flex-direction: column; align-items: stretch; }
 .tagFilter { flex-direction: column; align-items: flex-start; }

@@ -3,6 +3,7 @@ import { getSession } from 'next-auth/react'; // or getServerSession
 import prisma from '../../../lib/prisma';
 import { authOptions } from '../auth/[...nextauth]'; // If using getServerSession
 import { getServerSession } from "next-auth/next";
+import { sanitizeText, sanitizeRichText } from '../../../lib/sanitize';
 
 
 export default async function handler(req, res) {
@@ -55,10 +56,18 @@ export default async function handler(req, res) {
     }
 
     try {
+      // Sanitize inputs to prevent XSS
+      const sanitizedName = sanitizeText(name);
+      const sanitizedDescription = description ? sanitizeRichText(description) : null;
+
+      if (!sanitizedName || sanitizedName.length === 0) {
+        return res.status(400).json({ message: 'Study name cannot be empty after sanitization' });
+      }
+
       const newStudy = await prisma.study.create({
         data: {
-          name: name.trim(),
-          description: description?.trim() || null,
+          name: sanitizedName,
+          description: sanitizedDescription,
           testType: typesArray[0], // For backward compatibility
           testTypes: typesArray,
           researcherId: researcherId,

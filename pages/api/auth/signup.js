@@ -1,13 +1,36 @@
 import prisma from '../../../lib/prisma'; // Adjust path as needed
 import bcrypt from 'bcryptjs';
+import { createAuthRateLimiter } from '../../../lib/rateLimit';
+import { checkCsrf } from '../../../lib/csrf';
 
 // Basic email validation regex (adjust as needed)
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+// Password complexity requirements
+const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{8,}$/;
+
+// Create rate limiter: 5 attempts per 15 minutes
+const limiter = createAuthRateLimiter();
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     res.setHeader('Allow', ['POST']);
     return res.status(405).json({ message: `Method ${req.method} Not Allowed` });
+  }
+
+  // Apply rate limiting to prevent brute force attacks
+  const rateLimitResult = await limiter.check(req, 5);
+  if (!rateLimitResult.success) {
+    return res.status(429).json({
+      message: 'Too many signup attempts. Please try again later.',
+      retryAfter: Math.ceil((rateLimitResult.reset - Date.now()) / 1000),
+    });
+  }
+
+  // Validate CSRF token
+  const csrfValid = await checkCsrf(req, res);
+  if (!csrfValid) {
+    return; // Response already sent by checkCsrf
   }
 
   const { email, password, name } = req.body;
@@ -21,8 +44,11 @@ export default async function handler(req, res) {
       return res.status(400).json({ message: 'Invalid email format' });
   }
 
-   if (typeof password !== 'string' || password.length < 8) { // Example: Enforce minimum length
-      return res.status(400).json({ message: 'Password must be at least 8 characters long' });
+  // Enforce strong password requirements
+  if (typeof password !== 'string' || !passwordRegex.test(password)) {
+      return res.status(400).json({
+        message: 'Password must be at least 8 characters and include uppercase, lowercase, number, and special character (@$!%*?&#)'
+      });
   }
 
   // --- Check if user exists ---

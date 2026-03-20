@@ -91,6 +91,7 @@ useEffect(() => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
 }, []);
 
+
 const toggleTheme = () => {
   const newTheme = theme === 'light' ? 'dark' : 'light';
   setTheme(newTheme);
@@ -195,47 +196,47 @@ const changeLocale = (newLocale) => {
       <main className={styles.main}>
         {/* --- Hero Section --- */}
         <section className={styles.heroSection}>
-            <div className={styles.heroContent}>
-                <h1 className={styles.heroTitle}>psyKasten</h1>
-                <p className={styles.heroDescription}>
-                    {t('landing_page_description', 'Explore standardized neuropsychological tests for measuring memory, attention, and executive functions. Designed for researchers and educational purposes.')}
-                </p>
-                 <div className={styles.heroActions}>
-                     <button onClick={scrollToTests} className={styles.heroButtonPrimary}>
-                         {t('explore_tests_button', 'Explore Tests')}
-                     </button>
-                      {/* Show Login or Dashboard based on session */}
-                       {!isLoadingSession && (
-                           session ? (
-                               <Link href="/dashboard">
+            <div className={styles.heroInner}>
+                <div className={styles.heroTextColumn}>
+                    <h1 className={styles.heroTitle}>psyKasten</h1>
+                    <p className={styles.heroDescription}>
+                        {t('landing_page_description', 'Explore standardized neuropsychological tests for measuring memory, attention, and executive functions. Designed for researchers and educational purposes.')}
+                    </p>
+                    <div className={styles.heroActions}>
+                        <button onClick={scrollToTests} className={styles.heroButtonPrimary}>
+                            {t('explore_tests_button', 'Explore Tests')}
+                        </button>
+                        {!isLoadingSession && (
+                            session ? (
+                                <Link href="/dashboard">
                                     <div className={styles.heroButtonSecondary}>{t('go_to_dashboard', 'Researcher Dashboard')}</div>
-                               </Link>
-                           ) : (
-                               <Link href="/auth/signin">
-                                   <div className={styles.heroButtonSecondary}>{t('login_button', 'Researcher Login')}</div>
-                               </Link>
-                           )
-                       )}
-                 </div>
-            </div>
-            {/* Optional: Add a background image or graphic here */}
-            <div className={styles.floatingElementsContainer}>
-                        {/* Example: Add multiple items with different styles/delays */}
-                        <div className={`${styles.floatingElement} ${styles.pencil1}`}>✏️</div>
-                        <div className={`${styles.floatingElement} ${styles.questionnaire1}`}>📝</div>
-                        <div className={`${styles.floatingElement} ${styles.pencil2}`}>✏️</div>
-                        <div className={`${styles.floatingElement} ${styles.pencil2}`}>✏️</div>
-                        <div className={`${styles.floatingElement} ${styles.questionnaire2}`}>📋</div>
-                         <div className={`${styles.floatingElement} ${styles.pencil3}`}>✏️</div>
-                         {/* Add more as needed */}
+                                </Link>
+                            ) : (
+                                <Link href="/auth/signin">
+                                    <div className={styles.heroButtonSecondary}>{t('login_button', 'Researcher Login')}</div>
+                                </Link>
+                            )
+                        )}
                     </div>
+                </div>
+                <div className={styles.heroTestsColumn}>
+                    {allCognitiveTests.map((test) => (
+                        <Link href={test.route} key={test.id} className={styles.miniCard} style={{ '--mini-card-color': test.color }}>
+                            <div className={styles.miniCardIcon}>
+                                <span>{test.icon}</span>
+                            </div>
+                            <span className={styles.miniCardTitle}>{test.title}</span>
+                        </Link>
+                    ))}
+                </div>
+            </div>
         </section>
         {/* --- End Hero Section --- */}
 
 
          {/* --- Tests Overview Section --- */}
-         {/* Add ref={testsSectionRef} and an id for potential direct linking */}
          <section id="tests-overview" ref={testsSectionRef} className={styles.testsOverviewSection}>
+            <h2 className={styles.allTestsTitle}>{t('all_tests_section_title', 'All Tests')}</h2>
 
             {/* --- Filters Section --- */}
             <div className={styles.filtersContainer}>

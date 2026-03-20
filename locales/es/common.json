@@ -30,6 +30,7 @@
   "search_tests_placeholder": "Buscar pruebas por nombre o descripción...",
   "filter_by_tag": "Filtrar por Etiqueta:",
   "clear_tags": "Limpiar",
+  "all_tests_section_title": "Todas las Pruebas",
   "no_tests_found": "No se encontraron pruebas que coincidan con tus criterios.",
   "show_tags": "Mostrar Etiquetas",
   "hide_tags": "Ocultar Etiquetas",

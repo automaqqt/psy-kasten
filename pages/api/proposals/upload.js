@@ -6,6 +6,10 @@ import { getServerSession } from "next-auth/next";
 import { formidable } from 'formidable'; // Use modern import if possible/needed
 import fs from 'fs'; // For filesystem operations (if storing locally)
 import path from 'path';
+import crypto from 'crypto';
+import { checkCsrf } from '../../../lib/csrf';
+import rateLimit from '../../../lib/rateLimit';
+import { sanitizeRichText } from '../../../lib/sanitize';
 
 // --- Configuration ---
 // Option 1: Local Storage (Change for Production!)
@@ -17,6 +21,14 @@ if (!fs.existsSync(UPLOAD_DIR)) {
 }
 const MAX_FILE_SIZE_MB = 10;
 const ALLOWED_MIME_TYPES = ['application/pdf'];
+const ALLOWED_EXTENSIONS = ['.pdf'];
+
+// Rate limiter: 5 uploads per hour per user
+const limiter = rateLimit({
+  interval: 60 * 60 * 1000, // 1 hour
+  maxRequests: 5,
+});
+
 // Option 2: Cloud Storage (e.g., S3 - Requires AWS SDK setup)
 // const S3_BUCKET = process.env.S3_PROPOSAL_BUCKET;
 // const s3 = new AWS.S3(...); // Configure S3 client
@@ -28,6 +40,35 @@ export const config = {
   },
 };
 // --- End Configuration ---
+
+/**
+ * Validates that a file path is safe and doesn't contain path traversal attacks
+ * @param {string} filepath - The file path to validate
+ * @param {string} allowedDir - The allowed directory (e.g., UPLOAD_DIR)
+ * @returns {boolean} - True if path is safe
+ */
+function isPathSafe(filepath, allowedDir) {
+  // Resolve paths to absolute paths to prevent traversal
+  const resolvedPath = path.resolve(filepath);
+  const resolvedAllowedDir = path.resolve(allowedDir);
+
+  // Check that the resolved path starts with the allowed directory
+  return resolvedPath.startsWith(resolvedAllowedDir + path.sep);
+}
+
+/**
+ * Generates a secure random filename
+ * @param {string} userId - User ID
+ * @param {string} extension - File extension (e.g., '.pdf')
+ * @returns {string} - Secure filename
+ */
+function generateSecureFilename(userId, extension) {
+  const timestamp = Date.now();
+  const randomBytes = crypto.randomBytes(16).toString('hex');
+  // Sanitize userId to prevent any path issues
+  const sanitizedUserId = userId.replace(/[^a-zA-Z0-9]/g, '_');
+  return `${sanitizedUserId}-${timestamp}-${randomBytes}${extension}`;
+}
 
 
 export default async function handler(req, res) {
@@ -42,6 +83,21 @@ export default async function handler(req, res) {
         return res.status(401).json({ message: 'Unauthorized' });
     }
     const researcherId = session.user.id;
+
+    // Apply rate limiting (5 uploads per hour per user)
+    const rateLimitResult = await limiter.check(req, 5, researcherId);
+    if (!rateLimitResult.success) {
+        return res.status(429).json({
+            message: 'Too many upload attempts. Please try again later.',
+            retryAfter: Math.ceil((rateLimitResult.reset - Date.now()) / 1000),
+        });
+    }
+
+    // Validate CSRF token
+    const csrfValid = await checkCsrf(req, res);
+    if (!csrfValid) {
+        return; // Response already sent by checkCsrf
+    }
 
     try {
         // --- Check for existing PENDING proposal ---
@@ -68,20 +124,27 @@ export default async function handler(req, res) {
             maxFileSize: MAX_FILE_SIZE_MB * 1024 * 1024, // Max size in bytes
             // Filter allowed file types BEFORE saving (formidable v3+)
             filter: function ({ name, originalFilename, mimetype }) {
-                // keep only pdfs
-                 const isValid = mimetype && ALLOWED_MIME_TYPES.includes(mimetype);
-                 if (!isValid) {
-                     console.warn(`Upload blocked: Invalid mimetype ${mimetype} for ${originalFilename}`);
-                      // Inform formidable to abort
-                      form.emit('error', new Error(`Invalid file type. Only PDF is allowed.`));
-                 }
+                // Validate mimetype
+                const validMimetype = mimetype && ALLOWED_MIME_TYPES.includes(mimetype);
+
+                // Validate file extension
+                const ext = path.extname(originalFilename || '').toLowerCase();
+                const validExtension = ALLOWED_EXTENSIONS.includes(ext);
+
+                const isValid = validMimetype && validExtension;
+
+                if (!isValid) {
+                    console.warn(`Upload blocked: Invalid file ${originalFilename} (mime: ${mimetype}, ext: ${ext})`);
+                    // Inform formidable to abort
+                    form.emit('error', new Error(`Invalid file type. Only PDF files are allowed.`));
+                }
                 return isValid;
             },
-             // Rename file to something unique (e.g., userId + timestamp)
-              filename: (name, ext, part, form) => {
-                const timestamp = Date.now();
-                const randomSuffix = Math.random().toString(36).substring(2, 8);
-                return `${researcherId}-${timestamp}-${randomSuffix}${ext}`; // e.g., user123-1678886400000-a1b2c3.pdf
+            // Generate secure filename using crypto
+            filename: (name, ext, part, form) => {
+                // Ensure extension is .pdf
+                const safeExt = ALLOWED_EXTENSIONS[0]; // Always use .pdf
+                return generateSecureFilename(researcherId, safeExt);
             }
         });
 
@@ -110,9 +173,32 @@ export default async function handler(req, res) {
         });
 
         const { fields, file } = await parseForm();
-        const notes = fields.notes?.[0] || null; // formidable v3 fields are arrays
 
-        // At this point, the file is saved locally in UPLOAD_DIR with the generated unique filename
+        // Sanitize notes field to prevent XSS
+        const rawNotes = fields.notes?.[0] || null;
+        const notes = rawNotes ? sanitizeRichText(rawNotes) : null;
+
+        // Security: Validate that the file path is safe and within the upload directory
+        if (!isPathSafe(file.filepath, UPLOAD_DIR)) {
+            // Delete the file if it's outside the allowed directory
+            try {
+                fs.unlinkSync(file.filepath);
+            } catch (err) {
+                console.error('Failed to delete unsafe file:', err);
+            }
+            console.error(`Path traversal attempt detected: ${file.filepath}`);
+            return res.status(400).json({ message: 'Invalid file path detected.' });
+        }
+
+        // Validate file extension one more time (defense in depth)
+        const fileExt = path.extname(file.newFilename || '').toLowerCase();
+        if (!ALLOWED_EXTENSIONS.includes(fileExt)) {
+            fs.unlinkSync(file.filepath);
+            console.error(`Invalid file extension after upload: ${fileExt}`);
+            return res.status(400).json({ message: 'Invalid file type.' });
+        }
+
+        // At this point, the file is safely saved locally in UPLOAD_DIR with the generated unique filename
 
         // --- TODO (Production): Upload to Cloud Storage ---
         // If using cloud storage:
