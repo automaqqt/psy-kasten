@@ -146,12 +146,12 @@ export default function DashboardHome() {
       const participantCount = study?._count?.participants || 0;
       const assignmentCount = study?._count?.testAssignments || 0;
 
-      const confirmMessage = `⚠️ WARNING: Delete Study "${studyName}"?\n\n` +
+      const confirmMessage = `Delete Study "${studyName}"?\n\n` +
           `This will permanently delete:\n` +
-          `• ${participantCount} participant(s)\n` +
-          `• ${assignmentCount} test assignment(s)\n` +
-          `• All associated results\n\n` +
-          `This action CANNOT be undone!\n\n` +
+          `- ${participantCount} participant(s)\n` +
+          `- ${assignmentCount} test assignment(s)\n` +
+          `- All associated results\n\n` +
+          `This action cannot be undone.\n\n` +
           `Type "DELETE" to confirm.`;
 
       const userInput = window.prompt(confirmMessage);
@@ -184,48 +184,20 @@ export default function DashboardHome() {
         </button>
       </div>
 
-      {/* Dashboard Stats Widgets */}
+      {/* Dashboard Stats */}
       {!isLoading && !error && stats && (
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-          gap: '1rem',
-          marginBottom: '2rem'
-        }}>
-          <div style={{
-            backgroundColor: '#e7f3ff',
-            padding: '1.5rem',
-            borderRadius: '8px',
-            border: '1px solid #b3d9ff'
-          }}>
-            <div style={{ fontSize: '0.875rem', color: '#004085', marginBottom: '0.5rem' }}>Total Studies</div>
-            <div style={{ fontSize: '2rem', fontWeight: '700', color: '#004085' }}>
-              {stats.totalStudies}
-            </div>
+        <div className={styles.statsGrid}>
+          <div className={`${styles.statCard} ${styles.statBlue}`}>
+            <div className={styles.statLabel}>Total Studies</div>
+            <div className={styles.statValue}>{stats.totalStudies}</div>
           </div>
-
-          <div style={{
-            backgroundColor: '#d4edda',
-            padding: '1.5rem',
-            borderRadius: '8px',
-            border: '1px solid #c3e6cb'
-          }}>
-            <div style={{ fontSize: '0.875rem', color: '#155724', marginBottom: '0.5rem' }}>Total Participants</div>
-            <div style={{ fontSize: '2rem', fontWeight: '700', color: '#155724' }}>
-              {stats.totalParticipants}
-            </div>
+          <div className={`${styles.statCard} ${styles.statGreen}`}>
+            <div className={styles.statLabel}>Total Participants</div>
+            <div className={styles.statValue}>{stats.totalParticipants}</div>
           </div>
-
-          <div style={{
-            backgroundColor: '#fff3cd',
-            padding: '1.5rem',
-            borderRadius: '8px',
-            border: '1px solid #ffeaa7'
-          }}>
-            <div style={{ fontSize: '0.875rem', color: '#856404', marginBottom: '0.5rem' }}>Total Assignments</div>
-            <div style={{ fontSize: '2rem', fontWeight: '700', color: '#856404' }}>
-              {stats.totalAssignments}
-            </div>
+          <div className={`${styles.statCard} ${styles.statAmber}`}>
+            <div className={styles.statLabel}>Total Assignments</div>
+            <div className={styles.statValue}>{stats.totalAssignments}</div>
           </div>
         </div>
       )}
@@ -235,7 +207,7 @@ export default function DashboardHome() {
 
       {!isLoading && !error && studies.length === 0 && (
         <div className={styles.emptyState}>
-          <div className={styles.emptyStateIcon}>📚</div>
+          <div className={styles.emptyStateIcon}></div>
           <h3>No Studies Yet</h3>
           <p>Create your first study to start collecting cognitive test data.</p>
           <button onClick={() => setIsCreateModalOpen(true)} className={styles.primaryButton}>
@@ -268,7 +240,7 @@ export default function DashboardHome() {
                   <div className={styles.listItemLink}>
                       <div className={styles.studyHeader}>
                         <h3>{study.name}</h3>
-                        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                        <div className={styles.badgeGroup}>
                           {testConfigs.map(testConfig => (
                             <span key={testConfig.id} className={styles.testBadge} style={{ backgroundColor: testConfig.color }}>
                               {testConfig.icon} {testConfig.titleKey.replace('_title', '').toUpperCase()}
@@ -291,7 +263,7 @@ export default function DashboardHome() {
                     title="Edit study"
                     disabled={deletingStudyId === study.id}
                   >
-                    ✏️ Edit
+                    Edit
                   </button>
                   <button
                     onClick={(e) => { e.stopPropagation(); handleDeleteStudy(study.id, study.name); }}
@@ -299,7 +271,7 @@ export default function DashboardHome() {
                     title="Delete study"
                     disabled={deletingStudyId === study.id}
                   >
-                    {deletingStudyId === study.id ? '⏳ Deleting...' : '🗑️ Delete'}
+                    {deletingStudyId === study.id ? 'Deleting...' : 'Delete'}
                   </button>
                 </div>
               </div>
@@ -335,9 +307,9 @@ export default function DashboardHome() {
                 </div>
                 <div className={styles.formGroup}>
                     <label>Select Tests * (one or more)</label>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginTop: '0.5rem' }}>
+                    <div className={styles.checkboxGroup}>
                         {TEST_TYPES.map(test => (
-                            <label key={test.id} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+                            <label key={test.id} className={styles.checkboxLabel}>
                                 <input
                                     type="checkbox"
                                     checked={selectedTestTypes.includes(test.id)}
@@ -350,8 +322,9 @@ export default function DashboardHome() {
                                     }}
                                     disabled={isSubmitting}
                                 />
-                                <span style={{ fontSize: '1.1rem' }}>{test.icon}</span>
-                                <span>{test.titleKey.replace('_title', '').toUpperCase().replace('_', ' ')}</span>
+                                <span className={styles.testBadge} style={{ backgroundColor: test.color }}>
+                                    {test.icon} {test.titleKey.replace('_title', '').toUpperCase().replace('_', ' ')}
+                                </span>
                             </label>
                         ))}
                     </div>

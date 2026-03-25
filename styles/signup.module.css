@@ -1,6 +1,5 @@
 /* styles/signup.module.css */
 
-/* Reuse many styles from signin.module.css */
 .signupContainer {
     display: flex;
     flex-direction: column;
@@ -8,32 +7,32 @@
     justify-content: center;
     min-height: 80vh;
     padding: 2rem;
-    background-color: #f8f9fa;
+    background-color: var(--bg-primary);
   }
-  
+
   .signupBox {
-      background-color: #fff;
+      background-color: var(--card-bg);
       padding: 2rem 2.5rem;
       border-radius: 8px;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 4px 15px var(--shadow-color);
       width: 100%;
-      max-width: 450px; /* Slightly wider maybe */
+      max-width: 450px;
       text-align: center;
   }
-  
+
   .signupBox h1 {
       margin-top: 0;
       margin-bottom: 0.5rem;
-      color: #333;
+      color: var(--text-primary);
       font-size: 1.8rem;
   }
-  .signupBox p:first-of-type { /* Target the subtitle */
+  .signupBox p:first-of-type {
       margin-bottom: 1.5rem;
-      color: #666;
+      color: var(--text-secondary);
   }
-  
-  
-  .errorMessage, .successMessage { /* Style for success too */
+
+
+  .errorMessage, .successMessage {
       color: #dc3545;
       background-color: #f8d7da;
       border: 1px solid #f5c6cb;
@@ -47,37 +46,55 @@
       background-color: #d4edda;
       border-color: #c3e6cb;
   }
-  
-  
+
+  :global(html[data-theme="dark"]) .errorMessage {
+      background-color: rgba(220, 53, 69, 0.15);
+      border-color: rgba(220, 53, 69, 0.3);
+      color: #f5a3ad;
+  }
+  :global(html[data-theme="dark"]) .successMessage {
+      background-color: rgba(21, 87, 36, 0.2);
+      border-color: rgba(40, 167, 69, 0.3);
+      color: #7dcea0;
+  }
+
+
   .formGroup {
     margin-bottom: 1.2rem;
     text-align: left;
   }
-  
+
   .formGroup label {
     display: block;
     margin-bottom: 0.4rem;
     font-weight: 500;
     font-size: 0.9rem;
+    color: var(--text-secondary);
   }
-  
+
   .formGroup input {
     width: 100%;
     padding: 0.7rem 0.9rem;
-    border: 1px solid #ccc;
+    border: 1px solid var(--border-color);
     border-radius: 4px;
     font-size: 1rem;
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
   }
   .formGroup input:disabled {
-      background-color: #e9ecef;
+      background-color: var(--bg-accent);
       cursor: not-allowed;
   }
-  
-  
+
+  .formGroup input::placeholder {
+    color: var(--text-secondary);
+  }
+
+
   .submitButton {
     width: 100%;
     padding: 0.8rem;
-    background-color: #28a745; /* Green for signup */
+    background-color: #28a745;
     color: white;
     border: none;
     border-radius: 5px;
@@ -87,7 +104,7 @@
     transition: background-color 0.2s ease, opacity 0.2s ease;
     margin-top: 0.5rem;
   }
-  
+
   .submitButton:hover {
     background-color: #218838;
   }
@@ -95,18 +112,20 @@
       background-color: #94d3a2;
       cursor: not-allowed;
   }
-  
+
   .signInLink {
     margin-top: 1.5rem;
     font-size: 0.9rem;
+    color: var(--text-secondary);
   }
-  
-  .signInLink a {
-    color: #007bff;
+
+  .signInLink a, .signInLink div {
+    color: var(--link-color);
     text-decoration: none;
     font-weight: 500;
+    cursor: pointer;
   }
-  
-  .signInLink a:hover {
+
+  .signInLink a:hover, .signInLink div:hover {
     text-decoration: underline;
   }

@@ -3,6 +3,31 @@ import { useRouter } from 'next/router';
 import Link from 'next/link';
 import DashboardLayout from '../../../components/layouts/DashboardLayout';
 import styles from '../../../styles/ResultDetailPage.module.css';
+import { getAdaptedProps } from '../../../lib/resultAdapters';
+import { getCSVExporter } from '../../../lib/csvExporters';
+
+// Import all result components
+import CorsiResults from '../../../components/results/corsi';
+import PVTResults from '../../../components/results/pvt';
+import GNGResults from '../../../components/results/gng';
+import RPMResults from '../../../components/results/rpm';
+import TOLResults from '../../../components/results/tol';
+import VmResults from '../../../components/results/vm';
+import AktResults from '../../../components/results/akt';
+import WtbResults from '../../../components/results/wtb';
+import CPTResults from '../../../components/results/cpt';
+
+const COMPONENT_MAP = {
+    'corsi': CorsiResults,
+    'pvt': PVTResults,
+    'gng-sst': GNGResults,
+    'rpm': RPMResults,
+    'tol': TOLResults,
+    'vm': VmResults,
+    'akt': AktResults,
+    'wtb': WtbResults,
+    'cpt': CPTResults,
+};
 
 export default function ResultDetailPage() {
     const router = useRouter();
@@ -19,9 +44,7 @@ export default function ResultDetailPage() {
             setError(null);
             try {
                 const res = await fetch(`/api/results/${resultId}`);
-                if (!res.ok) {
-                    throw new Error('Failed to fetch result');
-                }
+                if (!res.ok) throw new Error('Failed to fetch result');
                 const data = await res.json();
                 setResult(data);
             } catch (err) {
@@ -48,10 +71,19 @@ export default function ResultDetailPage() {
         URL.revokeObjectURL(url);
     };
 
+    const downloadResultCSV = () => {
+        if (!result) return;
+        const testType = result.testAssignment?.testType;
+        const exporter = getCSVExporter(testType);
+        if (exporter) {
+            exporter(result.data);
+        }
+    };
+
     if (isLoading) {
         return (
             <DashboardLayout>
-                <p>Loading result details...</p>
+                <p className={styles.loadingText}>Loading result details...</p>
             </DashboardLayout>
         );
     }
@@ -59,11 +91,11 @@ export default function ResultDetailPage() {
     if (error || !result) {
         return (
             <DashboardLayout>
-                <div style={{ padding: '2rem' }}>
+                <div className={styles.errorText}>
                     <h2>Error</h2>
                     <p>{error || 'Result not found'}</p>
                     <Link href="/dashboard/results">
-                        <button style={{ marginTop: '1rem', padding: '0.5rem 1rem', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>
+                        <button className={styles.downloadButton} style={{ marginTop: '1rem' }}>
                             Back to Results
                         </button>
                     </Link>
@@ -75,72 +107,92 @@ export default function ResultDetailPage() {
     const testType = result.testAssignment?.testType || 'Unknown';
     const participantId = result.testAssignment?.participant?.identifier || 'N/A';
     const completedAt = result.testAssignment?.completedAt
-        ? new Date(result.testAssignment.completedAt).toLocaleString()
+        ? new Date(result.testAssignment.completedAt).toLocaleString('de-DE', {
+            timeZone: 'Europe/Berlin',
+            year: 'numeric', month: '2-digit', day: '2-digit',
+            hour: '2-digit', minute: '2-digit'
+        })
         : 'N/A';
+    const studyName = result.testAssignment?.study?.name || '';
+
+    // Try to get adapted props for test-specific rendering
+    const adaptedProps = getAdaptedProps(testType, result.data);
+    const ResultComponent = COMPONENT_MAP[testType];
+    const hasCSVExporter = !!getCSVExporter(testType);
 
     return (
         <DashboardLayout>
-            <div style={{ padding: '2rem', maxWidth: '1200px', margin: '0 auto' }}>
+            <div className={styles.pageContainer}>
                 {/* Header */}
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+                <div className={styles.pageHeader}>
                     <div>
-                        <Link href="/dashboard/results">
-                            <button style={{ marginBottom: '1rem', padding: '0.5rem 1rem', backgroundColor: '#6c757d', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>
-                                ← Back to Results
-                            </button>
+                        <Link href="/dashboard/results" className={styles.backLink}>
+                            ← Back to Results
                         </Link>
-                        <h1 style={{ marginBottom: '0.5rem' }}>Test Result Details</h1>
-                        <p style={{ color: '#6c757d' }}>
+                        <h1>Test Result Details</h1>
+                        <p className={styles.subtitle}>
                             Participant: <strong>{participantId}</strong> | Test: <strong>{testType.toUpperCase()}</strong>
+                            {studyName && <> | Study: <strong>{studyName}</strong></>}
                         </p>
                     </div>
-                    <button
-                        onClick={downloadResultJSON}
-                        style={{ padding: '0.5rem 1rem', backgroundColor: '#28a745', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
-                    >
-                        📥 Download JSON
-                    </button>
+                    <div className={styles.actionButtons}>
+                        {hasCSVExporter && (
+                            <button onClick={downloadResultCSV} className={styles.downloadButton}>
+                                Download CSV
+                            </button>
+                        )}
+                        <button onClick={downloadResultJSON} className={styles.downloadButton}>
+                            Download JSON
+                        </button>
+                    </div>
                 </div>
 
                 {/* Summary Cards */}
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '2rem' }}>
-                    <div style={{ backgroundColor: '#f8f9fa', padding: '1.5rem', borderRadius: '8px', border: '1px solid #dee2e6' }}>
-                        <div style={{ fontSize: '0.875rem', color: '#6c757d', marginBottom: '0.5rem' }}>Completed At</div>
-                        <div style={{ fontSize: '1.25rem', fontWeight: '600' }}>{completedAt}</div>
+                <div className={styles.summaryCards}>
+                    <div className={styles.summaryCard}>
+                        <h3>Completed At</h3>
+                        <p>{completedAt}</p>
                     </div>
-                    <div style={{ backgroundColor: '#f8f9fa', padding: '1.5rem', borderRadius: '8px', border: '1px solid #dee2e6' }}>
-                        <div style={{ fontSize: '0.875rem', color: '#6c757d', marginBottom: '0.5rem' }}>Test Type</div>
-                        <div style={{ fontSize: '1.25rem', fontWeight: '600' }}>{testType.toUpperCase()}</div>
+                    <div className={styles.summaryCard}>
+                        <h3>Test Type</h3>
+                        <p>{testType.toUpperCase()}</p>
                     </div>
                     {result.data?.totalScore !== undefined && (
-                        <div style={{ backgroundColor: '#d4edda', padding: '1.5rem', borderRadius: '8px', border: '1px solid #c3e6cb' }}>
-                            <div style={{ fontSize: '0.875rem', color: '#155724', marginBottom: '0.5rem' }}>Score</div>
-                            <div style={{ fontSize: '1.25rem', fontWeight: '600' }}>
-                                {result.data.totalScore} / {result.data.maxScore || '?'}
-                            </div>
+                        <div className={`${styles.summaryCard} ${styles.success}`}>
+                            <h3>Score</h3>
+                            <p>{result.data.totalScore}{result.data.maxScore ? ` / ${result.data.maxScore}` : ''}</p>
+                        </div>
+                    )}
+                    {result.data?.ubs !== undefined && (
+                        <div className={`${styles.summaryCard} ${styles.primary}`}>
+                            <h3>Corsi Span (UBS)</h3>
+                            <p>{result.data.ubs}</p>
+                        </div>
+                    )}
+                    {result.data?.accuracy !== undefined && (
+                        <div className={`${styles.summaryCard} ${styles.primary}`}>
+                            <h3>Accuracy</h3>
+                            <p>{typeof result.data.accuracy === 'number' ? result.data.accuracy.toFixed(1) + '%' : result.data.accuracy}</p>
                         </div>
                     )}
                 </div>
 
-                {/* Test-Specific Data */}
-                <div style={{ backgroundColor: 'white', padding: '2rem', borderRadius: '8px', border: '1px solid #dee2e6', marginBottom: '2rem' }}>
-                    <h2 style={{ marginBottom: '1rem' }}>Test Data</h2>
-
-                    {/* Display key metrics */}
-                    <div style={{ marginBottom: '2rem' }}>
-                        <h3 style={{ fontSize: '1.125rem', marginBottom: '1rem', color: '#495057' }}>Key Metrics</h3>
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '1rem' }}>
+                {/* Test-Specific Results */}
+                {ResultComponent && adaptedProps ? (
+                    <div className={styles.testResultsSection}>
+                        <ResultComponent {...adaptedProps} t={null} />
+                    </div>
+                ) : (
+                    /* Fallback: Generic view for unknown test types */
+                    <div className={styles.metricsSection}>
+                        <h2>Test Data</h2>
+                        <div className={styles.metricsGrid}>
                             {Object.entries(result.data).map(([key, value]) => {
-                                // Skip complex objects and arrays for the summary
                                 if (typeof value !== 'object' || value === null) {
                                     return (
-                                        <div key={key} style={{ padding: '1rem', backgroundColor: '#f8f9fa', borderRadius: '4px' }}>
-                                            <div style={{ fontSize: '0.875rem', color: '#6c757d', marginBottom: '0.25rem' }}>
-                                                {key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
-                                            </div>
-                                            <div style={{ fontWeight: '500' }}>
-                                                {typeof value === 'number' ? value.toFixed(2) : String(value)}
-                                            </div>
+                                        <div key={key} className={styles.metricCard}>
+                                            <h4>{key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}</h4>
+                                            <p>{typeof value === 'number' ? value.toFixed(2) : String(value)}</p>
                                         </div>
                                     );
                                 }
@@ -148,58 +200,17 @@ export default function ResultDetailPage() {
                             })}
                         </div>
                     </div>
+                )}
 
-                    {/* Raw Data Section */}
-                    <details style={{ marginTop: '2rem' }}>
-                        <summary style={{ cursor: 'pointer', fontSize: '1.125rem', fontWeight: '500', marginBottom: '1rem', color: '#495057' }}>
-                            View Full Raw Data
-                        </summary>
-                        <pre style={{
-                            backgroundColor: '#f8f9fa',
-                            padding: '1rem',
-                            borderRadius: '4px',
-                            overflow: 'auto',
-                            maxHeight: '500px',
-                            fontSize: '0.875rem',
-                            border: '1px solid #dee2e6'
-                        }}>
-                            {JSON.stringify(result.data, null, 2)}
-                        </pre>
+                {/* Raw JSON Section */}
+                <div className={styles.rawDataSection}>
+                    <details>
+                        <summary className={styles.rawDataSummary}>View Full Raw Data</summary>
+                        <div className={styles.jsonContainer}>
+                            <pre>{JSON.stringify(result.data, null, 2)}</pre>
+                        </div>
                     </details>
                 </div>
-
-                {/* Trial Data Table (if available) */}
-                {result.data?.trials && Array.isArray(result.data.trials) && result.data.trials.length > 0 && (
-                    <div style={{ backgroundColor: 'white', padding: '2rem', borderRadius: '8px', border: '1px solid #dee2e6' }}>
-                        <h2 style={{ marginBottom: '1rem' }}>Trial-by-Trial Data</h2>
-                        <div style={{ overflowX: 'auto' }}>
-                            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                                <thead>
-                                    <tr style={{ backgroundColor: '#f8f9fa', borderBottom: '2px solid #dee2e6' }}>
-                                        <th style={{ padding: '0.75rem', textAlign: 'left' }}>Trial</th>
-                                        {Object.keys(result.data.trials[0]).map(key => (
-                                            <th key={key} style={{ padding: '0.75rem', textAlign: 'left' }}>
-                                                {key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
-                                            </th>
-                                        ))}
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {result.data.trials.map((trial, index) => (
-                                        <tr key={index} style={{ borderBottom: '1px solid #dee2e6' }}>
-                                            <td style={{ padding: '0.75rem' }}>{index + 1}</td>
-                                            {Object.values(trial).map((value, idx) => (
-                                                <td key={idx} style={{ padding: '0.75rem' }}>
-                                                    {typeof value === 'number' ? value.toFixed(2) : String(value)}
-                                                </td>
-                                            ))}
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                )}
             </div>
         </DashboardLayout>
     );

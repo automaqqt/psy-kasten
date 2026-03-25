@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import styles from '../../styles/StudyAnalytics.module.css';
 
 export default function StudyAnalytics({ studyId }) {
     const [analytics, setAnalytics] = useState(null);
@@ -30,7 +31,7 @@ export default function StudyAnalytics({ studyId }) {
 
     if (isLoading) {
         return (
-            <div style={{ padding: '2rem', textAlign: 'center', backgroundColor: '#f8f9fa', borderRadius: '8px' }}>
+            <div className={styles.loadingState}>
                 <p>Loading analytics...</p>
             </div>
         );
@@ -38,8 +39,8 @@ export default function StudyAnalytics({ studyId }) {
 
     if (error) {
         return (
-            <div style={{ padding: '2rem', backgroundColor: '#f8d7da', borderRadius: '8px' }}>
-                <p style={{ color: '#721c24' }}>Error loading analytics: {error}</p>
+            <div className={styles.errorState}>
+                <p>Error loading analytics: {error}</p>
             </div>
         );
     }
@@ -49,77 +50,34 @@ export default function StudyAnalytics({ studyId }) {
     const { summary, scores, recentCompletions, completionTrend } = analytics;
 
     return (
-        <div style={{ marginBottom: '2rem' }}>
-            <h2 style={{ marginBottom: '1.5rem', fontSize: '1.5rem' }}>Study Analytics</h2>
+        <div className={styles.container}>
+            <h2 className={styles.title}>Study Analytics</h2>
 
             {/* Summary Cards */}
-            <div style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-                gap: '1rem',
-                marginBottom: '2rem'
-            }}>
-                <div style={{
-                    backgroundColor: '#e7f3ff',
-                    padding: '1.5rem',
-                    borderRadius: '8px',
-                    border: '1px solid #b3d9ff'
-                }}>
-                    <div style={{ fontSize: '0.875rem', color: '#004085', marginBottom: '0.5rem' }}>Total Participants</div>
-                    <div style={{ fontSize: '2rem', fontWeight: '700', color: '#004085' }}>
-                        {summary.totalParticipants}
-                    </div>
+            <div className={styles.summaryCards}>
+                <div className={`${styles.summaryCard} ${styles.cardBlue}`}>
+                    <div className={styles.label}>Total Participants</div>
+                    <div className={styles.value}>{summary.totalParticipants}</div>
                 </div>
 
-                <div style={{
-                    backgroundColor: summary.completionRate >= 80 ? '#d4edda' : '#fff3cd',
-                    padding: '1.5rem',
-                    borderRadius: '8px',
-                    border: `1px solid ${summary.completionRate >= 80 ? '#c3e6cb' : '#ffeaa7'}`
-                }}>
-                    <div style={{
-                        fontSize: '0.875rem',
-                        color: summary.completionRate >= 80 ? '#155724' : '#856404',
-                        marginBottom: '0.5rem'
-                    }}>
-                        Completion Rate
-                    </div>
-                    <div style={{
-                        fontSize: '2rem',
-                        fontWeight: '700',
-                        color: summary.completionRate >= 80 ? '#155724' : '#856404'
-                    }}>
-                        {summary.completionRate}%
-                    </div>
-                    <div style={{ fontSize: '0.75rem', marginTop: '0.25rem' }}>
+                <div className={`${styles.summaryCard} ${summary.completionRate >= 80 ? styles.cardGreen : styles.cardAmber}`}>
+                    <div className={styles.label}>Completion Rate</div>
+                    <div className={styles.value}>{summary.completionRate}%</div>
+                    <div className={styles.subtext}>
                         {summary.completedAssignments} / {summary.totalAssignments} completed
                     </div>
                 </div>
 
-                <div style={{
-                    backgroundColor: '#fff3cd',
-                    padding: '1.5rem',
-                    borderRadius: '8px',
-                    border: '1px solid #ffeaa7'
-                }}>
-                    <div style={{ fontSize: '0.875rem', color: '#856404', marginBottom: '0.5rem' }}>Pending Tests</div>
-                    <div style={{ fontSize: '2rem', fontWeight: '700', color: '#856404' }}>
-                        {summary.pendingAssignments}
-                    </div>
+                <div className={`${styles.summaryCard} ${styles.cardAmber}`}>
+                    <div className={styles.label}>Pending Tests</div>
+                    <div className={styles.value}>{summary.pendingAssignments}</div>
                 </div>
 
                 {scores.average !== null && (
-                    <div style={{
-                        backgroundColor: '#d4edda',
-                        padding: '1.5rem',
-                        borderRadius: '8px',
-                        border: '1px solid #c3e6cb'
-                    }}>
-                        <div style={{ fontSize: '0.875rem', color: '#155724', marginBottom: '0.5rem' }}>Average Score</div>
-                        <div style={{ fontSize: '2rem', fontWeight: '700', color: '#155724' }}>
-                            {scores.average}
-                        </div>
-                        <div style={{ fontSize: '0.75rem', marginTop: '0.25rem' }}>
+                    <div className={`${styles.summaryCard} ${styles.cardGreen}`}>
+                        <div className={styles.label}>Average Score</div>
+                        <div className={styles.value}>{scores.average}</div>
+                        <div className={styles.subtext}>
                             Based on {scores.count} result(s)
                         </div>
                     </div>
@@ -128,32 +86,23 @@ export default function StudyAnalytics({ studyId }) {
 
             {/* Score Distribution */}
             {scores.distribution && scores.distribution.length > 0 && scores.count > 0 && (
-                <div style={{
-                    backgroundColor: 'white',
-                    padding: '1.5rem',
-                    borderRadius: '8px',
-                    border: '1px solid #dee2e6',
-                    marginBottom: '2rem'
-                }}>
-                    <h3 style={{ marginBottom: '1rem', fontSize: '1.125rem' }}>Score Distribution</h3>
-                    <div style={{ display: 'flex', alignItems: 'flex-end', gap: '0.5rem', height: '200px' }}>
+                <div className={styles.panel}>
+                    <h3>Score Distribution</h3>
+                    <div className={styles.chartContainer}>
                         {scores.distribution.map((bucket, index) => {
                             const maxCount = Math.max(...scores.distribution.map(b => b.count));
                             const height = maxCount > 0 ? (bucket.count / maxCount * 180) : 0;
 
                             return (
-                                <div key={index} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                                    <div style={{ marginBottom: '0.5rem', fontSize: '0.875rem', fontWeight: '500' }}>
+                                <div key={index} className={styles.chartBar}>
+                                    <div className={styles.chartBarCount}>
                                         {bucket.count}
                                     </div>
-                                    <div style={{
-                                        width: '100%',
-                                        height: `${height}px`,
-                                        backgroundColor: '#007bff',
-                                        borderRadius: '4px 4px 0 0',
-                                        transition: 'height 0.3s ease'
-                                    }} />
-                                    <div style={{ marginTop: '0.5rem', fontSize: '0.75rem', color: '#6c757d' }}>
+                                    <div
+                                        className={styles.chartBarFill}
+                                        style={{ height: `${height}px` }}
+                                    />
+                                    <div className={styles.chartBarLabel}>
                                         {bucket.range}
                                     </div>
                                 </div>
@@ -165,34 +114,28 @@ export default function StudyAnalytics({ studyId }) {
 
             {/* Recent Completions */}
             {recentCompletions && recentCompletions.length > 0 && (
-                <div style={{
-                    backgroundColor: 'white',
-                    padding: '1.5rem',
-                    borderRadius: '8px',
-                    border: '1px solid #dee2e6',
-                    marginBottom: '2rem'
-                }}>
-                    <h3 style={{ marginBottom: '1rem', fontSize: '1.125rem' }}>Recent Completions</h3>
+                <div className={styles.panel}>
+                    <h3>Recent Completions</h3>
                     <div style={{ overflowX: 'auto' }}>
-                        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                        <table className={styles.completionsTable}>
                             <thead>
-                                <tr style={{ backgroundColor: '#f8f9fa', borderBottom: '2px solid #dee2e6' }}>
-                                    <th style={{ padding: '0.75rem', textAlign: 'left' }}>Participant</th>
-                                    <th style={{ padding: '0.75rem', textAlign: 'left' }}>Completed At</th>
+                                <tr>
+                                    <th>Participant</th>
+                                    <th>Completed At</th>
                                     {recentCompletions.some(c => c.score !== null) && (
-                                        <th style={{ padding: '0.75rem', textAlign: 'left' }}>Score</th>
+                                        <th>Score</th>
                                     )}
                                 </tr>
                             </thead>
                             <tbody>
                                 {recentCompletions.map((completion, index) => (
-                                    <tr key={index} style={{ borderBottom: '1px solid #dee2e6' }}>
-                                        <td style={{ padding: '0.75rem' }}>{completion.participantId}</td>
-                                        <td style={{ padding: '0.75rem' }}>
+                                    <tr key={index}>
+                                        <td>{completion.participantId}</td>
+                                        <td>
                                             {new Date(completion.completedAt).toLocaleString()}
                                         </td>
                                         {recentCompletions.some(c => c.score !== null) && (
-                                            <td style={{ padding: '0.75rem' }}>
+                                            <td>
                                                 {completion.score !== null ? completion.score : 'N/A'}
                                             </td>
                                         )}
@@ -206,19 +149,12 @@ export default function StudyAnalytics({ studyId }) {
 
             {/* Completion Trend */}
             {completionTrend && completionTrend.length > 0 && (
-                <div style={{
-                    backgroundColor: 'white',
-                    padding: '1.5rem',
-                    borderRadius: '8px',
-                    border: '1px solid #dee2e6'
-                }}>
-                    <h3 style={{ marginBottom: '1rem', fontSize: '1.125rem' }}>
-                        Completion Trend (Last 30 Days)
-                    </h3>
-                    <div style={{ fontSize: '0.875rem', color: '#6c757d', marginBottom: '1rem' }}>
+                <div className={styles.panel}>
+                    <h3>Completion Trend (Last 30 Days)</h3>
+                    <div className={styles.trendSubtext}>
                         {completionTrend.length} day(s) with completions
                     </div>
-                    <div style={{ display: 'flex', alignItems: 'flex-end', gap: '2px', height: '100px' }}>
+                    <div className={styles.trendContainer}>
                         {completionTrend.map((day, index) => {
                             const maxCount = Math.max(...completionTrend.map(d => d.count));
                             const height = (day.count / maxCount * 80);
@@ -226,15 +162,8 @@ export default function StudyAnalytics({ studyId }) {
                             return (
                                 <div
                                     key={index}
-                                    style={{
-                                        flex: 1,
-                                        height: `${height}px`,
-                                        backgroundColor: '#28a745',
-                                        borderRadius: '2px',
-                                        minWidth: '8px',
-                                        position: 'relative',
-                                        cursor: 'pointer'
-                                    }}
+                                    className={styles.trendBar}
+                                    style={{ height: `${height}px` }}
                                     title={`${day.date}: ${day.count} completion(s)`}
                                 />
                             );

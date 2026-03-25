@@ -4,7 +4,7 @@ import { authOptions } from '../auth/[...nextauth]';
 import { getServerSession } from "next-auth/next";
 import rateLimit from '../../../lib/rateLimit';
 import { validateTestResult } from '../../../lib/validations/testResults';
-import { checkCsrf } from '../../../lib/csrf';
+
 
 // Create rate limiter: 20 submissions per minute per IP
 const limiter = rateLimit({
@@ -25,11 +25,9 @@ export default async function handler(req, res) {
           });
         }
 
-        // Validate CSRF token
-        const csrfValid = await checkCsrf(req, res);
-        if (!csrfValid) {
-          return; // Response already sent by checkCsrf
-        }
+        // CSRF check removed: participants are unauthenticated (no session/cookie).
+        // The accessKey acts as a one-time-use token, and rate limiting + single-completion
+        // checks already protect against abuse.
 
         const { assignmentId, testData } = req.body;
     

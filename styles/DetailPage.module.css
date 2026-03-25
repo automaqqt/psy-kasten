@@ -1,47 +1,48 @@
-/* styles/StudyDetailPage.module.css */
-.pageHeader { /* Reuse style from DashboardPage if desired */
+/* styles/DetailPage.module.css */
+.pageHeader {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 0.5rem; /* Less margin below header */
+    margin-bottom: 0.5rem;
   }
-  
+
   .pageHeader h1 {
     margin: 0;
-    font-size: 1.6rem; /* Slightly smaller */
-    color: #333;
-    word-break: break-all; /* Break long study names */
+    font-size: 1.6rem;
+    color: var(--text-primary);
+    word-break: break-all;
   }
-  
+
   .studyDescription {
     margin-bottom: 1.5rem;
-    color: #555;
-    background-color: #f8f9fa;
+    color: var(--text-secondary);
+    background-color: var(--bg-accent);
     padding: 0.8rem 1rem;
     border-radius: 4px;
-    border-left: 3px solid #007bff;
+    border-left: 3px solid var(--link-color);
     font-size: 0.95rem;
   }
-  
+
   .section {
     margin-bottom: 2rem;
-    background-color: #fff;
+    background-color: var(--card-bg);
     padding: 1.5rem;
     border-radius: 6px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    box-shadow: 0 1px 3px var(--shadow-color);
   }
-  
+
   .section h2 {
     margin-top: 0;
     margin-bottom: 1rem;
     padding-bottom: 0.5rem;
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid var(--border-color);
     font-size: 1.3rem;
-    color: #444;
+    color: var(--text-primary);
   }
-  
-  .addButton { /* Style for Add Participant button etc. */
-    background-color: #28a745; /* Green */
+
+  /* Buttons */
+  .addButton {
+    background-color: #22c55e;
     color: white;
     border: none;
     padding: 0.5rem 1rem;
@@ -49,13 +50,35 @@
     cursor: pointer;
     font-size: 0.9rem;
     font-weight: 500;
-    transition: background-color 0.2s ease;
-    margin-bottom: 1rem;
-    display: inline-block; /* Allows margin bottom */
+    transition: all 0.2s ease;
+    display: inline-block;
   }
-  
+
   .addButton:hover {
-    background-color: #218838;
+    background-color: #16a34a;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+  }
+
+  .secondaryButton {
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    background-color: var(--bg-accent);
+    color: var(--text-primary);
+  }
+
+  .secondaryButton:hover {
+    background-color: var(--bg-secondary);
+    box-shadow: 0 2px 4px var(--shadow-color);
+  }
+
+  .secondaryButton:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
   }
 
   /* Header Actions */
@@ -75,13 +98,14 @@
   }
 
   .editButton {
-    background-color: #ffc107;
-    color: #000;
+    background-color: var(--bg-accent);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
   }
 
   .editButton:hover {
-    background-color: #e0a800;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+    background-color: var(--bg-secondary);
+    box-shadow: 0 2px 4px var(--shadow-color);
   }
 
   .deleteButton {
@@ -93,13 +117,19 @@
     background-color: #c82333;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
   }
-  
+
+  .deleteButton:disabled,
+  .editButton:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
   /* Table Wrapper for Responsive Scrolling */
   .tableWrapper {
     width: 100%;
     overflow-x: auto;
     border-radius: 8px;
-    border: 1px solid #e0e0e0;
+    border: 1px solid var(--border-color);
     margin-top: 1rem;
   }
 
@@ -107,25 +137,26 @@
   .participantTable {
     width: 100%;
     border-collapse: collapse;
-    min-width: 800px; /* Ensures table doesn't get too cramped */
+    min-width: 800px;
   }
 
   .participantTable th,
   .participantTable td {
-    border-bottom: 1px solid #e8e8e8;
+    border-bottom: 1px solid var(--border-color);
     padding: 0.875rem 1rem;
     text-align: left;
     font-size: 0.9rem;
+    color: var(--text-primary);
   }
 
   .participantTable th {
-    background-color: #f8fafc;
+    background-color: var(--bg-accent);
     font-weight: 600;
-    color: #475569;
+    color: var(--text-secondary);
     text-transform: uppercase;
     font-size: 0.75rem;
     letter-spacing: 0.05em;
-    border-bottom: 2px solid #e2e8f0;
+    border-bottom: 2px solid var(--border-color);
   }
 
   .participantTable tbody tr {
@@ -133,15 +164,16 @@
   }
 
   .participantTable tbody tr:hover {
-    background-color: #f8fafc;
+    background-color: var(--bg-accent);
   }
 
-  .participantTable td:last-child { /* Actions column */
+  .participantTable td:last-child {
       text-align: right;
-      white-space: nowrap; /* Prevent actions wrapping */
+      white-space: nowrap;
   }
-  
-  .actionButtonOpen, .actionButtonCopy, .actionButtonEdit, .actionButtonDelete, .actionButtonView {
+
+  /* Action Buttons */
+  .actionButtonOpen, .actionButtonCopy, .actionButtonEdit, .actionButtonDelete, .actionButtonView, .actionButtonShare, .actionButtonRegenerate {
       font-size: 0.8rem;
       padding: 0.5rem 0.875rem;
       border-radius: 6px;
@@ -149,8 +181,8 @@
       border: none;
       margin-left: 0.375rem;
       transition: all 0.2s ease;
-      text-decoration: none; /* For link buttons */
-      display: inline-block; /* For links */
+      text-decoration: none;
+      display: inline-block;
       text-align: center;
       font-weight: 500;
       vertical-align: middle;
@@ -175,6 +207,10 @@
     background-color: #059669;
     transform: translateY(-1px);
     box-shadow: 0 4px 6px rgba(16, 185, 129, 0.25);
+  }
+
+  .actionButtonCopied {
+    background-color: #059669;
   }
 
   .actionButtonEdit {
@@ -207,6 +243,74 @@
     box-shadow: 0 4px 6px rgba(139, 92, 246, 0.25);
   }
 
+  .actionButtonShare {
+    background-color: #6366f1;
+    color: white;
+  }
+  .actionButtonShare:hover {
+    background-color: #4f46e5;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px rgba(99, 102, 241, 0.25);
+  }
+
+  .actionButtonRegenerate {
+    background-color: #f59e0b;
+    color: white;
+  }
+  .actionButtonRegenerate:hover {
+    background-color: #d97706;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px rgba(245, 158, 11, 0.25);
+  }
+
+  .actionButtonOpen:disabled,
+  .actionButtonCopy:disabled,
+  .actionButtonEdit:disabled,
+  .actionButtonDelete:disabled,
+  .actionButtonView:disabled,
+  .actionButtonShare:disabled,
+  .actionButtonRegenerate:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+  }
+
+  /* Metadata Button */
+  .metadataButton {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.8rem;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background-color: var(--bg-accent);
+    color: var(--text-primary);
+    font-weight: 500;
+  }
+
+  .metadataButton:hover {
+    background-color: var(--bg-secondary);
+    box-shadow: 0 1px 3px var(--shadow-color);
+  }
+
+  .metadataButtonEmpty {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.8rem;
+    border: 1px dashed var(--border-color);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background-color: transparent;
+    color: var(--text-secondary);
+  }
+
+  .metadataButtonEmpty:hover {
+    border-color: var(--link-color);
+    color: var(--link-color);
+    background-color: var(--bg-accent);
+  }
+
   /* Status Badge */
   .statusBadge {
     display: inline-block;
@@ -219,15 +323,21 @@
   }
 
   .statusCompleted {
-    background-color: #d1fae5;
-    color: #065f46;
-    border: 1px solid #a7f3d0;
+    background-color: #dcfce7;
+    color: #166534;
+    border: 1px solid #bbf7d0;
   }
 
   .statusPending {
-    background-color: #fef3c7;
-    color: #92400e;
+    background-color: #fef9c3;
+    color: #854d0e;
     border: 1px solid #fde68a;
+  }
+
+  .statusExpired {
+    background-color: #fee2e2;
+    color: #991b1b;
+    border: 1px solid #fecaca;
   }
 
   /* Test Link Cell */
@@ -240,27 +350,26 @@
   }
 
   .testLink {
-    background-color: #f1f5f9;
+    background-color: var(--bg-accent);
     padding: 0.375rem 0.625rem;
     border-radius: 6px;
     font-size: 0.8rem;
-    color: #3b82f6;
+    color: var(--link-color);
     display: inline-block;
     font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-    border: 1px solid #e2e8f0;
+    border: 1px solid var(--border-color);
     max-width: 100%;
     cursor: help;
     transition: all 0.2s ease;
   }
 
   .testLink:hover {
-    background-color: #e0e7ff;
-    border-color: #c7d2fe;
-    color: #2563eb;
+    background-color: var(--bg-secondary);
+    border-color: var(--link-color);
   }
 
   .noLink {
-    color: #94a3b8;
+    color: var(--text-secondary);
     font-style: italic;
     font-size: 0.85rem;
   }
@@ -268,9 +377,41 @@
   .actionsCell {
     white-space: nowrap;
   }
-  
-  
-  /* Modal Styles Reuse/Import from DashboardPage.module.css or define here */
+
+  /* Empty State */
+  .emptyState {
+    padding: 2rem;
+    text-align: center;
+    background-color: var(--bg-accent);
+    border-radius: 8px;
+    margin-top: 1rem;
+    border: 1px dashed var(--border-color);
+  }
+
+  .emptyState h4 {
+    color: var(--text-primary);
+    margin: 0 0 0.5rem 0;
+  }
+
+  .emptyState p {
+    color: var(--text-secondary);
+    margin: 0 0 1.5rem 0;
+  }
+
+  /* Section Header */
+  .sectionHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+
+  .sectionHeaderActions {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  /* Modal Styles */
   .modalOverlay {
     position: fixed;
     top: 0;
@@ -281,12 +422,12 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 1000; /* Ensure it's above layout header */
+    z-index: 1000;
     padding: 1rem;
   }
-  
+
   .modalContent {
-    background-color: white;
+    background-color: var(--card-bg);
     padding: 1.5rem 2rem;
     border-radius: 8px;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
@@ -294,92 +435,131 @@
     width: 100%;
     max-height: 90vh;
     overflow-y: auto;
+    color: var(--text-primary);
   }
-  
+
   .modalHeader {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-bottom: 1px solid #e0e0e0;
+    border-bottom: 1px solid var(--border-color);
     padding-bottom: 0.8rem;
     margin-bottom: 1rem;
   }
-  
+
   .modalHeader h2 {
     margin: 0;
     font-size: 1.4rem;
+    color: var(--text-primary);
   }
-  
+
   .closeButton {
     background: none;
     border: none;
     font-size: 1.8rem;
     line-height: 1;
     cursor: pointer;
-    color: #888;
+    color: var(--text-secondary);
   }
   .closeButton:hover {
-    color: #333;
+    color: var(--text-primary);
   }
+
+  .formGroup {
+    margin-bottom: 1rem;
+  }
+
+  .formGroup label {
+    display: block;
+    margin-bottom: 0.4rem;
+    font-weight: 500;
+    font-size: 0.9rem;
+    color: var(--text-primary);
+  }
+
   .formGroup input[type="text"],
   .formGroup textarea,
-  .formGroup select { /* Style select too */
+  .formGroup select {
     width: 100%;
     padding: 0.6rem 0.8rem;
-    border: 1px solid #ccc;
+    border: 1px solid var(--border-color);
     border-radius: 4px;
     font-size: 1rem;
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
   }
-  .selectInput { /* Specific style if needed */
+
+  .formGroup input[type="text"]:focus,
+  .formGroup textarea:focus,
+  .formGroup select:focus {
+    outline: none;
+    border-color: var(--link-color);
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15);
   }
+
   .formGroup small {
     font-size: 0.8rem;
-    color: #666;
+    color: var(--text-secondary);
     margin-top: 0.25rem;
     display: block;
-}
+  }
 
-.modalActions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 0.8rem;
-  margin-top: 1.5rem;
-  padding-top: 1rem;
-  border-top: 1px solid #e0e0e0;
-}
-  .primaryButtonModal, .secondaryButtonModal { /* Specific modal button styles */
-    padding: 0.5rem;
-    margin: 0.5rem;
+  .modalActions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.8rem;
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
+  }
 
+  .primaryButtonModal, .secondaryButtonModal {
+    padding: 0.5rem 1rem;
     border-radius: 4px;
     cursor: pointer;
     font-size: 0.9rem;
     border: none;
-    transition: background-color 0.2s ease, opacity 0.2s ease;
- }
- 
- .primaryButtonModal {
-     background-color: #007bff;
-     color: white;
-     
- }
- .primaryButtonModal:hover {
-      background-color: #0056b3;
- }
- .primaryButtonModal:disabled {
-     background-color: #a1cfff;
-     cursor: not-allowed;
- }
- 
-  .errorTextModal { /* ... */ }
-  
-  
+    transition: all 0.2s ease;
+    font-weight: 500;
+  }
+
+  .primaryButtonModal {
+    background-color: #3b82f6;
+    color: white;
+  }
+  .primaryButtonModal:hover {
+    background-color: #2563eb;
+  }
+  .primaryButtonModal:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .secondaryButtonModal {
+    background-color: var(--bg-accent);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+  }
+  .secondaryButtonModal:hover {
+    background-color: var(--bg-secondary);
+  }
+
+  .errorTextModal {
+    color: #dc3545;
+    font-weight: 500;
+    padding: 0.5rem;
+    margin-bottom: 0.75rem;
+    background-color: #fee2e2;
+    border-radius: 4px;
+    font-size: 0.9rem;
+  }
+
   /* Generated Link Styles */
   .generatedLinkContainer {
       margin-top: 1rem;
       padding: 0.8rem;
-      background-color: #e9f5ff;
-      border: 1px solid #b8dfff;
+      background-color: var(--bg-accent);
+      border: 1px solid var(--border-color);
       border-radius: 4px;
   }
   .generatedLinkContainer label {
@@ -387,124 +567,49 @@
       margin-bottom: 0.4rem;
       font-weight: 500;
       font-size: 0.9rem;
+      color: var(--text-primary);
   }
   .linkInput {
-      width: calc(100% - 70px); /* Width minus copy button width */
+      width: calc(100% - 70px);
       padding: 0.5rem;
-      border: 1px solid #ccc;
-      border-radius: 4px 0 0 4px; /* Round left corners */
+      border: 1px solid var(--border-color);
+      border-radius: 4px 0 0 4px;
       font-size: 0.9rem;
-      background-color: #f8f9fa; /* Indicate readonly */
+      background-color: var(--bg-secondary);
+      color: var(--text-primary);
       display: inline-block;
       vertical-align: middle;
   }
   .copyButton {
       padding: 0.5rem 0.8rem;
-      border: 1px solid #007bff;
-      background-color: #ff0000;
+      border: 1px solid #3b82f6;
+      background-color: #3b82f6;
       color: white;
-      border-radius: 0 4px 4px 0; /* Round right corners */
+      border-radius: 0 4px 4px 0;
       cursor: pointer;
       font-size: 0.9rem;
       display: inline-block;
       vertical-align: middle;
-      margin-left: -1px; /* Overlap border */
-       transition: background-color 0.2s ease;
+      margin-left: -1px;
+      transition: background-color 0.2s ease;
   }
   .copyButton:hover {
-      background-color: #0056b3;
+      background-color: #2563eb;
   }
-  
-  
-  .loadingText, .errorTextPage { /* Page-level loading/error */
+
+  .loadingText, .errorTextPage {
     text-align: center;
     margin-top: 2rem;
-    color: #666;
+    color: var(--text-secondary);
     font-style: italic;
   }
   .errorTextPage {
     color: #dc3545;
     font-weight: bold;
     padding: 1rem;
-    background-color: #f8d7da;
-    border: 1px solid #f5c6cb;
+    background-color: #fee2e2;
+    border: 1px solid #fecaca;
     border-radius: 4px;
-  }
-
-  /* Dark mode support */
-  html[data-theme="dark"] .pageHeader h1 {
-    color: #e0e0e0;
-  }
-
-  html[data-theme="dark"] .studyDescription {
-    background-color: #1a1a1a;
-    color: #b0b0b0;
-    border-left-color: #4da6ff;
-  }
-
-  html[data-theme="dark"] .section {
-    background-color: #2d2d2d;
-  }
-
-  html[data-theme="dark"] .section h2 {
-    color: #e0e0e0;
-    border-bottom-color: #444;
-  }
-
-  html[data-theme="dark"] .tableWrapper {
-    border-color: #444;
-  }
-
-  html[data-theme="dark"] .participantTable th {
-    background-color: #1a1a1a;
-    color: #b0b0b0;
-    border-bottom-color: #444;
-  }
-
-  html[data-theme="dark"] .participantTable td {
-    border-bottom-color: #444;
-    color: #e0e0e0;
-  }
-
-  html[data-theme="dark"] .participantTable tbody tr:hover {
-    background-color: #1a1a1a;
-  }
-
-  html[data-theme="dark"] .testLink {
-    background-color: #1a1a1a;
-    color: #4da6ff;
-    border-color: #444;
-  }
-
-  html[data-theme="dark"] .testLink:hover {
-    background-color: #2d2d2d;
-    border-color: #4da6ff;
-  }
-
-  html[data-theme="dark"] .modalContent {
-    background-color: #2d2d2d;
-    color: #e0e0e0;
-  }
-
-  html[data-theme="dark"] .modalHeader {
-    border-bottom-color: #444;
-  }
-
-  html[data-theme="dark"] .modalActions {
-    border-top-color: #444;
-  }
-
-  html[data-theme="dark"] .formGroup input[type="text"],
-  html[data-theme="dark"] .formGroup textarea {
-    background-color: #1a1a1a;
-    border-color: #444;
-    color: #e0e0e0;
-  }
-
-  html[data-theme="dark"] .errorTextPage {
-    background-color: #2d1a1a;
-    border-color: #442222;
-    color: #ff6b6b;
   }
 
   /* Responsive adjustments */
@@ -521,11 +626,26 @@
     }
 
     .headerActions .editButton,
-    .headerActions .deleteButton {
+    .headerActions .deleteButton,
+    .headerActions .secondaryButton {
       width: 100%;
     }
 
-    .actionButtonOpen, .actionButtonCopy, .actionButtonEdit, .actionButtonDelete, .actionButtonView {
+    .sectionHeader {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.5rem;
+    }
+
+    .sectionHeaderActions {
+      width: 100%;
+    }
+
+    .sectionHeaderActions button {
+      flex: 1;
+    }
+
+    .actionButtonOpen, .actionButtonCopy, .actionButtonEdit, .actionButtonDelete, .actionButtonView, .actionButtonShare, .actionButtonRegenerate {
       font-size: 0.7rem;
       padding: 0.4rem 0.6rem;
       margin-left: 0.25rem;

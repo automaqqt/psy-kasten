@@ -1,0 +1,198 @@
+/* styles/StudyAnalytics.module.css */
+
+.container {
+  margin-bottom: 2rem;
+}
+
+.title {
+  margin-bottom: 1.5rem;
+  font-size: 1.5rem;
+  color: var(--text-primary);
+}
+
+/* Loading & Error States */
+.loadingState {
+  padding: 2rem;
+  text-align: center;
+  background-color: var(--bg-accent);
+  border-radius: 8px;
+  color: var(--text-secondary);
+}
+
+.errorState {
+  padding: 2rem;
+  background-color: var(--bg-accent);
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+}
+
+.errorState p {
+  color: #dc3545;
+  margin: 0;
+}
+
+/* Summary Cards Grid */
+.summaryCards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.summaryCard {
+  padding: 1.5rem;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  background-color: var(--card-bg);
+}
+
+.summaryCard .label {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.summaryCard .value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.summaryCard .subtext {
+  font-size: 0.75rem;
+  margin-top: 0.25rem;
+  color: var(--text-secondary);
+}
+
+/* Accent colors for card values */
+.cardBlue .value {
+  color: #3b82f6;
+}
+
+.cardGreen .value {
+  color: #22c55e;
+}
+
+.cardAmber .value {
+  color: #f59e0b;
+}
+
+/* Panels (Score Distribution, Recent Completions, Trend) */
+.panel {
+  background-color: var(--card-bg);
+  padding: 1.5rem;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  margin-bottom: 2rem;
+}
+
+.panel h3 {
+  margin: 0 0 1rem 0;
+  font-size: 1.125rem;
+  color: var(--text-primary);
+}
+
+/* Score Distribution Chart */
+.chartContainer {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.5rem;
+  height: 200px;
+}
+
+.chartBar {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.chartBarCount {
+  margin-bottom: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.chartBarFill {
+  width: 100%;
+  background-color: #3b82f6;
+  border-radius: 4px 4px 0 0;
+  transition: height 0.3s ease;
+}
+
+.chartBarLabel {
+  margin-top: 0.5rem;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+/* Recent Completions Table */
+.completionsTable {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.completionsTable th {
+  padding: 0.75rem;
+  text-align: left;
+  background-color: var(--bg-accent);
+  border-bottom: 2px solid var(--border-color);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.completionsTable td {
+  padding: 0.75rem;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-primary);
+  font-size: 0.9rem;
+}
+
+.completionsTable tbody tr:hover {
+  background-color: var(--bg-accent);
+}
+
+/* Completion Trend */
+.trendSubtext {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  margin-bottom: 1rem;
+}
+
+.trendContainer {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 100px;
+}
+
+.trendBar {
+  flex: 1;
+  background-color: #22c55e;
+  border-radius: 2px;
+  min-width: 8px;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.trendBar:hover {
+  opacity: 0.8;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .summaryCards {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .chartContainer {
+    height: 150px;
+  }
+}

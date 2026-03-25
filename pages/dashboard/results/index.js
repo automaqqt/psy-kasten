@@ -34,16 +34,29 @@ const ResultTable = ({ results }) => {
              </thead>
              <tbody>
                  {results.map(res => {
-                    // Extract a simple score - needs refinement per test type
+                    // Extract test-specific main metric
+                    const testType = res.testAssignment?.testType;
                     let mainScore = 'N/A';
-                    if (res.data?.totalScore !== undefined) {
-                        mainScore = `${res.data.totalScore} / ${res.data.maxScore ?? '?'}`;
-                    } else if (res.data?.stroopInterferenceRT_Cong !== undefined) {
-                         mainScore = `Interference: ${res.data.stroopInterferenceRT_Cong?.toFixed(0)} ms`;
-                    } else if (res.data?.meanGoRT !== undefined) {
-                         mainScore = `Mean Go RT: ${res.data.meanGoRT?.toFixed(0)} ms`;
+                    const d = res.data || {};
+                    if (testType === 'corsi') {
+                        mainScore = `UBS: ${d.ubs || d.corsiSpan || '?'}`;
+                    } else if (testType === 'pvt') {
+                        mainScore = d.meanRT ? `Mean RT: ${Math.round(d.meanRT)} ms` : 'N/A';
+                    } else if (testType === 'gng-sst') {
+                        mainScore = d.accuracy !== undefined ? `Accuracy: ${d.accuracy.toFixed(1)}%` : 'N/A';
+                    } else if (testType === 'rpm') {
+                        mainScore = `${d.correctCount || d.totalScore || 0} / ${d.totalProblems || '?'}`;
+                    } else if (testType === 'vm') {
+                        const rd = d.roundData || [];
+                        const span = rd.filter(r => r.success).map(r => r.level);
+                        mainScore = span.length ? `Span: ${Math.max(...span)}` : 'N/A';
+                    } else if (testType === 'akt') {
+                        mainScore = d.G !== undefined ? `G: ${d.G}` : 'N/A';
+                    } else if (testType === 'wtb') {
+                        mainScore = d.totalScore !== undefined ? `Score: ${d.totalScore}` : 'N/A';
+                    } else if (d.totalScore !== undefined) {
+                        mainScore = `${d.totalScore}${d.maxScore ? ' / ' + d.maxScore : ''}`;
                     }
-                     // Add more specific score extraction logic per test type
 
 
                      return (

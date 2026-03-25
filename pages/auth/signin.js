@@ -117,8 +117,9 @@ console.log(result)
                  onClick={() => signIn(provider.id, { callbackUrl: router.query.callbackUrl || '/dashboard' })}
                  className={styles.providerButton}
               >
-                 {/* Basic Provider Icon Placeholder - Replace with actual icons */}
-                 {/* <span className={styles.providerIcon} style={{backgroundImage: `url(/icons/${provider.id}.svg)`}}></span> */}
+                 {provider.id === 'google' && (
+                   <Image src="/icons/google.svg" alt="" width={20} height={20} className={styles.providerIcon} />
+                 )}
                 Sign in with {provider.name}
               </button>
             </div>

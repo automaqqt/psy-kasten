@@ -2,26 +2,23 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/router';
 import DashboardLayout from '../../../components/layouts/DashboardLayout';
 import Link from 'next/link';
-import styles from '../../../styles/DetailPage.module.css'; // Create this CSS file
-// Assuming Modal is extracted or redefined here/imported
-import  Modal  from '../../../components/ui/modal'; // Example path
+import styles from '../../../styles/DetailPage.module.css';
+import  Modal  from '../../../components/ui/modal';
 import BulkImportModal from '../../../components/ui/BulkImportModal';
 import ShareLinkModal from '../../../components/ui/ShareLinkModal';
 import MetadataEditorModal from '../../../components/ui/MetadataEditorModal';
 import StudyAnalytics from '../../../components/analytics/StudyAnalytics';
-import { TEST_TYPES } from '../../../lib/testConfig'; // Define test types centrally
+import { TEST_TYPES } from '../../../lib/testConfig';
 
-// Reusable List Component (Extract later if needed)
 const ParticipantList = ({ participants, onDeleteParticipant, onEditParticipant, onEditMetadata, onAddParticipant, onRegenerateLink, onShareLink, testType, deletingParticipantId, regeneratingAssignmentId }) => {
     const [copiedLinkId, setCopiedLinkId] = React.useState(null);
 
     if (!participants || participants.length === 0) {
         return (
-            <div style={{ padding: '2rem', textAlign: 'center', backgroundColor: '#f8f9fa', borderRadius: '8px', marginTop: '1rem' }}>
-                <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>👥</div>
+            <div className={styles.emptyState}>
                 <h4>No Participants Yet</h4>
-                <p style={{ color: '#6c757d', marginBottom: '1.5rem' }}>Add participants to start collecting test data for this study.</p>
-                <button onClick={onAddParticipant} style={{ padding: '0.5rem 1rem', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>
+                <p>Add participants to start collecting test data for this study.</p>
+                <button onClick={onAddParticipant} className={styles.addButton}>
                     + Add First Participant
                 </button>
             </div>
@@ -32,7 +29,7 @@ const ParticipantList = ({ participants, onDeleteParticipant, onEditParticipant,
         navigator.clipboard.writeText(link)
             .then(() => {
                 setCopiedLinkId(participantId);
-                setTimeout(() => setCopiedLinkId(null), 2000); // Clear after 2 seconds
+                setTimeout(() => setCopiedLinkId(null), 2000);
             })
             .catch(err => alert("Failed to copy link: " + err));
     };
@@ -49,15 +46,14 @@ const ParticipantList = ({ participants, onDeleteParticipant, onEditParticipant,
                         <th>Identifier</th>
                         <th>Metadata</th>
                         <th>Status</th>
-                        <th>Test Link</th>
                         <th>Created</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                 {participants.map(p => {
-                    const assignment = p.assignments?.[0]; // Get first assignment (should only be one)
-                    const testLink = assignment?.testLink || null; // Use testLink from API response
+                    const assignment = p.assignments?.[0];
+                    const testLink = assignment?.testLink || null;
                     const isExpired = assignment?.expiresAt && new Date(assignment.expiresAt) < new Date();
                     const status = assignment?.completedAt ? 'Completed' : (isExpired ? 'Expired' : 'Pending');
                     const isCopied = copiedLinkId === p.id;
@@ -72,31 +68,15 @@ const ParticipantList = ({ participants, onDeleteParticipant, onEditParticipant,
                                 {hasMetadata ? (
                                     <button
                                         onClick={() => onEditMetadata(p)}
-                                        style={{
-                                            padding: '0.25rem 0.5rem',
-                                            fontSize: '0.875rem',
-                                            backgroundColor: '#17a2b8',
-                                            color: 'white',
-                                            border: 'none',
-                                            borderRadius: '4px',
-                                            cursor: 'pointer'
-                                        }}
+                                        className={styles.metadataButton}
                                         title="View/edit metadata"
                                     >
-                                        📋 {metadataCount} field{metadataCount !== 1 ? 's' : ''}
+                                        {metadataCount} field{metadataCount !== 1 ? 's' : ''}
                                     </button>
                                 ) : (
                                     <button
                                         onClick={() => onEditMetadata(p)}
-                                        style={{
-                                            padding: '0.25rem 0.5rem',
-                                            fontSize: '0.875rem',
-                                            backgroundColor: '#6c757d',
-                                            color: 'white',
-                                            border: 'none',
-                                            borderRadius: '4px',
-                                            cursor: 'pointer'
-                                        }}
+                                        className={styles.metadataButtonEmpty}
                                         title="Add metadata"
                                     >
                                         + Add
@@ -108,17 +88,6 @@ const ParticipantList = ({ participants, onDeleteParticipant, onEditParticipant,
                                     {status}
                                 </span>
                             </td>
-                            <td className={styles.linkCell}>
-                                {testLink ? (
-                                    <div className={styles.linkWrapper}>
-                                        <code className={styles.testLink} title={testLink}>
-                                            {testLink.length > 60 ? `${testLink.substring(0, 57)}...` : testLink}
-                                        </code>
-                                    </div>
-                                ) : (
-                                    <span className={styles.noLink}>No link</span>
-                                )}
-                            </td>
                             <td>{new Date(p.createdAt).toLocaleDateString()}</td>
                             <td className={styles.actionsCell}>
                                 {testLink && !isExpired && (
@@ -129,10 +98,10 @@ const ParticipantList = ({ participants, onDeleteParticipant, onEditParticipant,
                                             title="Share link (QR code, email, etc.)"
                                             disabled={deletingParticipantId === p.id}
                                         >
-                                            📤 Share
+                                            Share
                                         </button>
                                         <button onClick={() => handleOpenLink(testLink)} className={styles.actionButtonOpen} title="Open in new tab" disabled={deletingParticipantId === p.id}>
-                                            🔗 Open
+                                            Open
                                         </button>
                                         <button
                                             onClick={() => handleCopyLink(testLink, p.id)}
@@ -140,7 +109,7 @@ const ParticipantList = ({ participants, onDeleteParticipant, onEditParticipant,
                                             title={isCopied ? "Copied!" : "Copy to clipboard"}
                                             disabled={deletingParticipantId === p.id}
                                         >
-                                            {isCopied ? '✓ Copied' : '📋 Copy'}
+                                            {isCopied ? 'Copied' : 'Copy'}
                                         </button>
                                     </>
                                 )}
@@ -151,17 +120,17 @@ const ParticipantList = ({ participants, onDeleteParticipant, onEditParticipant,
                                         title="Generate new link"
                                         disabled={regeneratingAssignmentId === assignment.id || deletingParticipantId === p.id}
                                     >
-                                        {regeneratingAssignmentId === assignment.id ? '⏳ Regenerating...' : '🔄 Regenerate Link'}
+                                        {regeneratingAssignmentId === assignment.id ? 'Regenerating...' : 'Regenerate'}
                                     </button>
                                 )}
                                 <button onClick={() => onEditParticipant(p)} className={styles.actionButtonEdit} title="Edit participant" disabled={deletingParticipantId === p.id}>
-                                    ✏️ Edit
+                                    Edit
                                 </button>
                                 <button onClick={() => onDeleteParticipant(p.id)} className={styles.actionButtonDelete} title="Delete participant" disabled={deletingParticipantId === p.id}>
-                                    {deletingParticipantId === p.id ? '⏳ Deleting...' : '🗑️ Delete'}
+                                    {deletingParticipantId === p.id ? 'Deleting...' : 'Delete'}
                                 </button>
                                 <Link href={`/dashboard/results?participantId=${p.id}`}>
-                                    <div className={styles.actionButtonView} title="View results">📊 Results</div>
+                                    <div className={styles.actionButtonView} title="View results">Results</div>
                                 </Link>
                             </td>
                         </tr>
@@ -179,13 +148,13 @@ export default function StudyDetailPage() {
   const { studyId } = router.query;
   const [study, setStudy] = useState(null);
   const [participants, setParticipants] = useState([]);
-  const [assignments, setAssignments] = useState([]); // State to hold assignments if fetched separately
+  const [assignments, setAssignments] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [deletingParticipantId, setDeletingParticipantId] = useState(null); // Track which participant is being deleted
-  const [deletingStudy, setDeletingStudy] = useState(false); // Track study deletion
-  const [regeneratingAssignmentId, setRegeneratingAssignmentId] = useState(null); // Track which assignment is being regenerated
-  const [isDuplicating, setIsDuplicating] = useState(false); // Track study duplication
+  const [deletingParticipantId, setDeletingParticipantId] = useState(null);
+  const [deletingStudy, setDeletingStudy] = useState(false);
+  const [regeneratingAssignmentId, setRegeneratingAssignmentId] = useState(null);
+  const [isDuplicating, setIsDuplicating] = useState(false);
 
   // Modal States
   const [isAddParticipantModalOpen, setIsAddParticipantModalOpen] = useState(false);
@@ -223,11 +192,10 @@ export default function StudyDetailPage() {
       }
       const data = await res.json();
       setStudy(data);
-      setParticipants(data.participants || []); // Assuming participants are included
-      // Fetch assignments separately if needed, e.g., /api/assignments?studyId=...
+      setParticipants(data.participants || []);
     } catch (err) {
       setError(err.message);
-      setStudy(null); // Clear study data on error
+      setStudy(null);
     } finally {
       setIsLoading(false);
     }
@@ -250,15 +218,15 @@ export default function StudyDetailPage() {
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ studyId: studyId, identifier: newParticipantIdentifier }),
           });
-           const data = await res.json(); // Read body even for errors
+           const data = await res.json();
           if (!res.ok) {
               throw new Error(data.message || 'Failed to add participant');
           }
           setIsAddParticipantModalOpen(false);
           setNewParticipantIdentifier('');
-          fetchStudyData(); // Refresh data
+          fetchStudyData();
       } catch (err) {
-          setError(err.message); // Display error in the modal
+          setError(err.message);
       } finally {
           setIsSubmitting(false);
       }
@@ -282,9 +250,8 @@ export default function StudyDetailPage() {
           if (!res.ok) {
               throw new Error(data.message || 'Failed to regenerate link');
           }
-          // Show success message
           alert(`New link generated successfully! The old link is now invalid.`);
-          fetchStudyData(); // Refresh to get new link
+          fetchStudyData();
       } catch (err) {
           setError(err.message);
           alert(`Error: ${err.message}`);
@@ -298,29 +265,29 @@ export default function StudyDetailPage() {
       const assignmentCount = participant?.assignments?.length || 0;
       const completedCount = participant?.assignments?.filter(a => a.completedAt).length || 0;
 
-      const confirmMessage = `⚠️ WARNING: Delete participant "${participant?.identifier}"?\n\n` +
+      const confirmMessage = `Delete participant "${participant?.identifier}"?\n\n` +
           `This will permanently delete:\n` +
-          `• ${assignmentCount} test assignment(s)\n` +
-          `• ${completedCount} completed result(s)\n\n` +
-          `This action CANNOT be undone!`;
+          `- ${assignmentCount} test assignment(s)\n` +
+          `- ${completedCount} completed result(s)\n\n` +
+          `This action cannot be undone.`;
 
       if (!window.confirm(confirmMessage)) {
           return;
       }
        setError(null);
-       setDeletingParticipantId(participantId); // Set loading state
+       setDeletingParticipantId(participantId);
        try {
           const res = await fetch(`/api/participants/${participantId}`, { method: 'DELETE' });
           if (!res.ok) {
                const errData = await res.json();
               throw new Error(errData.message || 'Failed to delete participant');
           }
-          fetchStudyData(); // Refresh list
+          fetchStudyData();
        } catch (err) {
-           setError(err.message); // Show error on the page
-           alert(`Error: ${err.message}`); // Also alert for visibility
+           setError(err.message);
+           alert(`Error: ${err.message}`);
        } finally {
-           setDeletingParticipantId(null); // Clear loading state
+           setDeletingParticipantId(null);
        }
   };
 
@@ -351,10 +318,10 @@ export default function StudyDetailPage() {
           if (!res.ok) {
               throw new Error(data.message || 'Failed to save metadata');
           }
-          fetchStudyData(); // Refresh to show updated metadata
+          fetchStudyData();
       } catch (err) {
           setError(err.message);
-          throw err; // Re-throw so modal can handle it
+          throw err;
       }
   };
 
@@ -376,7 +343,7 @@ export default function StudyDetailPage() {
           setIsEditParticipantModalOpen(false);
           setEditingParticipant(null);
           setEditParticipantIdentifier('');
-          fetchStudyData(); // Refresh data
+          fetchStudyData();
       } catch (err) {
           setError(err.message);
       } finally {
@@ -412,7 +379,7 @@ export default function StudyDetailPage() {
           setIsEditStudyModalOpen(false);
           setEditStudyName('');
           setEditStudyDescription('');
-          fetchStudyData(); // Refresh data
+          fetchStudyData();
       } catch (err) {
           setError(err.message);
       } finally {
@@ -438,7 +405,6 @@ export default function StudyDetailPage() {
           if (!res.ok) {
               throw new Error(data.message || 'Failed to duplicate study');
           }
-          // Redirect to the new study
           alert('Study duplicated successfully!');
           router.push(`/dashboard/studies/${data.study.id}`);
       } catch (err) {
@@ -453,60 +419,58 @@ export default function StudyDetailPage() {
       const assignmentCount = study?._count?.testAssignments || 0;
       const completedCount = participants?.reduce((sum, p) => sum + (p.assignments?.filter(a => a.completedAt).length || 0), 0) || 0;
 
-      const confirmMessage = `⚠️ WARNING: Delete Study "${study.name}"?\n\n` +
+      const confirmMessage = `Delete Study "${study.name}"?\n\n` +
           `This will permanently delete:\n` +
-          `• ${participantCount} participant(s)\n` +
-          `• ${assignmentCount} test assignment(s)\n` +
-          `• ${completedCount} completed result(s)\n\n` +
-          `This action CANNOT be undone!\n\n` +
+          `- ${participantCount} participant(s)\n` +
+          `- ${assignmentCount} test assignment(s)\n` +
+          `- ${completedCount} completed result(s)\n\n` +
+          `This action cannot be undone.\n\n` +
           `Type "DELETE" to confirm.`;
 
       const userInput = window.prompt(confirmMessage);
       if (userInput !== 'DELETE') {
-          return; // User canceled or didn't type DELETE
+          return;
       }
       setError(null);
-      setDeletingStudy(true); // Set loading state
+      setDeletingStudy(true);
       try {
           const res = await fetch(`/api/studies/${studyId}`, { method: 'DELETE' });
           if (!res.ok) {
               const errData = await res.json();
               throw new Error(errData.message || 'Failed to delete study');
           }
-          // Redirect to dashboard after successful deletion
           router.push('/dashboard');
       } catch (err) {
           setError(err.message);
           alert(`Error: ${err.message}`);
-          setDeletingStudy(false); // Clear loading state on error
+          setDeletingStudy(false);
       }
-      // Note: Don't clear loading state on success since we're redirecting
   };
 
 
   // --- Render ---
   if (isLoading) return <DashboardLayout><p className={styles.loadingText}>Loading study data...</p></DashboardLayout>;
-  if (error && !study) return <DashboardLayout><p className={styles.errorText}>Error: {error}</p></DashboardLayout>; // Show error prominently if study fetch failed
+  if (error && !study) return <DashboardLayout><p className={styles.errorTextPage}>Error: {error}</p></DashboardLayout>;
    if (!study) return <DashboardLayout><p>Study not found.</p></DashboardLayout>;
 
 
   return (
     <DashboardLayout>
       <div className={styles.pageHeader}>
-        <h1>Study: {study.name}</h1>
+        <h1>{study.name}</h1>
         <div className={styles.headerActions}>
           <button onClick={handleDuplicateStudy} className={styles.secondaryButton} title="Duplicate study" disabled={deletingStudy || isDuplicating}>
-            {isDuplicating ? '⏳ Duplicating...' : '📋 Duplicate Study'}
+            {isDuplicating ? 'Duplicating...' : 'Duplicate'}
           </button>
           <button onClick={handleEditStudy} className={styles.editButton} title="Edit study" disabled={deletingStudy || isDuplicating}>
-            ✏️ Edit Study
+            Edit
           </button>
           <button onClick={handleDeleteStudy} className={styles.deleteButton} title="Delete study" disabled={deletingStudy || isDuplicating}>
-            {deletingStudy ? '⏳ Deleting Study...' : '🗑️ Delete Study'}
+            {deletingStudy ? 'Deleting...' : 'Delete'}
           </button>
         </div>
       </div>
-      {error && <p className={styles.errorTextPage}>{error}</p>} {/* Show non-fatal errors */}
+      {error && <p className={styles.errorTextPage}>{error}</p>}
       <p className={styles.studyDescription}>{study.description || 'No description provided.'}</p>
 
        {/* Analytics Section */}
@@ -517,14 +481,14 @@ export default function StudyDetailPage() {
        )}
 
        <section className={styles.section}>
-           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+           <div className={styles.sectionHeader}>
                <h2>Participants ({participants.length})</h2>
-               <div style={{ display: 'flex', gap: '0.5rem' }}>
+               <div className={styles.sectionHeaderActions}>
                    <button onClick={() => setIsAddParticipantModalOpen(true)} className={styles.addButton}>
                        + Add Participant
                    </button>
                    <button onClick={() => setIsBulkImportModalOpen(true)} className={styles.secondaryButton} title="Import multiple participants at once">
-                       📥 Bulk Import
+                       Bulk Import
                    </button>
                </div>
            </div>

@@ -5,17 +5,17 @@
     align-items: center;
     margin-bottom: 1.5rem;
     padding-bottom: 0.5rem;
-    border-bottom: 1px solid #e0e0e0;
+    border-bottom: 1px solid var(--border-color);
   }
-  
+
   .pageHeader h1 {
     margin: 0;
     font-size: 1.8rem;
-    color: #333;
+    color: var(--text-primary);
   }
-  
-  .primaryButton { /* General button style */
-    background-color: #007bff;
+
+  .primaryButton {
+    background-color: #3b82f6;
     color: white;
     border: none;
     padding: 0.6rem 1.2rem;
@@ -23,76 +23,111 @@
     cursor: pointer;
     font-size: 0.95rem;
     font-weight: 500;
-    transition: background-color 0.2s ease;
+    transition: all 0.2s ease;
   }
-  
+
   .primaryButton:hover {
-    background-color: #0056b3;
+    background-color: #2563eb;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
   }
-  
+
+  /* Stats Cards */
+  .statsGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  .statCard {
+    padding: 1.5rem;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    background-color: var(--card-bg);
+  }
+
+  .statCard .statLabel {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+
+  .statCard .statValue {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+
+  .statBlue .statValue { color: #3b82f6; }
+  .statGreen .statValue { color: #22c55e; }
+  .statAmber .statValue { color: #f59e0b; }
+
   .loadingText, .errorText {
     text-align: center;
     margin-top: 2rem;
-    color: #666;
+    color: var(--text-secondary);
     font-style: italic;
   }
-  
+
   .errorText {
     color: #dc3545;
     font-weight: bold;
   }
-  
+
   .listContainer {
     display: grid;
     gap: 1rem;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* Responsive grid */
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   }
-  
+
   .listItem {
-    background-color: #ffffff;
-    border: 1px solid #e0e0e0;
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
     border-radius: 6px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    box-shadow: 0 1px 3px var(--shadow-color);
     transition: box-shadow 0.2s ease;
   }
-  
+
   .listItem:hover {
     box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
   }
-  
+
   .listItemLink {
     display: block;
     padding: 1rem 1.2rem;
     text-decoration: none;
     color: inherit;
   }
-  
+
   .listItem h3 {
     margin-top: 0;
     margin-bottom: 0.5rem;
-    color: #0056b3;
+    color: var(--link-color);
     font-size: 1.2rem;
   }
-  
+
   .listItem p {
     font-size: 0.9rem;
-    color: #555;
+    color: var(--text-secondary);
     margin-bottom: 1rem;
     line-height: 1.5;
   }
-  
+
   .listItemMeta {
     display: flex;
     justify-content: space-between;
     font-size: 0.8rem;
-    color: #777;
-    border-top: 1px dashed #eee;
+    color: var(--text-secondary);
+    border-top: 1px dashed var(--border-color);
     padding-top: 0.75rem;
-    flex-wrap: wrap; /* Wrap if needed */
+    flex-wrap: wrap;
     gap: 0.5rem;
   }
-  
-  /* --- Modal Styles --- */
+
+  /* Modal Styles */
   .modalOverlay {
     position: fixed;
     top: 0;
@@ -103,12 +138,12 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 1000; /* Ensure it's above layout header */
+    z-index: 1000;
     padding: 1rem;
   }
-  
+
   .modalContent {
-    background-color: white;
+    background-color: var(--card-bg);
     padding: 1.5rem 2rem;
     border-radius: 8px;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
@@ -116,117 +151,133 @@
     width: 100%;
     max-height: 90vh;
     overflow-y: auto;
+    color: var(--text-primary);
   }
-  
+
   .modalHeader {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-bottom: 1px solid #e0e0e0;
+    border-bottom: 1px solid var(--border-color);
     padding-bottom: 0.8rem;
     margin-bottom: 1rem;
   }
-  
+
   .modalHeader h2 {
     margin: 0;
     font-size: 1.4rem;
+    color: var(--text-primary);
   }
-  
+
   .closeButton {
     background: none;
     border: none;
     font-size: 1.8rem;
     line-height: 1;
     cursor: pointer;
-    color: #888;
+    color: var(--text-secondary);
   }
   .closeButton:hover {
-    color: #333;
+    color: var(--text-primary);
   }
-  
-  .modalBody {} /* Add padding if needed */
-  
+
+  .modalBody {}
+
   .formGroup {
     margin-bottom: 1.2rem;
   }
-  
+
   .formGroup label {
     display: block;
     margin-bottom: 0.4rem;
     font-weight: 500;
     font-size: 0.9rem;
+    color: var(--text-primary);
   }
-  
+
   .formGroup input[type="text"],
   .formGroup textarea {
     width: 100%;
     padding: 0.6rem 0.8rem;
-    border: 1px solid #ccc;
+    border: 1px solid var(--border-color);
     border-radius: 4px;
     font-size: 1rem;
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
   }
+
+  .formGroup input[type="text"]:focus,
+  .formGroup textarea:focus {
+    outline: none;
+    border-color: var(--link-color);
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15);
+  }
+
   .formGroup input:disabled,
   .formGroup textarea:disabled {
-      background-color: #e9ecef;
+      background-color: var(--bg-accent);
       cursor: not-allowed;
   }
-  
+
   .formGroup small {
       font-size: 0.8rem;
-      color: #666;
+      color: var(--text-secondary);
       margin-top: 0.25rem;
       display: block;
   }
-  
+
   .modalActions {
     display: flex;
     justify-content: flex-end;
     gap: 0.8rem;
     margin-top: 1.5rem;
     padding-top: 1rem;
-    border-top: 1px solid #e0e0e0;
+    border-top: 1px solid var(--border-color);
   }
-  
-  .primaryButtonModal, .secondaryButtonModal { /* Specific modal button styles */
+
+  .primaryButtonModal, .secondaryButtonModal {
      padding: 0.5rem 1rem;
      border-radius: 4px;
      cursor: pointer;
      font-size: 0.9rem;
      border: none;
-     transition: background-color 0.2s ease, opacity 0.2s ease;
+     transition: all 0.2s ease;
+     font-weight: 500;
   }
-  
+
   .primaryButtonModal {
-      background-color: #007bff;
+      background-color: #3b82f6;
       color: white;
   }
   .primaryButtonModal:hover {
-       background-color: #0056b3;
+       background-color: #2563eb;
   }
   .primaryButtonModal:disabled {
-      background-color: #a1cfff;
+      opacity: 0.5;
       cursor: not-allowed;
   }
-  
-  
+
   .secondaryButtonModal {
-      background-color: #6c757d;
-      color: white;
+      background-color: var(--bg-accent);
+      color: var(--text-primary);
+      border: 1px solid var(--border-color);
   }
   .secondaryButtonModal:hover {
-      background-color: #5a6268;
+      background-color: var(--bg-secondary);
   }
   .secondaryButtonModal:disabled {
-      background-color: #adb5bd;
-       cursor: not-allowed;
+      opacity: 0.5;
+      cursor: not-allowed;
   }
-  
-  
+
   .errorTextModal {
     color: #dc3545;
     font-size: 0.9rem;
     margin-bottom: 1rem;
     font-weight: 500;
+    padding: 0.5rem;
+    background-color: #fee2e2;
+    border-radius: 4px;
   }
 
   /* Study Header and Badge */
@@ -250,14 +301,15 @@
   .selectInput {
     width: 100%;
     padding: 0.6rem 0.8rem;
-    border: 1px solid #ccc;
+    border: 1px solid var(--border-color);
     border-radius: 4px;
     font-size: 1rem;
-    background-color: white;
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
   }
 
   .selectInput:disabled {
-    background-color: #e9ecef;
+    background-color: var(--bg-accent);
     cursor: not-allowed;
   }
 
@@ -266,8 +318,8 @@
     display: flex;
     gap: 0.5rem;
     padding: 0.75rem 1.2rem;
-    border-top: 1px solid #e0e0e0;
-    background-color: #f8f9fa;
+    border-top: 1px solid var(--border-color);
+    background-color: var(--bg-accent);
     border-radius: 0 0 6px 6px;
   }
 
@@ -282,13 +334,13 @@
   }
 
   .editButton {
-    background-color: #ffc107;
-    color: #000;
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
   }
 
   .editButton:hover {
-    background-color: #e0a800;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 2px 4px var(--shadow-color);
   }
 
   .deleteButton {
@@ -301,57 +353,73 @@
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
   }
 
-  /* Dark mode support */
-  html[data-theme="dark"] .pageHeader {
-    border-bottom-color: #444;
+  .editButton:disabled, .deleteButton:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
   }
 
-  html[data-theme="dark"] .pageHeader h1 {
-    color: #e0e0e0;
+  /* Empty State */
+  .emptyState {
+    text-align: center;
+    padding: 3rem 2rem;
+    background-color: var(--card-bg);
+    border: 1px dashed var(--border-color);
+    border-radius: 8px;
+    margin-top: 1rem;
   }
 
-  html[data-theme="dark"] .listItem {
-    background-color: #2d2d2d;
-    border-color: #444;
+  .emptyState h3 {
+    color: var(--text-primary);
+    margin: 0 0 0.5rem 0;
   }
 
-  html[data-theme="dark"] .listItem h3 {
-    color: #4da6ff;
+  .emptyState p {
+    color: var(--text-secondary);
   }
 
-  html[data-theme="dark"] .listItem p {
-    color: #b0b0b0;
+  .emptyStateIcon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
   }
 
-  html[data-theme="dark"] .listItemMeta {
-    color: #888;
-    border-top-color: #444;
+  .emptyStateHelp {
+    margin-top: 2rem;
+    text-align: left;
+    max-width: 360px;
+    margin-left: auto;
+    margin-right: auto;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
   }
 
-  html[data-theme="dark"] .listItemActions {
-    background-color: #1a1a1a;
-    border-top-color: #444;
+  .emptyStateHelp ol {
+    padding-left: 1.2rem;
+    margin: 0.5rem 0 0 0;
   }
 
-  html[data-theme="dark"] .modalContent {
-    background-color: #2d2d2d;
-    color: #e0e0e0;
+  .emptyStateHelp li {
+    margin-bottom: 0.25rem;
   }
 
-  html[data-theme="dark"] .modalHeader {
-    border-bottom-color: #444;
+  /* Checkbox group in modal */
+  .checkboxGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
   }
 
-  html[data-theme="dark"] .formGroup input[type="text"],
-  html[data-theme="dark"] .formGroup textarea,
-  html[data-theme="dark"] .selectInput {
-    background-color: #1a1a1a;
-    border-color: #444;
-    color: #e0e0e0;
+  .checkboxLabel {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
   }
 
-  html[data-theme="dark"] .modalActions {
-    border-top-color: #444;
+  .badgeGroup {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
   }
 
   /* Mobile responsiveness */
@@ -360,6 +428,14 @@
       flex-direction: column;
       align-items: flex-start;
       gap: 1rem;
+    }
+
+    .primaryButton {
+      width: 100%;
+    }
+
+    .statsGrid {
+      grid-template-columns: 1fr;
     }
 
     .listContainer {

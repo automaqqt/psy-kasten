@@ -443,8 +443,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 75vh;
-  padding: 8rem 2rem 3rem;
+  min-height: auto;
+  padding: 10rem 2rem 4rem;
   background-color: var(--bg-primary, #eef2f7);
   box-sizing: border-box;
   position: relative;
