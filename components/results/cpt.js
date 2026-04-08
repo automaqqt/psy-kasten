@@ -180,7 +180,7 @@ const CPTResults = ({ trials, stats, targetLetter }) => {
               <div className={styles.performanceChart}>
                 <div className={styles.chartLegend}>
                   <div className={styles.legendItem}>
-                    <span className={styles.legendColor} style={{ backgroundColor: '#0070f3' }}></span>
+                    <span className={styles.legendColor} style={{ backgroundColor: '#3b82f6' }}></span>
                     <span>Accuracy (%)</span>
                   </div>
                   <div className={styles.legendItem}>
@@ -462,7 +462,7 @@ const CPTResults = ({ trials, stats, targetLetter }) => {
               <h3>Interpretation</h3>
               <div className={styles.interpretationGrid}>
                 <div className={styles.interpretationItem}>
-                  <h4>Sensitivity (d'): {stats.d_prime.toFixed(2)}</h4>
+                  <h4>Sensitivity (d&apos;): {stats.d_prime.toFixed(2)}</h4>
                   <p>
                     {stats.d_prime < 1 ? 'Low ability' : stats.d_prime < 2.5 ? 'Average ability' : 'High ability'} to 
                     distinguish between target and non-target stimuli. 

@@ -2,31 +2,35 @@
 import { getProviders, signIn, getCsrfToken, getSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
-import Link from 'next/link'; // Import Link
+import Link from 'next/link';
 import Image from 'next/image';
-import styles from '../../styles/signin.module.css'; // Import the CSS module
+import { useTranslation } from 'next-i18next';
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import styles from '../../styles/signin.module.css';
 
-// Function to map NextAuth error codes to user-friendly messages
-function getErrorMessage(errorCode) {
+function getErrorMessage(errorCode, t) {
     switch (errorCode) {
         case 'CredentialsSignin':
-            return 'Invalid email or password. Please try again.';
+            return t('auth_signin_error_credentials');
         case 'OAuthAccountNotLinked':
-             return 'This email is already linked with another provider (e.g., Google). Please sign in using that method.';
-        // Add more specific error cases as needed
+            return t('auth_signin_error_oauth_linked');
+        case 'EmailNotVerified':
+            return t('auth_signin_error_email_not_verified');
         default:
-             // Try to return the raw error code if not mapped, or a generic message
-            return errorCode || 'An error occurred during sign-in. Please try again.';
+            if (errorCode === 'Error: EmailNotVerified' || errorCode?.includes?.('EmailNotVerified')) {
+                return t('auth_signin_error_email_not_verified');
+            }
+            return errorCode || t('auth_signin_error_default');
     }
 }
 
 
 export default function SignIn({ providers, csrfToken }) {
   const router = useRouter();
+  const { t } = useTranslation('common');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  // Get error from query param OR from failed signin attempt
-  const [error, setError] = useState(router.query.error ? getErrorMessage(router.query.error) : null);
+  const [error, setError] = useState(router.query.error ? getErrorMessage(router.query.error, t) : null);
 
   const handleCredentialsSubmit = async (e) => {
     e.preventDefault();
@@ -37,17 +41,16 @@ export default function SignIn({ providers, csrfToken }) {
       password: password,
       callbackUrl: router.query.callbackUrl || '/dashboard', // You can pass callbackUrl here too
     });
-console.log(result)
+
     if (result.error) {
-      setError(getErrorMessage(result.error)); // Use the error code from NextAuth
-      console.error("Sign-in error:", result.error);
+      setError(getErrorMessage(result.error, t));
     } else if (result.ok) {
        // Redirect on successful login
        // Use the callbackUrl from the query if it exists, otherwise default to /dashboard
        const callbackUrl = '/dashboard';
        router.push(callbackUrl);
     } else {
-       setError('An unexpected error occurred during sign-in.');
+       setError(t('auth_signin_error_default'));
     }
   };
 
@@ -58,13 +61,13 @@ console.log(result)
                           <div className={styles.logoLink}> {/* Link wrapping the image */}
                                 <Image
                                     src="/logo.png" // Path relative to the public folder
-                                    alt={'CogniSuite Logo'} // Add alt text key
+                                    alt={'psyKasten Logo'}
                                     width={160}     // Specify width (adjust as needed)
                                     height={160}    // Specify height (adjust aspect ratio)
                                 />
                             </div>
                         </Link>
-        <h1>Sign In</h1>
+        <h1>{t('auth_signin_title')}</h1>
 
         {error && <div className={styles.errorMessage}>{error}</div>}
 
@@ -74,7 +77,7 @@ console.log(result)
           <input name="csrfToken" type="hidden" defaultValue={csrfToken} />
 
           <div className={styles.formGroup}>
-            <label htmlFor="email">Email</label>
+            <label htmlFor="email">{t('auth_signin_email_label')}</label>
             <input
               id="email"
               name="email"
@@ -87,7 +90,7 @@ console.log(result)
             />
           </div>
           <div className={styles.formGroup}>
-            <label htmlFor="password">Password</label>
+            <label htmlFor="password">{t('auth_signin_password_label')}</label>
             <input
               id="password"
               name="password"
@@ -99,8 +102,12 @@ console.log(result)
               className={styles.inputField} // Added a common class if needed
             />
           </div>
-          <button type="submit" className={styles.submitButton}>Sign in with Email</button>
+          <button type="submit" className={styles.submitButton}>{t('auth_signin_submit_email')}</button>
         </form>
+
+        <div className={styles.forgotPasswordLink}>
+            <Link href="/auth/forgot-password">{t('auth_signin_forgot_password')}</Link>
+        </div>
 
         {(providers && Object.values(providers).some(p => p.id !== 'credentials')) && (
             <hr className={styles.separator} /> // Show separator only if OAuth providers exist
@@ -120,7 +127,7 @@ console.log(result)
                  {provider.id === 'google' && (
                    <Image src="/icons/google.svg" alt="" width={20} height={20} className={styles.providerIcon} />
                  )}
-                Sign in with {provider.name}
+                {t('auth_signin_provider', { provider: provider.name })}
               </button>
             </div>
           );
@@ -128,7 +135,7 @@ console.log(result)
 
          {/* Optional: Link to Signup Page */}
          <div className={styles.signUpLink}>
-             Don't have an account? <Link href="/auth/signup"><div>Sign Up</div></Link>
+             {t('auth_signin_no_account')} <Link href="/auth/signup"><div>{t('auth_signin_signup_link')}</div></Link>
          </div>
 
       </div>
@@ -155,6 +162,7 @@ export async function getServerSideProps(context) {
     props: {
       providers: providers ?? null,
       csrfToken: csrfToken ?? null,
+      ...(await serverSideTranslations(context.locale ?? 'en', ['common'])),
     },
   };
 }

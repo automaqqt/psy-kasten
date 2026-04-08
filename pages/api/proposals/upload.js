@@ -1,8 +1,7 @@
 // pages/api/proposals/upload.js
-import { getSession } from 'next-auth/react'; // or getServerSession
+import { getServerSession } from "next-auth/next";
 import prisma from '../../../lib/prisma';
 import { authOptions } from '../auth/[...nextauth]';
-import { getServerSession } from "next-auth/next";
 import { formidable } from 'formidable'; // Use modern import if possible/needed
 import fs from 'fs'; // For filesystem operations (if storing locally)
 import path from 'path';
@@ -17,7 +16,6 @@ const UPLOAD_DIR = path.join(process.cwd(), '/uploads/proposals');
 // Ensure the upload directory exists (run once or ensure in deployment script)
 if (!fs.existsSync(UPLOAD_DIR)) {
   fs.mkdirSync(UPLOAD_DIR, { recursive: true });
-  console.log(`Created upload directory: ${UPLOAD_DIR}`);
 }
 const MAX_FILE_SIZE_MB = 10;
 const ALLOWED_MIME_TYPES = ['application/pdf'];
@@ -226,7 +224,6 @@ export default async function handler(req, res) {
 
         const newProposal = await prisma.testProposal.create({ data: proposalData });
 
-        console.log(`Proposal PDF uploaded by ${researcherId}: ${file.newFilename}`);
         return res.status(201).json({ message: 'Proposal uploaded successfully!', proposalId: newProposal.id });
 
     } catch (error) {
@@ -235,6 +232,6 @@ export default async function handler(req, res) {
         if (error.message.includes('File size exceeds') || error.message.includes('Invalid file type')) {
              return res.status(400).json({ message: error.message });
         }
-        return res.status(500).json({ message: error.message || 'Failed to upload proposal.' });
+        return res.status(500).json({ message: 'Failed to upload proposal.' });
     }
 }

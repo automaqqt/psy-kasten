@@ -1,17 +1,16 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
 generator client {
   provider = "prisma-client-js"
 }
 
-//datasource db {
-//  provider = "postgresql" // Or your chosen DB (mysql, sqlite, etc.)
-//  url      = env("DATABASE_URL")
-//}
-
 datasource db {
   provider = "sqlite"
-  url      = "file:./dev.db"
+  url      = env("DATABASE_URL")
 }
-
 // --- NextAuth Models ---
 // (Refer to NextAuth Prisma Adapter documentation for the exact schema)
 // https://next-auth.js.org/adapters/prisma
@@ -32,6 +31,7 @@ model Account {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
+  @@index([userId])
 }
 
 model Session {
@@ -40,6 +40,8 @@ model Session {
   userId       String
   expires      DateTime
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }
 
 model VerificationToken {
@@ -107,6 +109,10 @@ model Study {
   testTypes   Json?     // Array of test types assigned to this study (e.g., ["corsi", "pvt", "gng-sst"])
   researcherId String
   researcher  User      @relation(fields: [researcherId], references: [id], onDelete: Cascade) // Link to researcher
+
+  // Public participation link settings
+  publicAccessKey    String?  @unique // Secure token for public join URL (null = no public link)
+  participantNaming  String   @default("self") // "self" = participant chooses identifier, "random" = auto-generated
 
   participants   Participant[] // Study has many participants
   testAssignments TestAssignment[] // Study has many test assignments (optional but useful)

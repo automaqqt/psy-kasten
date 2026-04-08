@@ -1,6 +1,9 @@
 import React, { useState, useMemo } from 'react';
 import Modal from '../ui/modal';
 import { getCSVExporter } from '../../lib/csvExporters';
+import { reconstructArray } from '../../lib/testScoreExtractors';
+import s from '../../styles/ModalShared.module.css';
+import { useTranslation } from 'next-i18next';
 
 // Build structured CSV content for a single test type's results
 function buildStructuredCSV(results, testType) {
@@ -175,15 +178,8 @@ function formatDateDE(dateStr) {
     });
 }
 
-function reconstructArray(data) {
-    if (Array.isArray(data)) return data;
-    if (!data || typeof data !== 'object') return [];
-    const numericKeys = Object.keys(data).filter(k => !isNaN(k));
-    if (numericKeys.length === 0) return [];
-    return numericKeys.sort((a, b) => Number(a) - Number(b)).map(k => data[k]);
-}
-
 export default function ExportConfigModal({ isOpen, onClose, results, studyName }) {
+    const { t } = useTranslation('dashboard');
     const [exportFormat, setExportFormat] = useState('structured');
     const [selectedFields, setSelectedFields] = useState({
         resultId: true,
@@ -222,7 +218,7 @@ export default function ExportConfigModal({ isOpen, onClose, results, studyName 
 
     const handleExport = () => {
         if (!results || results.length === 0) {
-            alert('No results to export');
+            alert(t('error_no_results_export'));
             return;
         }
 
@@ -237,7 +233,7 @@ export default function ExportConfigModal({ isOpen, onClose, results, studyName 
             }
             onClose();
         } catch (err) {
-            alert('Export failed: ' + err.message);
+            alert(t('error_export_failed', { message: err.message }));
         } finally {
             setIsExporting(false);
         }
@@ -245,13 +241,13 @@ export default function ExportConfigModal({ isOpen, onClose, results, studyName 
 
     const exportStructuredCSV = () => {
         if (!selectedTestType || filteredResults.length === 0) {
-            alert('Please select a test type with results');
+            alert(t('error_select_type'));
             return;
         }
 
         const structured = buildStructuredCSV(filteredResults, selectedTestType);
         if (!structured) {
-            alert(`Structured export not yet available for ${selectedTestType}. Use Raw CSV instead.`);
+            alert(t('error_no_structured', { testType: selectedTestType }));
             return;
         }
 
@@ -329,72 +325,64 @@ export default function ExportConfigModal({ isOpen, onClose, results, studyName 
         : !noneSelected;
 
     return (
-        <Modal isOpen={isOpen} onClose={onClose} title="Export Results">
-            <div style={{ minWidth: '500px' }}>
+        <Modal isOpen={isOpen} onClose={onClose} title={t('export_config_title')}>
+            <div className={s.modalBody}>
                 {/* Format Selection */}
-                <div style={{ marginBottom: '1.5rem' }}>
-                    <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
-                        Export Format
-                    </label>
-                    <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-                        <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+                <div className={s.mb15}>
+                    <label className={s.formLabel}>{t('export_format_label')}</label>
+                    <div className={s.radioGroup}>
+                        <label className={s.radioLabel}>
                             <input
                                 type="radio"
                                 value="structured"
                                 checked={exportFormat === 'structured'}
                                 onChange={(e) => setExportFormat(e.target.value)}
                             />
-                            CSV (Structured)
+                            {t('format_csv_structured')}
                         </label>
-                        <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+                        <label className={s.radioLabel}>
                             <input
                                 type="radio"
                                 value="csv"
                                 checked={exportFormat === 'csv'}
                                 onChange={(e) => setExportFormat(e.target.value)}
                             />
-                            CSV (Raw)
+                            {t('format_csv_raw')}
                         </label>
-                        <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+                        <label className={s.radioLabel}>
                             <input
                                 type="radio"
                                 value="json"
                                 checked={exportFormat === 'json'}
                                 onChange={(e) => setExportFormat(e.target.value)}
                             />
-                            JSON
+                            {t('format_json')}
                         </label>
                     </div>
                 </div>
 
                 {/* Structured CSV: Test Type Selection */}
                 {exportFormat === 'structured' && (
-                    <div style={{ marginBottom: '1.5rem' }}>
-                        <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
-                            Test Type
-                        </label>
+                    <div className={s.mb15}>
+                        <label className={s.formLabel}>{t('filter_test_type')}</label>
                         <select
                             value={selectedTestType}
                             onChange={(e) => setSelectedTestType(e.target.value)}
-                            style={{
-                                width: '100%', padding: '0.5rem', borderRadius: '4px',
-                                border: '1px solid var(--border-color)', fontSize: '1rem',
-                                backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)'
-                            }}
+                            className={s.selectInput}
                         >
-                            <option value="">Select test type...</option>
+                            <option value="">{t('select_test_type_placeholder')}</option>
                             {testTypes.map(type => {
                                 const count = results.filter(r => r.testAssignment?.testType === type).length;
                                 return (
                                     <option key={type} value={type}>
-                                        {type.toUpperCase()} ({count} result{count !== 1 ? 's' : ''})
+                                        {type.toUpperCase()} ({t('result_count', { count })})
                                     </option>
                                 );
                             })}
                         </select>
                         {selectedTestType && (
-                            <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '0.5rem' }}>
-                                Exports one row per participant with key metrics as columns.
+                            <p className={s.smallTextBlock}>
+                                {t('csv_structured_help')}
                             </p>
                         )}
                     </div>
@@ -402,22 +390,23 @@ export default function ExportConfigModal({ isOpen, onClose, results, studyName 
 
                 {/* Raw CSV / JSON: Field Selection */}
                 {exportFormat !== 'structured' && (
-                    <div style={{ marginBottom: '1.5rem' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-                            <label style={{ fontWeight: '500' }}>
-                                Select Fields to Export
+                    <div className={s.mb15}>
+                        <div className={s.flexBetween} style={{ marginBottom: '0.5rem' }}>
+                            <label className={s.formLabel} style={{ marginBottom: 0 }}>
+                                {t('select_fields_label')}
                             </label>
-                            <div style={{ fontSize: '0.875rem' }}>
+                            <div>
                                 <button
                                     type="button"
                                     onClick={() => setSelectedFields({
                                         resultId: true, studyName: true, participantId: true,
                                         testType: true, completedAt: true, rawData: true
                                     })}
-                                    style={{ marginRight: '0.5rem', color: 'var(--link-color)', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline' }}
+                                    className={s.linkButton}
+                                    style={{ marginRight: '0.5rem' }}
                                     disabled={allSelected}
                                 >
-                                    Select All
+                                    {t('select_all')}
                                 </button>
                                 <button
                                     type="button"
@@ -425,28 +414,27 @@ export default function ExportConfigModal({ isOpen, onClose, results, studyName 
                                         resultId: false, studyName: false, participantId: false,
                                         testType: false, completedAt: false, rawData: false
                                     })}
-                                    style={{ color: 'var(--link-color)', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline' }}
+                                    className={s.linkButton}
                                     disabled={noneSelected}
                                 >
-                                    Deselect All
+                                    {t('deselect_all')}
                                 </button>
                             </div>
                         </div>
-                        <div style={{ border: '1px solid var(--border-color)', borderRadius: '4px', padding: '1rem', backgroundColor: 'var(--bg-accent)' }}>
-                            {Object.entries({
-                                resultId: 'Result ID',
-                                studyName: 'Study Name',
-                                participantId: 'Participant Identifier',
-                                testType: 'Test Type',
-                                completedAt: 'Completion Date/Time',
-                                rawData: 'Raw Test Data (JSON)'
-                            }).map(([key, label]) => (
-                                <label key={key} style={{ display: 'block', marginBottom: '0.5rem', cursor: 'pointer' }}>
+                        <div className={s.addFieldContainer}>
+                            {[
+                                ['resultId', t('field_result_id')],
+                                ['studyName', t('field_study_name')],
+                                ['participantId', t('field_participant_id')],
+                                ['testType', t('field_test_type_label')],
+                                ['completedAt', t('field_completion_datetime')],
+                                ['rawData', t('field_raw_data')],
+                            ].map(([key, label]) => (
+                                <label key={key} className={s.checkboxLabel}>
                                     <input
                                         type="checkbox"
                                         checked={selectedFields[key]}
                                         onChange={() => handleFieldToggle(key)}
-                                        style={{ marginRight: '0.5rem' }}
                                     />
                                     {label}
                                 </label>
@@ -456,41 +444,32 @@ export default function ExportConfigModal({ isOpen, onClose, results, studyName 
                 )}
 
                 {/* Export Info */}
-                <div style={{ marginBottom: '1.5rem', padding: '0.75rem', backgroundColor: 'var(--bg-accent)', borderRadius: '4px', fontSize: '0.875rem', border: '1px solid var(--border-color)' }}>
-                    <strong>Export Summary:</strong>{' '}
+                <div className={`${s.infoBox} ${s.mb15}`}>
+                    <strong>{t('export_summary_label')}</strong>{' '}
                     {exportFormat === 'structured'
-                        ? `${filteredResults.length} result(s) for ${selectedTestType ? selectedTestType.toUpperCase() : '...'}`
-                        : `${results.length} result(s)`
+                        ? t('export_summary_typed', { count: filteredResults.length, testType: selectedTestType ? selectedTestType.toUpperCase() : '...' })
+                        : t('export_summary_all', { count: results.length })
                     }{' '}
-                    &bull; Format: {exportFormat === 'structured' ? 'Structured CSV' : exportFormat.toUpperCase()}
+                    &bull; {exportFormat === 'structured' ? t('format_structured_csv') : exportFormat.toUpperCase()}
                 </div>
 
                 {/* Action Buttons */}
-                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem' }}>
+                <div className={s.flexEnd}>
                     <button
                         type="button"
                         onClick={onClose}
                         disabled={isExporting}
-                        style={{
-                            padding: '0.5rem 1rem', backgroundColor: '#6c757d', color: 'white',
-                            border: 'none', borderRadius: '4px',
-                            cursor: isExporting ? 'not-allowed' : 'pointer'
-                        }}
+                        className={s.btnSecondary}
                     >
-                        Cancel
+                        {t('cancel')}
                     </button>
                     <button
                         type="button"
                         onClick={handleExport}
                         disabled={isExporting || !canExport}
-                        style={{
-                            padding: '0.5rem 1rem',
-                            backgroundColor: !canExport || isExporting ? '#ccc' : '#28a745',
-                            color: 'white', border: 'none', borderRadius: '4px',
-                            cursor: !canExport || isExporting ? 'not-allowed' : 'pointer'
-                        }}
+                        className={s.btnSuccess}
                     >
-                        {isExporting ? 'Exporting...' : 'Export Results'}
+                        {isExporting ? t('exporting') : t('export_results_btn')}
                     </button>
                 </div>
             </div>

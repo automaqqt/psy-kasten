@@ -1,88 +1,84 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 import DashboardLayout from '../../../components/layouts/DashboardLayout';
 import ExportConfigModal from '../../../components/export/ExportConfigModal';
-import styles from '../../../styles/ResultsPage.module.css'; // Create this CSS file
+import { TEST_TYPES } from '../../../lib/testConfig';
+import { getMainScore } from '../../../lib/mainScoreFormatters';
+import styles from '../../../styles/ResultsPage.module.css';
+import { useTranslation } from 'next-i18next';
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 
-// Basic Results Table Component (Extract later)
-const ResultTable = ({ results }) => {
-     if (!results || results.length === 0) {
+const RESULTS_PER_PAGE = 25;
+
+const getPageNumbers = (current, total) => {
+    if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
+    if (current <= 4) return [1, 2, 3, 4, 5, '...', total];
+    if (current >= total - 3) return [1, '...', total - 4, total - 3, total - 2, total - 1, total];
+    return [1, '...', current - 1, current, current + 1, '...', total];
+};
+
+const ResultTable = ({ results, t }) => {
+    if (!results || results.length === 0) {
         return (
-            <div style={{ padding: '3rem', textAlign: 'center', backgroundColor: '#f8f9fa', borderRadius: '8px', marginTop: '2rem' }}>
-                <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>📊</div>
-                <h3>No Results Found</h3>
-                <p style={{ color: '#6c757d', marginBottom: '1rem' }}>
-                    No test results match your current filter criteria.
-                </p>
-                <p style={{ color: '#6c757d', fontSize: '0.9rem' }}>
-                    Make sure participants have completed their assigned tests, or adjust your filters.
-                </p>
+            <div className={styles.emptyState}>
+                <h3>{t('no_results_title')}</h3>
+                <p>{t('no_results_text')}</p>
+                <p>{t('no_results_hint')}</p>
             </div>
         );
     }
-     return (
-         <table className={styles.resultsTable}>
-             <thead>
-                 <tr>
-                     <th>Participant</th>
-                     <th>Test Type</th>
-                     <th>Completed On</th>
-                     <th>Score / Main Metric</th> {/* Simple example */}
-                     <th>Actions</th>
-                 </tr>
-             </thead>
-             <tbody>
-                 {results.map(res => {
-                    // Extract test-specific main metric
+    return (
+        <table className={styles.resultsTable}>
+            <thead>
+                <tr>
+                    <th>{t('col_participant')}</th>
+                    <th>{t('col_study')}</th>
+                    <th>{t('col_test_type')}</th>
+                    <th>{t('col_completed_on')}</th>
+                    <th>{t('col_score')}</th>
+                    <th>{t('col_actions')}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {results.map(res => {
                     const testType = res.testAssignment?.testType;
-                    let mainScore = 'N/A';
                     const d = res.data || {};
-                    if (testType === 'corsi') {
-                        mainScore = `UBS: ${d.ubs || d.corsiSpan || '?'}`;
-                    } else if (testType === 'pvt') {
-                        mainScore = d.meanRT ? `Mean RT: ${Math.round(d.meanRT)} ms` : 'N/A';
-                    } else if (testType === 'gng-sst') {
-                        mainScore = d.accuracy !== undefined ? `Accuracy: ${d.accuracy.toFixed(1)}%` : 'N/A';
-                    } else if (testType === 'rpm') {
-                        mainScore = `${d.correctCount || d.totalScore || 0} / ${d.totalProblems || '?'}`;
-                    } else if (testType === 'vm') {
-                        const rd = d.roundData || [];
-                        const span = rd.filter(r => r.success).map(r => r.level);
-                        mainScore = span.length ? `Span: ${Math.max(...span)}` : 'N/A';
-                    } else if (testType === 'akt') {
-                        mainScore = d.G !== undefined ? `G: ${d.G}` : 'N/A';
-                    } else if (testType === 'wtb') {
-                        mainScore = d.totalScore !== undefined ? `Score: ${d.totalScore}` : 'N/A';
-                    } else if (d.totalScore !== undefined) {
-                        mainScore = `${d.totalScore}${d.maxScore ? ' / ' + d.maxScore : ''}`;
-                    }
+                    const mainScore = getMainScore(testType, d);
 
+                    return (
+                        <tr key={res.id}>
+                            <td>{res.testAssignment?.participant?.identifier ?? 'N/A'}</td>
+                            <td>{res.testAssignment?.study?.name ?? 'N/A'}</td>
+                            <td>{res.testAssignment?.testType ?? 'Unknown'}</td>
+                            <td>{res.testAssignment?.completedAt ? new Date(res.testAssignment.completedAt).toLocaleString() : t('incomplete')}</td>
+                            <td>{mainScore}</td>
+                            <td>
+                                <Link href={`/dashboard/results/${res.id}`}>
+                                    <button className={styles.actionButtonView}>{t('view_details')}</button>
+                                </Link>
+                            </td>
+                        </tr>
+                    );
+                })}
+            </tbody>
+        </table>
+    );
+};
 
-                     return (
-                         <tr key={res.id}>
-                             <td>{res.testAssignment?.participant?.identifier ?? 'N/A'}</td>
-                             <td>{res.testAssignment?.testType ?? 'Unknown'}</td>
-                             <td>{res.testAssignment?.completedAt ? new Date(res.testAssignment.completedAt).toLocaleString() : 'Incomplete'}</td>
-                              <td>{mainScore}</td>
-                             <td>
-                                 <Link href={`/dashboard/results/${res.id}`}>
-                                     <button className={styles.actionButtonView}>View Details</button>
-                                 </Link>
-                             </td>
-                         </tr>
-                     );
-                 })}
-             </tbody>
-         </table>
-     );
- };
+export async function getServerSideProps({ locale }) {
+    return {
+        props: {
+            ...(await serverSideTranslations(locale, ['common', 'dashboard'])),
+        },
+    };
+}
 
 export default function ResultsPage() {
+    const { t } = useTranslation('dashboard');
     const router = useRouter();
     const [results, setResults] = useState([]);
-    const [studies, setStudies] = useState([]); // For filtering
-    const [participants, setParticipants] = useState([]); // For filtering
+    const [studies, setStudies] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
     const [isExportModalOpen, setIsExportModalOpen] = useState(false);
@@ -90,7 +86,12 @@ export default function ResultsPage() {
     // Filter State
     const [selectedStudyId, setSelectedStudyId] = useState('');
     const [selectedParticipantId, setSelectedParticipantId] = useState('');
-    // Add states for selectedTestType if needed
+    const [selectedTestType, setSelectedTestType] = useState('');
+    const [dateFrom, setDateFrom] = useState('');
+    const [dateTo, setDateTo] = useState('');
+
+    // Pagination
+    const [currentPage, setCurrentPage] = useState(1);
 
     // Read participantId from URL on mount
     useEffect(() => {
@@ -106,17 +107,15 @@ export default function ResultsPage() {
         setIsLoading(true);
         setError(null);
         try {
-            // Fetch studies for filter dropdown
             const studiesRes = await fetch('/api/studies');
             if (!studiesRes.ok) throw new Error('Failed to fetch studies');
             const studiesData = await studiesRes.json();
             setStudies(studiesData);
 
-            // Build query string for results based on filters
             const queryParams = new URLSearchParams();
             if (selectedStudyId) queryParams.append('studyId', selectedStudyId);
             if (selectedParticipantId) queryParams.append('participantId', selectedParticipantId);
-            // Add other filters...
+            if (selectedTestType) queryParams.append('testType', selectedTestType);
 
             const resultsRes = await fetch(`/api/results?${queryParams.toString()}`);
             if (!resultsRes.ok) {
@@ -125,7 +124,6 @@ export default function ResultsPage() {
             }
             const resultsData = await resultsRes.json();
             setResults(resultsData);
-
         } catch (err) {
             setError(err.message);
         } finally {
@@ -133,10 +131,48 @@ export default function ResultsPage() {
         }
     };
 
-    // Fetch initial data and refetch when filters change
     useEffect(() => {
         fetchData();
-    }, [selectedStudyId, selectedParticipantId]); // Add other filter dependencies here
+    }, [selectedStudyId, selectedParticipantId, selectedTestType]);
+
+    // Client-side date filtering
+    const filteredResults = useMemo(() => {
+        if (!dateFrom && !dateTo) return results;
+        return results.filter(res => {
+            const completedAt = res.testAssignment?.completedAt;
+            if (!completedAt) return false;
+            const date = new Date(completedAt);
+            if (dateFrom && date < new Date(dateFrom)) return false;
+            if (dateTo) {
+                const toEnd = new Date(dateTo);
+                toEnd.setHours(23, 59, 59, 999);
+                if (date > toEnd) return false;
+            }
+            return true;
+        });
+    }, [results, dateFrom, dateTo]);
+
+    // Pagination
+    const totalPages = Math.ceil(filteredResults.length / RESULTS_PER_PAGE);
+    const paginatedResults = filteredResults.slice(
+        (currentPage - 1) * RESULTS_PER_PAGE,
+        currentPage * RESULTS_PER_PAGE
+    );
+
+    // Reset page when filters change
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [selectedStudyId, selectedParticipantId, selectedTestType, dateFrom, dateTo]);
+
+    const hasActiveFilters = selectedStudyId || selectedParticipantId || selectedTestType || dateFrom || dateTo;
+
+    const clearAllFilters = () => {
+        setSelectedStudyId('');
+        setSelectedParticipantId('');
+        setSelectedTestType('');
+        setDateFrom('');
+        setDateTo('');
+    };
 
     const getStudyName = () => {
         if (selectedStudyId) {
@@ -148,49 +184,129 @@ export default function ResultsPage() {
     return (
         <DashboardLayout>
             <div className={styles.pageHeader}>
-                <h1>Test Results</h1>
+                <h1>{t('test_results')}</h1>
                 <button
                     onClick={() => setIsExportModalOpen(true)}
-                    disabled={!results || results.length === 0}
+                    disabled={!filteredResults || filteredResults.length === 0}
                     className={styles.exportButton}
-                    title="Export filtered results in various formats"
+                    title={t('export_results')}
                 >
-                    📥 Export Results
+                    {t('export_results')}
                 </button>
             </div>
 
             <div className={styles.filters}>
-                 <label htmlFor="studyFilter">Filter by Study:</label>
-                 <select
-                    id="studyFilter"
-                    value={selectedStudyId}
-                    onChange={(e) => setSelectedStudyId(e.target.value)}
-                    className={styles.filterSelect}
-                >
-                    <option value="">All Studies</option>
-                    {studies.map(study => (
-                        <option key={study.id} value={study.id}>{study.name}</option>
-                    ))}
-                 </select>
-                 {/* Add more filters for Participant, Test Type */}
+                <div className={styles.filterGroup}>
+                    <label htmlFor="studyFilter">{t('filter_study')}</label>
+                    <select
+                        id="studyFilter"
+                        value={selectedStudyId}
+                        onChange={(e) => setSelectedStudyId(e.target.value)}
+                        className={styles.filterSelect}
+                    >
+                        <option value="">{t('all_studies')}</option>
+                        {studies.map(study => (
+                            <option key={study.id} value={study.id}>{study.name}</option>
+                        ))}
+                    </select>
+                </div>
+
+                <div className={styles.filterGroup}>
+                    <label htmlFor="testTypeFilter">{t('filter_test_type')}</label>
+                    <select
+                        id="testTypeFilter"
+                        value={selectedTestType}
+                        onChange={(e) => setSelectedTestType(e.target.value)}
+                        className={styles.filterSelect}
+                    >
+                        <option value="">{t('all_types')}</option>
+                        {TEST_TYPES.map(tt => (
+                            <option key={tt.id} value={tt.id}>{tt.id.toUpperCase()}</option>
+                        ))}
+                    </select>
+                </div>
+
+                <div className={styles.filterGroup}>
+                    <label htmlFor="dateFrom">{t('filter_from')}</label>
+                    <input
+                        id="dateFrom"
+                        type="date"
+                        value={dateFrom}
+                        onChange={(e) => setDateFrom(e.target.value)}
+                        className={styles.filterDate}
+                    />
+                </div>
+
+                <div className={styles.filterGroup}>
+                    <label htmlFor="dateTo">{t('filter_to')}</label>
+                    <input
+                        id="dateTo"
+                        type="date"
+                        value={dateTo}
+                        onChange={(e) => setDateTo(e.target.value)}
+                        className={styles.filterDate}
+                    />
+                </div>
+
+                {hasActiveFilters && (
+                    <button onClick={clearAllFilters} className={styles.clearFilters}>
+                        {t('clear_filters')}
+                    </button>
+                )}
+
+                {!isLoading && (
+                    <span className={styles.resultCount}>
+                        {t('result_count', { count: filteredResults.length })}
+                    </span>
+                )}
             </div>
 
-
-            {isLoading && <p className={styles.loadingText}>Loading results...</p>}
+            {isLoading && <p className={styles.loadingText}>{t('loading_results')}</p>}
             {error && <p className={styles.errorText}>Error: {error}</p>}
 
             {!isLoading && !error && (
-                <ResultTable results={results} />
+                <>
+                    <ResultTable results={paginatedResults} t={t} />
+                    {totalPages > 1 && (
+                        <div className={styles.pagination}>
+                            <button
+                                className={styles.pageButton}
+                                disabled={currentPage === 1}
+                                onClick={() => setCurrentPage(p => p - 1)}
+                            >
+                                {t('previous')}
+                            </button>
+                            {getPageNumbers(currentPage, totalPages).map((page, i) =>
+                                page === '...' ? (
+                                    <span key={`ellipsis-${i}`} className={styles.pageEllipsis}>...</span>
+                                ) : (
+                                    <button
+                                        key={page}
+                                        className={page === currentPage ? styles.pageButtonActive : styles.pageButton}
+                                        onClick={() => setCurrentPage(page)}
+                                    >
+                                        {page}
+                                    </button>
+                                )
+                            )}
+                            <button
+                                className={styles.pageButton}
+                                disabled={currentPage === totalPages}
+                                onClick={() => setCurrentPage(p => p + 1)}
+                            >
+                                {t('next')}
+                            </button>
+                        </div>
+                    )}
+                </>
             )}
 
-            {/* Export Configuration Modal */}
             <ExportConfigModal
                 isOpen={isExportModalOpen}
                 onClose={() => setIsExportModalOpen(false)}
-                results={results}
+                results={filteredResults}
                 studyName={getStudyName()}
             />
-
         </DashboardLayout>
     );
 }

@@ -147,7 +147,7 @@ const RPMResults = ({ userAnswers, problems, startTime, endTime, settings, onRes
         </Link>
       </div>
        <p className={styles.copyrightNoticeResults}>
-         ** Reminder: Raven's Progressive Matrices require licensed materials for use. **
+         ** Reminder: Raven&apos;s Progressive Matrices require licensed materials for use. **
        </p>
     </div>
   );

@@ -1,10 +1,10 @@
-import { getSession } from 'next-auth/react'; // or getServerSession
 import prisma from '../../../lib/prisma';
 import { authOptions } from '../auth/[...nextauth]';
 import { getServerSession } from "next-auth/next";
+import { withCsrfProtection } from '../../../lib/csrf';
 
-export default async function handler(req, res) {
-    const session = await getServerSession(req, res, authOptions); // Or getSession({ req });
+async function handler(req, res) {
+    const session = await getServerSession(req, res, authOptions);
     const { participantId } = req.query;
 
     if (!session?.user?.id) {
@@ -69,7 +69,6 @@ export default async function handler(req, res) {
                 data: updateData,
             });
 
-            console.log(`Participant ${participantId} updated by user ${researcherId}`);
             return res.status(200).json(updatedParticipant);
 
         } catch (error) {
@@ -98,7 +97,6 @@ export default async function handler(req, res) {
             await prisma.participant.delete({
                 where: { id: participantId },
             });
-             console.log(`Participant ${participantId} deleted by user ${researcherId}`);
             return res.status(204).end(); // No Content
 
         } catch (error) {
@@ -112,3 +110,5 @@ export default async function handler(req, res) {
         return res.status(405).json({ message: `Method ${req.method} Not Allowed` });
     }
 }
+
+export default withCsrfProtection(handler);

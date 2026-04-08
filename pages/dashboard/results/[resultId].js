@@ -5,31 +5,21 @@ import DashboardLayout from '../../../components/layouts/DashboardLayout';
 import styles from '../../../styles/ResultDetailPage.module.css';
 import { getAdaptedProps } from '../../../lib/resultAdapters';
 import { getCSVExporter } from '../../../lib/csvExporters';
+import { useTranslation } from 'next-i18next';
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 
-// Import all result components
-import CorsiResults from '../../../components/results/corsi';
-import PVTResults from '../../../components/results/pvt';
-import GNGResults from '../../../components/results/gng';
-import RPMResults from '../../../components/results/rpm';
-import TOLResults from '../../../components/results/tol';
-import VmResults from '../../../components/results/vm';
-import AktResults from '../../../components/results/akt';
-import WtbResults from '../../../components/results/wtb';
-import CPTResults from '../../../components/results/cpt';
+import { getResultComponent } from '../../../lib/resultComponents';
 
-const COMPONENT_MAP = {
-    'corsi': CorsiResults,
-    'pvt': PVTResults,
-    'gng-sst': GNGResults,
-    'rpm': RPMResults,
-    'tol': TOLResults,
-    'vm': VmResults,
-    'akt': AktResults,
-    'wtb': WtbResults,
-    'cpt': CPTResults,
-};
+export async function getServerSideProps({ locale }) {
+    return {
+        props: {
+            ...(await serverSideTranslations(locale, ['common', 'dashboard'])),
+        },
+    };
+}
 
 export default function ResultDetailPage() {
+    const { t } = useTranslation('dashboard');
     const router = useRouter();
     const { resultId } = router.query;
     const [result, setResult] = useState(null);
@@ -83,7 +73,7 @@ export default function ResultDetailPage() {
     if (isLoading) {
         return (
             <DashboardLayout>
-                <p className={styles.loadingText}>Loading result details...</p>
+                <p className={styles.loadingText}>{t('loading_result')}</p>
             </DashboardLayout>
         );
     }
@@ -92,11 +82,11 @@ export default function ResultDetailPage() {
         return (
             <DashboardLayout>
                 <div className={styles.errorText}>
-                    <h2>Error</h2>
-                    <p>{error || 'Result not found'}</p>
+                    <h2>{t('result_not_found')}</h2>
+                    <p>{error || t('result_not_found')}</p>
                     <Link href="/dashboard/results">
                         <button className={styles.downloadButton} style={{ marginTop: '1rem' }}>
-                            Back to Results
+                            {t('back_to_results')}
                         </button>
                     </Link>
                 </div>
@@ -117,7 +107,7 @@ export default function ResultDetailPage() {
 
     // Try to get adapted props for test-specific rendering
     const adaptedProps = getAdaptedProps(testType, result.data);
-    const ResultComponent = COMPONENT_MAP[testType];
+    const ResultComponent = getResultComponent(testType);
     const hasCSVExporter = !!getCSVExporter(testType);
 
     return (
@@ -127,22 +117,22 @@ export default function ResultDetailPage() {
                 <div className={styles.pageHeader}>
                     <div>
                         <Link href="/dashboard/results" className={styles.backLink}>
-                            ← Back to Results
+                            {t('back_to_results')}
                         </Link>
-                        <h1>Test Result Details</h1>
+                        <h1>{t('result_details_title')}</h1>
                         <p className={styles.subtitle}>
-                            Participant: <strong>{participantId}</strong> | Test: <strong>{testType.toUpperCase()}</strong>
-                            {studyName && <> | Study: <strong>{studyName}</strong></>}
+                            {t('label_participant')} <strong>{participantId}</strong> | {t('label_test')} <strong>{testType.toUpperCase()}</strong>
+                            {studyName && <> | {t('label_study')} <strong>{studyName}</strong></>}
                         </p>
                     </div>
                     <div className={styles.actionButtons}>
                         {hasCSVExporter && (
                             <button onClick={downloadResultCSV} className={styles.downloadButton}>
-                                Download CSV
+                                {t('download_csv')}
                             </button>
                         )}
                         <button onClick={downloadResultJSON} className={styles.downloadButton}>
-                            Download JSON
+                            {t('download_json')}
                         </button>
                     </div>
                 </div>
@@ -150,28 +140,28 @@ export default function ResultDetailPage() {
                 {/* Summary Cards */}
                 <div className={styles.summaryCards}>
                     <div className={styles.summaryCard}>
-                        <h3>Completed At</h3>
+                        <h3>{t('card_completed_at')}</h3>
                         <p>{completedAt}</p>
                     </div>
                     <div className={styles.summaryCard}>
-                        <h3>Test Type</h3>
+                        <h3>{t('card_test_type')}</h3>
                         <p>{testType.toUpperCase()}</p>
                     </div>
                     {result.data?.totalScore !== undefined && (
                         <div className={`${styles.summaryCard} ${styles.success}`}>
-                            <h3>Score</h3>
+                            <h3>{t('card_score')}</h3>
                             <p>{result.data.totalScore}{result.data.maxScore ? ` / ${result.data.maxScore}` : ''}</p>
                         </div>
                     )}
                     {result.data?.ubs !== undefined && (
                         <div className={`${styles.summaryCard} ${styles.primary}`}>
-                            <h3>Corsi Span (UBS)</h3>
+                            <h3>{t('card_corsi_span')}</h3>
                             <p>{result.data.ubs}</p>
                         </div>
                     )}
                     {result.data?.accuracy !== undefined && (
                         <div className={`${styles.summaryCard} ${styles.primary}`}>
-                            <h3>Accuracy</h3>
+                            <h3>{t('card_accuracy')}</h3>
                             <p>{typeof result.data.accuracy === 'number' ? result.data.accuracy.toFixed(1) + '%' : result.data.accuracy}</p>
                         </div>
                     )}
@@ -185,7 +175,7 @@ export default function ResultDetailPage() {
                 ) : (
                     /* Fallback: Generic view for unknown test types */
                     <div className={styles.metricsSection}>
-                        <h2>Test Data</h2>
+                        <h2>{t('test_data_fallback')}</h2>
                         <div className={styles.metricsGrid}>
                             {Object.entries(result.data).map(([key, value]) => {
                                 if (typeof value !== 'object' || value === null) {
@@ -205,7 +195,7 @@ export default function ResultDetailPage() {
                 {/* Raw JSON Section */}
                 <div className={styles.rawDataSection}>
                     <details>
-                        <summary className={styles.rawDataSummary}>View Full Raw Data</summary>
+                        <summary className={styles.rawDataSummary}>{t('view_raw_data')}</summary>
                         <div className={styles.jsonContainer}>
                             <pre>{JSON.stringify(result.data, null, 2)}</pre>
                         </div>

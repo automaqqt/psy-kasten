@@ -12,7 +12,7 @@ export async function getServerSideProps({ locale }) { // Use getServerSideProps
     // For simplicity, we'll fetch client-side first.
     return {
         props: {
-            ...(await serverSideTranslations(locale ?? 'en', ['common'])), // Add 'proposals' namespace if needed
+            ...(await serverSideTranslations(locale ?? 'en', ['common', 'dashboard'])),
         },
     };
 }

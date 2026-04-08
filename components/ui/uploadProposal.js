@@ -1,8 +1,11 @@
 import React, { useState, useCallback, useRef } from 'react';
-import styles from '../../styles/UploadProposal.module.css'; // Create this CSS file
-import Modal from './modal'; // Assuming Modal component exists
+import styles from '../../styles/UploadProposal.module.css';
+import Modal from './modal';
+import { fetchWithCsrf } from '../../lib/fetchWithCsrf';
+import { useTranslation } from 'next-i18next';
 
 export default function UploadProposal({ currentProposal }) {
+    const { t } = useTranslation('dashboard');
     const [file, setFile] = useState(null);
     const [notes, setNotes] = useState('');
     const [isDragging, setIsDragging] = useState(false);
@@ -45,10 +48,10 @@ export default function UploadProposal({ currentProposal }) {
             const droppedFile = e.dataTransfer.files[0];
             // Basic validation (can add more checks)
             if (droppedFile.type !== 'application/pdf') {
-                setError('Invalid file type. Only PDF files are accepted.');
+                setError(t('upload_error_invalid_type'));
                 setFile(null);
             } else if (droppedFile.size > 10 * 1024 * 1024) { // 10MB Limit
-                 setError('File is too large. Maximum size is 10MB.');
+                 setError(t('upload_error_too_large'));
                  setFile(null);
             } else {
                 setFile(droppedFile);
@@ -65,10 +68,10 @@ export default function UploadProposal({ currentProposal }) {
          if (e.target.files && e.target.files.length > 0) {
             const selectedFile = e.target.files[0];
              if (selectedFile.type !== 'application/pdf') {
-                setError('Invalid file type. Only PDF files are accepted.');
+                setError(t('upload_error_invalid_type'));
                 setFile(null);
              } else if (selectedFile.size > 10 * 1024 * 1024) { // 10MB Limit
-                 setError('File is too large. Maximum size is 10MB.');
+                 setError(t('upload_error_too_large'));
                  setFile(null);
             } else {
                 setFile(selectedFile);
@@ -86,7 +89,7 @@ export default function UploadProposal({ currentProposal }) {
     const handleFormSubmit = async (e) => {
         e.preventDefault();
         if (!file) {
-            setError('No file selected.');
+            setError(t('upload_error_no_file'));
             return;
         }
         setIsLoading(true);
@@ -98,7 +101,7 @@ export default function UploadProposal({ currentProposal }) {
         formData.append('notes', notes);
 
         try {
-            const response = await fetch('/api/proposals/upload', {
+            const response = await fetchWithCsrf('/api/proposals/upload', {
                 method: 'POST',
                 body: formData,
             });
@@ -122,10 +125,9 @@ export default function UploadProposal({ currentProposal }) {
     if (currentProposal && !currentProposal.isReviewed) {
          return (
             <div className={styles.pendingContainer}>
-                 <h3>Pending Proposal</h3>
-                 <p>You have already submitted a test proposal ("{currentProposal.originalFilename}") on {new Date(currentProposal.createdAt).toLocaleDateString()}.</p>
-                 <p>Please wait for it to be reviewed by an administrator before submitting another.</p>
-                  {/* Optional: Add button to view/cancel pending proposal */}
+                 <h3>{t('upload_pending_title')}</h3>
+                 <p>{t('upload_pending_submitted', { filename: currentProposal.originalFilename, date: new Date(currentProposal.createdAt).toLocaleDateString() })}</p>
+                 <p>{t('upload_pending_wait')}</p>
             </div>
         );
     }
@@ -133,8 +135,8 @@ export default function UploadProposal({ currentProposal }) {
 
     return (
         <div className={styles.uploadContainer}>
-            <h3>Submit New Test Proposal</h3>
-            <p>Upload a PDF document describing the test you would like to add.</p>
+            <h3>{t('upload_submit_title')}</h3>
+            <p>{t('upload_submit_desc')}</p>
 
             {error && <p className={styles.errorText}>{error}</p>}
             {success && <p className={styles.successText}>{success}</p>}
@@ -157,41 +159,37 @@ export default function UploadProposal({ currentProposal }) {
                     disabled={isLoading}
                 />
                  {file ? (
-                    <p>Selected: <strong>{file.name}</strong> ({ (file.size / 1024 / 1024).toFixed(2) } MB)</p>
+                    <p>{t('upload_selected', { name: file.name, size: (file.size / 1024 / 1024).toFixed(2) })}</p>
                  ) : (
-                     <p>Drag & Drop your PDF here, or click to select.</p>
+                     <p>{t('upload_drop_hint')}</p>
                  )}
-                 <span className={styles.browseLink}>Browse Files</span>
+                 <span className={styles.browseLink}>{t('upload_browse')}</span>
             </div>
 
             {/* Modal for Notes and Final Submit */}
             <Modal
-                isOpen={isNotesModalOpen && !!file} // Open only if modal flag is true AND file exists
-                onClose={() => {
-                    setIsNotesModalOpen(false);
-                    // Optional: Clear file if modal closed without submitting?
-                    // setFile(null);
-                }}
-                title="Add Notes & Confirm Upload"
+                isOpen={isNotesModalOpen && !!file}
+                onClose={() => setIsNotesModalOpen(false)}
+                title={t('upload_modal_title')}
             >
                 <form onSubmit={handleFormSubmit}>
-                    <p>File selected: <strong>{file?.name}</strong></p>
+                    <p>{t('upload_file_selected', { name: file?.name })}</p>
                     <div className={styles.formGroupModal}>
-                        <label htmlFor="notes">Optional Notes:</label>
+                        <label htmlFor="notes">{t('upload_notes_label')}</label>
                         <textarea
                             id="notes"
                             rows={4}
                             value={notes}
                             onChange={(e) => setNotes(e.target.value)}
-                            placeholder="Add any relevant information about the test or PDF..."
+                            placeholder={t('upload_notes_placeholder')}
                             disabled={isLoading}
                         />
                     </div>
                     {error && <p className={styles.errorTextModal}>{error}</p>}
                     <div className={styles.modalActions}>
-                         <button type="button" onClick={() => setIsNotesModalOpen(false)} disabled={isLoading} className={styles.secondaryButtonModal}>Cancel</button>
+                         <button type="button" onClick={() => setIsNotesModalOpen(false)} disabled={isLoading} className={styles.secondaryButtonModal}>{t('cancel')}</button>
                          <button type="submit" disabled={isLoading || !file} className={styles.primaryButtonModal}>
-                            {isLoading ? 'Uploading...' : 'Submit Proposal'}
+                            {isLoading ? t('uploading') : t('upload_submit_btn')}
                         </button>
                     </div>
                 </form>

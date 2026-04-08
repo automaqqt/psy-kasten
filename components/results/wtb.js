@@ -243,7 +243,7 @@ const WtbResults = ({ roundData, maxLevel, totalScore, isStandalone, t }) => {
                 </div>
                 <div className={styles.detailRow}>
                   <span className={styles.detailLabel}>{translate('transcription')}:</span>
-                  <span className={styles.detailValue}>"{round.userInput}"</span>
+                  <span className={styles.detailValue}>&ldquo;{round.userInput}&rdquo;</span>
                 </div>
                 <div className={styles.detailRow}>
                   <span className={styles.detailLabel}>{translate('attempt_number')}:</span>

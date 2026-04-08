@@ -1,12 +1,14 @@
 // pages/api/studies/[studyId].js
-import { getSession } from 'next-auth/react'; // or getServerSession
+import crypto from 'crypto';
 import prisma from '../../../lib/prisma';
 import { authOptions } from '../auth/[...nextauth]';
 import { getServerSession } from "next-auth/next";
+import { withCsrfProtection } from '../../../lib/csrf';
+import { sanitizeText, sanitizeRichText } from '../../../lib/sanitize';
 
 
-export default async function handler(req, res) {
-  const session = await getServerSession(req, res, authOptions); // Or getSession({ req });
+async function handler(req, res) {
+  const session = await getServerSession(req, res, authOptions);
   const { studyId } = req.query;
 
   if (!session?.user?.id) {
@@ -61,7 +63,7 @@ export default async function handler(req, res) {
          });
 
          // Add full test links to assignments
-         const baseUrl = process.env.NEXTAUTH_URL || `${req.headers['x-forwarded-proto'] || 'http'}://${req.headers.host}`;
+         const baseUrl = process.env.NEXTAUTH_URL || '';
          detailedStudy.participants = detailedStudy.participants.map(participant => ({
              ...participant,
              assignments: participant.assignments.map(assignment => ({
@@ -78,19 +80,40 @@ export default async function handler(req, res) {
   }
   // --- PUT: Update study details ---
   else if (req.method === 'PUT') {
-    const { name, description } = req.body;
+    const { name, description, publicLinkEnabled, participantNaming } = req.body;
 
     if (!name || typeof name !== 'string' || name.trim().length === 0) {
       return res.status(400).json({ message: 'Study name is required' });
     }
 
     try {
+      const sanitizedName = sanitizeText(name);
+      const sanitizedDescription = description ? sanitizeRichText(description) : null;
+
+      if (!sanitizedName || sanitizedName.length === 0) {
+        return res.status(400).json({ message: 'Study name cannot be empty after sanitization' });
+      }
+
+      const data = {
+        name: sanitizedName,
+        description: sanitizedDescription,
+      };
+
+      // Handle public link toggle
+      if (publicLinkEnabled === true && !study.publicAccessKey) {
+        data.publicAccessKey = crypto.randomBytes(16).toString('hex');
+      } else if (publicLinkEnabled === false) {
+        data.publicAccessKey = null;
+      }
+
+      // Handle participant naming mode
+      if (participantNaming === 'self' || participantNaming === 'random') {
+        data.participantNaming = participantNaming;
+      }
+
       const updatedStudy = await prisma.study.update({
-        where: { id: studyId }, // Ownership already verified
-        data: {
-          name: name.trim(),
-          description: description?.trim() || null,
-        },
+        where: { id: studyId },
+        data,
       });
       return res.status(200).json(updatedStudy);
     } catch (error) {
@@ -107,7 +130,6 @@ export default async function handler(req, res) {
         where: { id: studyId }, // Ownership already verified
       });
       // Deleting study will cascade delete Participants, Assignments, Results based on schema
-      console.log(`Study ${studyId} deleted by user ${researcherId}`);
       return res.status(204).end(); // No Content on successful delete
     } catch (error) {
       console.error(`Error deleting study ${studyId}:`, error);
@@ -121,3 +143,5 @@ export default async function handler(req, res) {
     return res.status(405).json({ message: `Method ${req.method} Not Allowed` });
   }
 }
+
+export default withCsrfProtection(handler);

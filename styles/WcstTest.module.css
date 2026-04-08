@@ -1,0 +1,645 @@
+/* styles/WcstTest.module.css */
+.container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: var(--bg-primary, #eef2f7);
+}
+
+.testContainer {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  padding: 1rem;
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
+  height: 90%;
+}
+
+.gameMetrics {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.timeIndicator,
+.trialIndicator {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text-secondary, #666);
+}
+
+.metricValue {
+  font-weight: 700;
+  color: #d32f2f;
+}
+
+.iconButton {
+  background: none;
+  border: none;
+  color: #666;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.iconButton:hover {
+  background-color: #d32f2f1a;
+  color: #d32f2f;
+}
+
+.gameArea {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  position: relative;
+  padding: 1rem;
+  min-height: 400px;
+}
+
+/* Welcome Card Styles */
+.welcomeCard {
+  background-color: var(--bg-secondary, #ffffff);
+  border-radius: 15px;
+  padding: 2rem;
+  max-width: 700px;
+  width: 100%;
+  box-shadow: 0 5px 20px var(--shadow-color, rgba(0, 0, 0, 0.1));
+  z-index: 10;
+  animation: appear 0.5s ease;
+}
+
+.welcomeCard h2 {
+  color: #d32f2f;
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.welcomeCard p {
+  margin-bottom: 1.5rem;
+  line-height: 1.6;
+  color: var(--text-primary, #333);
+}
+
+/* Tutorial Styles */
+.tutorialContent {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin: 1.5rem 0;
+}
+
+.tutorialStep {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+  padding: 1rem;
+  background-color: #d32f2f0d;
+  border-radius: 10px;
+  border-left: 4px solid #d32f2f;
+  transition: all 0.3s ease;
+}
+
+.tutorialStep:hover {
+  background-color: #d32f2f1a;
+  transform: translateX(5px);
+}
+
+.stepNumber {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #d32f2f 0%, #b32828 100%);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 1.2rem;
+  box-shadow: 0 4px 10px #d32f2f4d;
+}
+
+.stepText {
+  flex: 1;
+}
+
+.stepText h3 {
+  margin: 0 0 0.5rem 0;
+  color: #d32f2f;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.stepText p {
+  margin: 0;
+  color: var(--text-secondary, #666);
+  line-height: 1.5;
+}
+
+/* Button Styles */
+.buttonContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+  width: 100%;
+}
+
+.primaryButton,
+.secondaryButton,
+.tertiaryButton {
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+}
+
+.primaryButton {
+  background-color: #d32f2f;
+  color: white;
+}
+
+.primaryButton:hover:not(:disabled) {
+  filter: brightness(0.9);
+  transform: translateY(-1px);
+  box-shadow: 0 5px 15px #d32f2f4d;
+}
+
+.secondaryButton {
+  background-color: var(--bg-accent, #f0f0f0);
+  color: var(--text-primary, #333);
+}
+
+.secondaryButton:hover:not(:disabled) {
+  background-color: var(--border-color, #e0e0e0);
+  transform: translateY(-1px);
+}
+
+.tertiaryButton {
+  background-color: transparent;
+  color: var(--text-secondary, #666);
+  border: 1px solid var(--border-color, #e0e0e0);
+}
+
+.tertiaryButton:hover:not(:disabled) {
+  background-color: var(--bg-accent, #f5f5f5);
+  border-color: var(--text-secondary, #666);
+  transform: translateY(-1px);
+}
+
+.primaryButton:disabled,
+.secondaryButton:disabled,
+.tertiaryButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Demo Styles */
+.demoIntro {
+  font-size: 1rem;
+  color: var(--text-secondary, #666);
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.demoStepText {
+  min-height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 1rem 0;
+  padding: 1rem;
+  background-color: #d32f2f0d;
+  border-radius: 8px;
+  border-left: 4px solid #d32f2f;
+}
+
+.demoStepText p {
+  margin: 0;
+  font-size: 1rem;
+  color: var(--text-primary, #333);
+  font-weight: 500;
+  text-align: center;
+}
+
+.demoContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  margin: 1.5rem 0;
+  width: 100%;
+  min-height: 300px;
+  justify-content: center;
+}
+
+/* Practice Stats Styles */
+.practiceStats {
+  background-color: #d32f2f0d;
+  border-radius: 10px;
+  padding: 1.5rem;
+  margin: 1.5rem 0;
+  border: 2px solid #d32f2f33;
+}
+
+.practiceStats h3 {
+  margin: 0 0 1rem 0;
+  color: #d32f2f;
+  font-size: 1.1rem;
+  text-align: center;
+}
+
+.statRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #d32f2f1a;
+}
+
+.statRow:last-child {
+  border-bottom: none;
+}
+
+.statRow span:first-child {
+  color: var(--text-secondary, #666);
+  font-weight: 500;
+}
+
+.statValue {
+  color: #d32f2f;
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.linkContainer {
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.link {
+  color: #d32f2f;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.link:hover {
+  color: #b32828;
+  text-decoration: underline;
+}
+
+/* ═══ WCST Card Sorting Layout ═══ */
+
+.sortingArea {
+  width: 100%;
+  max-width: 900px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+  padding: 1rem;
+}
+
+/* Reference cards row */
+.referenceCards {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.referenceLabel {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-secondary, #666);
+  text-align: center;
+  margin-bottom: 0.5rem;
+}
+
+/* Individual card */
+.card {
+  width: 140px;
+  height: 180px;
+  background-color: var(--bg-secondary, #ffffff);
+  border: 3px solid var(--border-color, #ddd);
+  border-radius: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px var(--shadow-color, rgba(0, 0, 0, 0.08));
+  position: relative;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px var(--shadow-color, rgba(0, 0, 0, 0.15));
+  border-color: #d32f2f;
+}
+
+.card:active {
+  transform: translateY(0);
+}
+
+.cardSelected {
+  border-color: #d32f2f;
+  box-shadow: 0 0 0 3px #d32f2f40;
+}
+
+.cardCorrect {
+  border-color: #43a047;
+  box-shadow: 0 0 0 3px #43a04740;
+}
+
+.cardIncorrect {
+  border-color: #e53935;
+  box-shadow: 0 0 0 3px #e5393540;
+}
+
+.cardDisabled {
+  pointer-events: none;
+  opacity: 0.7;
+}
+
+/* Stimulus card (the one to sort) */
+.stimulusSection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.stimulusLabel {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-primary, #333);
+  text-align: center;
+}
+
+.stimulusCard {
+  width: 160px;
+  height: 200px;
+  background-color: var(--bg-secondary, #f5f5f5);
+  border: 3px solid var(--border-color, #bbb);
+  border-radius: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 12px;
+  box-shadow: 0 4px 15px var(--shadow-color, rgba(0, 0, 0, 0.12));
+}
+
+/* Shapes inside cards */
+.shape {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.shapeCircle {
+  border-radius: 50%;
+}
+
+.shapeStar {
+  clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+}
+
+.shapeCross {
+  clip-path: polygon(35% 0%, 65% 0%, 65% 35%, 100% 35%, 100% 65%, 65% 65%, 65% 100%, 35% 100%, 35% 65%, 0% 65%, 0% 35%, 35% 35%);
+}
+
+.shapeTriangle {
+  clip-path: polygon(50% 0%, 100% 100%, 0% 100%);
+}
+
+/* Feedback overlay on card area */
+.feedbackOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  z-index: 5;
+}
+
+.feedbackCorrect {
+  background-color: rgba(67, 160, 71, 0.15);
+}
+
+.feedbackIncorrect {
+  background-color: rgba(229, 57, 53, 0.15);
+}
+
+.feedbackIcon {
+  font-size: 2.5rem;
+  font-weight: bold;
+}
+
+.feedbackIconCorrect {
+  color: #43a047;
+}
+
+.feedbackIconIncorrect {
+  color: #e53935;
+}
+
+/* Feedback message below cards */
+.feedbackMessage {
+  font-size: 1.1rem;
+  font-weight: 600;
+  padding: 0.5rem 1.5rem;
+  border-radius: 8px;
+  text-align: center;
+  min-height: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.feedbackMessageCorrect {
+  color: #43a047;
+  background-color: #43a04715;
+}
+
+.feedbackMessageIncorrect {
+  color: #e53935;
+  background-color: #e5393515;
+}
+
+.feedbackMessageEmpty {
+  color: transparent;
+}
+
+/* Category/rule indicator */
+.ruleIndicator {
+  font-size: 0.85rem;
+  color: var(--text-secondary, #666);
+  text-align: center;
+}
+
+/* Bottom instruction during play */
+.bottomInstructions {
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--text-secondary, #666);
+  text-align: center;
+}
+
+.bottomInstructions p {
+  margin: 0;
+}
+
+/* Dark mode */
+html[data-theme="dark"] .welcomeCard {
+  background-color: #1e1e1e;
+  border-color: #333;
+}
+
+html[data-theme="dark"] .welcomeCard h2,
+html[data-theme="dark"] .practiceStats h3 {
+  color: #e06d6d;
+}
+
+html[data-theme="dark"] .welcomeCard p,
+html[data-theme="dark"] .stepText p {
+  color: #bbb;
+}
+
+html[data-theme="dark"] .secondaryButton {
+  background-color: #333;
+  color: #fff;
+}
+
+html[data-theme="dark"] .secondaryButton:hover {
+  background-color: #444;
+}
+
+html[data-theme="dark"] .link {
+  color: #e06d6d;
+}
+
+html[data-theme="dark"] .metricValue,
+html[data-theme="dark"] .statValue {
+  color: #e06d6d;
+}
+
+html[data-theme="dark"] .card {
+  background-color: #2a2a2a;
+  border-color: #444;
+}
+
+html[data-theme="dark"] .card:hover {
+  border-color: #e06d6d;
+}
+
+html[data-theme="dark"] .stimulusCard {
+  background-color: #333;
+  border-color: #555;
+}
+
+/* Responsive */
+@media (min-width: 768px) {
+  .buttonContainer {
+    flex-direction: row;
+  }
+
+  .primaryButton,
+  .secondaryButton,
+  .tertiaryButton {
+    flex: 1;
+  }
+}
+
+@media (max-width: 768px) {
+  .welcomeCard {
+    padding: 1.5rem;
+  }
+
+  .tutorialStep {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .stepNumber {
+    margin-bottom: 0.5rem;
+  }
+
+  .card {
+    width: 110px;
+    height: 145px;
+    padding: 8px;
+  }
+
+  .stimulusCard {
+    width: 130px;
+    height: 165px;
+  }
+
+  .referenceCards {
+    gap: 0.5rem;
+  }
+}
+
+@media (max-width: 500px) {
+  .card {
+    width: 75px;
+    height: 105px;
+    padding: 6px;
+    gap: 3px;
+  }
+
+  .stimulusCard {
+    width: 90px;
+    height: 120px;
+    padding: 6px;
+  }
+}
+
+/* Animations */
+@keyframes appear {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Focus styles */
+.card:focus {
+  outline: 3px solid #d32f2f;
+  outline-offset: 3px;
+}
+
+.primaryButton:focus,
+.secondaryButton:focus,
+.tertiaryButton:focus,
+.iconButton:focus {
+  outline: 3px solid #d32f2f;
+  outline-offset: 3px;
+}

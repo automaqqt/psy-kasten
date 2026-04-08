@@ -31,13 +31,11 @@ export const authOptions = {
         });
 
         if (!user) {
-          console.log('No user found with email:', credentials.email.toLowerCase());
            throw new Error("Invalid credentials."); // Generic error
         }
 
         // Check if the user has a password set (might have signed up via OAuth)
         if (!user.passwordHash) {
-            console.log('User has no password hash set (likely OAuth only):', user.email);
             throw new Error("Account exists but password login is not enabled. Try another sign-in method.");
         }
 
@@ -49,11 +47,14 @@ export const authOptions = {
         // --------------------------------------------------
 
         if (!isValidPassword) {
-          console.log('Password mismatch for user:', user.email);
           throw new Error("Invalid credentials."); // Generic error
         }
 
-        console.log('Credentials valid for user:', user.email);
+        // Check email verification
+        if (!user.emailVerified) {
+          throw new Error("EmailNotVerified");
+        }
+
         // Return user object expected by NextAuth
         return {
           id: user.id,

@@ -1,15 +1,12 @@
-import prisma from '../../../lib/prisma'; // Adjust path as needed
+import crypto from 'crypto';
+import prisma from '../../../lib/prisma';
 import bcrypt from 'bcryptjs';
 import { createAuthRateLimiter } from '../../../lib/rateLimit';
-import { checkCsrf } from '../../../lib/csrf';
+import { sendVerificationEmail } from '../../../lib/email';
 
-// Basic email validation regex (adjust as needed)
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-// Password complexity requirements
 const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{8,}$/;
 
-// Create rate limiter: 5 attempts per 15 minutes
 const limiter = createAuthRateLimiter();
 
 export default async function handler(req, res) {
@@ -18,7 +15,6 @@ export default async function handler(req, res) {
     return res.status(405).json({ message: `Method ${req.method} Not Allowed` });
   }
 
-  // Apply rate limiting to prevent brute force attacks
   const rateLimitResult = await limiter.check(req, 5);
   if (!rateLimitResult.success) {
     return res.status(429).json({
@@ -27,63 +23,104 @@ export default async function handler(req, res) {
     });
   }
 
-  // Validate CSRF token
-  const csrfValid = await checkCsrf(req, res);
-  if (!csrfValid) {
-    return; // Response already sent by checkCsrf
-  }
-
   const { email, password, name } = req.body;
 
-  // --- Input Validation ---
   if (!email || !password) {
     return res.status(400).json({ message: 'Email and password are required' });
   }
 
   if (typeof email !== 'string' || !emailRegex.test(email)) {
-      return res.status(400).json({ message: 'Invalid email format' });
+    return res.status(400).json({ message: 'Invalid email format' });
   }
 
-  // Enforce strong password requirements
   if (typeof password !== 'string' || !passwordRegex.test(password)) {
-      return res.status(400).json({
-        message: 'Password must be at least 8 characters and include uppercase, lowercase, number, and special character (@$!%*?&#)'
-      });
+    return res.status(400).json({
+      message: 'Password must be at least 8 characters and include uppercase, lowercase, number, and special character (@$!%*?&#)'
+    });
   }
 
-  // --- Check if user exists ---
   try {
+    const normalizedEmail = email.toLowerCase();
+
     const existingUser = await prisma.user.findUnique({
-      where: { email: email.toLowerCase() }, // Store and check emails in lowercase
+      where: { email: normalizedEmail },
     });
 
     if (existingUser) {
+      // If user exists but hasn't verified, resend verification email
+      if (!existingUser.emailVerified && existingUser.passwordHash) {
+        const token = crypto.randomBytes(32).toString('hex');
+        const expires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+
+        // Delete any existing tokens for this email
+        await prisma.verificationToken.deleteMany({
+          where: { identifier: normalizedEmail },
+        });
+
+        await prisma.verificationToken.create({
+          data: {
+            identifier: normalizedEmail,
+            token,
+            expires,
+          },
+        });
+
+        try {
+          await sendVerificationEmail(normalizedEmail, token);
+        } catch (emailErr) {
+          console.error('Failed to resend verification email:', emailErr);
+        }
+
+        return res.status(200).json({
+          message: 'A verification email has been sent. Please check your inbox.',
+          requiresVerification: true,
+        });
+      }
+
       return res.status(409).json({ message: 'Email already in use. Try signing in.' });
     }
 
-    // --- Hash Password ---
-    const saltRounds = 10; // Recommended value
-    const hashedPassword = await bcrypt.hash(password, saltRounds);
+    // Hash password and create user
+    const hashedPassword = await bcrypt.hash(password, 10);
 
-    // --- Create User ---
     const newUser = await prisma.user.create({
       data: {
-        email: email.toLowerCase(),
+        email: normalizedEmail,
         passwordHash: hashedPassword,
-        name: name || null, // Optional name
-        // emailVerified: null, // Set later if implementing email verification
+        name: name || null,
+        // emailVerified stays null until verification
       },
     });
 
-    console.log('New user created:', newUser.email);
-    // Don't return sensitive data like the hash
-    return res.status(201).json({ message: 'User created successfully. Please sign in.' });
+    // Generate verification token
+    const token = crypto.randomBytes(32).toString('hex');
+    const expires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+
+    await prisma.verificationToken.create({
+      data: {
+        identifier: normalizedEmail,
+        token,
+        expires,
+      },
+    });
+
+    // Send verification email
+    try {
+      await sendVerificationEmail(normalizedEmail, token);
+    } catch (emailErr) {
+      console.error('Failed to send verification email:', emailErr);
+      // User was created but email failed - they can request a resend
+    }
+
+    return res.status(201).json({
+      message: 'Account created. Please check your email to verify your address.',
+      requiresVerification: true,
+    });
 
   } catch (error) {
     console.error('Signup Error:', error);
-    // Handle potential Prisma errors (e.g., unique constraint violation if check failed somehow)
     if (error.code === 'P2002' && error.meta?.target?.includes('email')) {
-         return res.status(409).json({ message: 'Email already in use.' });
+      return res.status(409).json({ message: 'Email already in use.' });
     }
     return res.status(500).json({ message: 'An error occurred during signup.' });
   }

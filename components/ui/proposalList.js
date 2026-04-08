@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import styles from '../../styles/AdminProposalList.module.css'; // Create this CSS file
+import styles from '../../styles/AdminProposalList.module.css';
+import { fetchWithCsrf } from '../../lib/fetchWithCsrf';
 
 export default function ProposalList() {
     const [proposals, setProposals] = useState([]);
@@ -38,10 +39,10 @@ export default function ProposalList() {
         // TODO: Implement way to add admin notes before marking reviewed, perhaps a modal
 
         try {
-            const res = await fetch(`/api/admin/proposals`, {
+            const res = await fetchWithCsrf(`/api/admin/proposals`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ proposalId: proposalId, adminNotes: null }), // Pass notes if collected
+                body: JSON.stringify({ proposalId: proposalId, adminNotes: null }),
             });
             if (!res.ok) {
                  const errData = await res.json();

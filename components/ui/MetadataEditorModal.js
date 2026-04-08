@@ -1,16 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import Modal from './modal';
 import styles from '../../styles/DashboardPage.module.css';
+import s from '../../styles/ModalShared.module.css';
+import { useTranslation } from 'next-i18next';
 
-// Common metadata fields for cognitive research
-const COMMON_FIELDS = [
-    { key: 'age', label: 'Age', type: 'number' },
-    { key: 'gender', label: 'Gender', type: 'select', options: ['Male', 'Female', 'Other', 'Prefer not to say'] },
-    { key: 'group', label: 'Group/Condition', type: 'text' },
-    { key: 'education', label: 'Education Level', type: 'text' },
-    { key: 'handedness', label: 'Handedness', type: 'select', options: ['Right', 'Left', 'Ambidextrous'] },
-    { key: 'notes', label: 'Notes', type: 'textarea' }
-];
+const COMMON_FIELD_KEYS = ['age', 'gender', 'group', 'education', 'handedness', 'notes'];
 
 export default function MetadataEditorModal({ isOpen, onClose, participant, onSave }) {
     const [metadata, setMetadata] = useState({});
@@ -19,18 +13,34 @@ export default function MetadataEditorModal({ isOpen, onClose, participant, onSa
     const [newFieldValue, setNewFieldValue] = useState('');
     const [isSaving, setIsSaving] = useState(false);
     const [error, setError] = useState(null);
+    const { t } = useTranslation('dashboard');
 
-    // Initialize metadata from participant
+    const commonFields = [
+        { key: 'age', label: t('field_age'), type: 'number' },
+        { key: 'gender', label: t('field_gender'), type: 'select', options: [
+            { value: 'Male', label: t('gender_male') },
+            { value: 'Female', label: t('gender_female') },
+            { value: 'Other', label: t('gender_other') },
+            { value: 'Prefer not to say', label: t('gender_prefer_not') },
+        ]},
+        { key: 'group', label: t('field_group'), type: 'text' },
+        { key: 'education', label: t('field_education'), type: 'text' },
+        { key: 'handedness', label: t('field_handedness'), type: 'select', options: [
+            { value: 'Right', label: t('handedness_right') },
+            { value: 'Left', label: t('handedness_left') },
+            { value: 'Ambidextrous', label: t('handedness_ambidextrous') },
+        ]},
+        { key: 'notes', label: t('field_notes'), type: 'textarea' },
+    ];
+
     useEffect(() => {
         if (participant?.metadata) {
             const existingMetadata = typeof participant.metadata === 'string'
                 ? JSON.parse(participant.metadata)
                 : participant.metadata;
 
-            // Separate common fields from custom fields
-            const commonKeys = COMMON_FIELDS.map(f => f.key);
             const custom = Object.entries(existingMetadata)
-                .filter(([key]) => !commonKeys.includes(key))
+                .filter(([key]) => !COMMON_FIELD_KEYS.includes(key))
                 .map(([key, value]) => ({ key, value }));
 
             setMetadata(existingMetadata);
@@ -50,11 +60,11 @@ export default function MetadataEditorModal({ isOpen, onClose, participant, onSa
 
     const handleAddCustomField = () => {
         if (!newFieldKey.trim()) {
-            setError('Field name cannot be empty');
+            setError(t('error_field_empty'));
             return;
         }
         if (metadata.hasOwnProperty(newFieldKey)) {
-            setError('Field already exists');
+            setError(t('error_field_exists'));
             return;
         }
 
@@ -90,7 +100,6 @@ export default function MetadataEditorModal({ isOpen, onClose, participant, onSa
         setIsSaving(true);
         setError(null);
         try {
-            // Clean up metadata - remove empty values
             const cleanedMetadata = Object.fromEntries(
                 Object.entries(metadata).filter(([_, value]) => value !== '' && value !== undefined && value !== null)
             );
@@ -112,15 +121,13 @@ export default function MetadataEditorModal({ isOpen, onClose, participant, onSa
     };
 
     return (
-        <Modal isOpen={isOpen} onClose={handleClose} title={`Edit Metadata: ${participant?.identifier || ''}`}>
-            <div style={{ maxHeight: '500px', overflowY: 'auto' }}>
-                {error && <p className={styles.errorTextModal}>{error}</p>}
+        <Modal isOpen={isOpen} onClose={handleClose} title={t('metadata_modal_title', { identifier: participant?.identifier || '' })}>
+            <div style={{ maxHeight: '60vh', overflowY: 'auto', overflowX: 'hidden' }}>
+                {error && <div className={s.errorBox}>{error}</div>}
 
                 {/* Common Fields */}
-                <h4 style={{ marginTop: '0', marginBottom: '1rem', fontSize: '1rem', color: '#495057' }}>
-                    Standard Fields
-                </h4>
-                {COMMON_FIELDS.map(field => (
+                <h4 className={s.sectionTitle}>{t('standard_fields_title')}</h4>
+                {commonFields.map(field => (
                     <div key={field.key} className={styles.formGroup}>
                         <label htmlFor={`field-${field.key}`}>{field.label}</label>
                         {field.type === 'select' ? (
@@ -129,11 +136,10 @@ export default function MetadataEditorModal({ isOpen, onClose, participant, onSa
                                 value={metadata[field.key] || ''}
                                 onChange={(e) => handleCommonFieldChange(field.key, e.target.value)}
                                 disabled={isSaving}
-                                style={{ padding: '0.5rem', borderRadius: '4px', border: '1px solid #ced4da' }}
                             >
-                                <option value="">-- Select --</option>
+                                <option value="">{t('select_placeholder')}</option>
                                 {field.options.map(opt => (
-                                    <option key={opt} value={opt}>{opt}</option>
+                                    <option key={opt.value} value={opt.value}>{opt.label}</option>
                                 ))}
                             </select>
                         ) : field.type === 'textarea' ? (
@@ -157,57 +163,42 @@ export default function MetadataEditorModal({ isOpen, onClose, participant, onSa
                 ))}
 
                 {/* Custom Fields */}
-                <h4 style={{ marginTop: '1.5rem', marginBottom: '1rem', fontSize: '1rem', color: '#495057' }}>
-                    Custom Fields
-                </h4>
+                <h4 className={s.sectionTitleSpaced}>{t('custom_fields_title')}</h4>
 
                 {customFields.length > 0 && (
-                    <div style={{ marginBottom: '1rem' }}>
+                    <div className={s.mb1}>
                         {customFields.map(field => (
-                            <div key={field.key} style={{
-                                display: 'flex',
-                                gap: '0.5rem',
-                                marginBottom: '0.5rem',
-                                alignItems: 'center'
-                            }}>
-                                <input
-                                    type="text"
-                                    value={field.key}
-                                    disabled
-                                    style={{
-                                        flex: '0 0 30%',
-                                        backgroundColor: '#e9ecef',
-                                        padding: '0.5rem',
-                                        borderRadius: '4px',
-                                        border: '1px solid #ced4da'
-                                    }}
-                                />
+                            <div key={field.key} style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem', alignItems: 'center', flexWrap: 'wrap' }}>
+                                <span style={{
+                                    flex: '1 1 100px',
+                                    minWidth: 0,
+                                    padding: '0.5rem 0.6rem',
+                                    borderRadius: '6px',
+                                    border: '1px solid var(--border-color)',
+                                    backgroundColor: 'var(--bg-accent)',
+                                    color: 'var(--text-secondary)',
+                                    fontSize: '0.9rem',
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis',
+                                    whiteSpace: 'nowrap',
+                                }}>
+                                    {field.key}
+                                </span>
                                 <input
                                     type="text"
                                     value={field.value}
                                     onChange={(e) => handleUpdateCustomField(field.key, e.target.value)}
                                     disabled={isSaving}
-                                    style={{
-                                        flex: '1',
-                                        padding: '0.5rem',
-                                        borderRadius: '4px',
-                                        border: '1px solid #ced4da'
-                                    }}
+                                    className={s.inputSmall}
+                                    style={{ flex: '2 1 120px', minWidth: 0 }}
                                 />
                                 <button
                                     onClick={() => handleRemoveCustomField(field.key)}
                                     disabled={isSaving}
-                                    style={{
-                                        padding: '0.5rem 0.75rem',
-                                        backgroundColor: '#dc3545',
-                                        color: 'white',
-                                        border: 'none',
-                                        borderRadius: '4px',
-                                        cursor: 'pointer'
-                                    }}
-                                    title="Remove field"
+                                    className={s.btnDanger}
+                                    title={t('remove_btn')}
                                 >
-                                    ✕
+                                    {t('remove_btn')}
                                 </button>
                             </div>
                         ))}
@@ -215,79 +206,56 @@ export default function MetadataEditorModal({ isOpen, onClose, participant, onSa
                 )}
 
                 {/* Add Custom Field */}
-                <div style={{
-                    backgroundColor: '#f8f9fa',
-                    padding: '1rem',
-                    borderRadius: '4px',
-                    marginBottom: '1rem'
-                }}>
-                    <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
-                        Add Custom Field
-                    </label>
-                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                <div className={s.addFieldContainer}>
+                    <label className={s.formLabel}>{t('add_custom_field_label')}</label>
+                    <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
                         <input
                             type="text"
-                            placeholder="Field name"
+                            placeholder={t('field_name_placeholder')}
                             value={newFieldKey}
                             onChange={(e) => setNewFieldKey(e.target.value)}
                             disabled={isSaving}
-                            style={{
-                                flex: '0 0 30%',
-                                padding: '0.5rem',
-                                borderRadius: '4px',
-                                border: '1px solid #ced4da'
-                            }}
+                            className={s.inputSmall}
+                            style={{ flex: '1 1 120px', minWidth: 0 }}
                         />
                         <input
                             type="text"
-                            placeholder="Value"
+                            placeholder={t('value_placeholder')}
                             value={newFieldValue}
                             onChange={(e) => setNewFieldValue(e.target.value)}
                             disabled={isSaving}
-                            style={{
-                                flex: '1',
-                                padding: '0.5rem',
-                                borderRadius: '4px',
-                                border: '1px solid #ced4da'
-                            }}
+                            className={s.inputSmall}
+                            style={{ flex: '2 1 120px', minWidth: 0 }}
                         />
                         <button
                             onClick={handleAddCustomField}
                             disabled={isSaving || !newFieldKey.trim()}
-                            style={{
-                                padding: '0.5rem 1rem',
-                                backgroundColor: '#28a745',
-                                color: 'white',
-                                border: 'none',
-                                borderRadius: '4px',
-                                cursor: !newFieldKey.trim() ? 'not-allowed' : 'pointer',
-                                opacity: !newFieldKey.trim() ? 0.6 : 1
-                            }}
+                            className={s.btnSuccess}
                         >
-                            + Add
+                            {t('add_field_btn')}
                         </button>
                     </div>
                 </div>
+            </div>
 
-                {/* Action Buttons */}
-                <div className={styles.modalActions}>
-                    <button
-                        type="button"
-                        onClick={handleClose}
-                        disabled={isSaving}
-                        className={styles.secondaryButtonModal}
-                    >
-                        Cancel
-                    </button>
-                    <button
-                        type="button"
-                        onClick={handleSave}
-                        disabled={isSaving}
-                        className={styles.primaryButtonModal}
-                    >
-                        {isSaving ? 'Saving...' : 'Save Metadata'}
-                    </button>
-                </div>
+            {/* Action Buttons — outside scroll area */}
+            <div className={styles.modalActions}>
+                <button
+                    type="button"
+                    onClick={handleClose}
+                    disabled={isSaving}
+                    className={styles.secondaryButtonModal}
+                >
+                    {t('cancel')}
+                </button>
+                <button
+                    type="button"
+                    onClick={handleSave}
+                    disabled={isSaving}
+                    className={styles.primaryButtonModal}
+                >
+                    {isSaving ? t('saving') : t('save_metadata_btn')}
+                </button>
             </div>
         </Modal>
     );

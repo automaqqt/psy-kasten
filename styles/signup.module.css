@@ -113,6 +113,40 @@
       cursor: not-allowed;
   }
 
+  .checkboxGroup {
+    margin: 1rem 0 0.5rem;
+    text-align: left;
+  }
+
+  .checkboxLabel {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    cursor: pointer;
+    line-height: 1.4;
+  }
+
+  .checkboxLabel input[type="checkbox"] {
+    margin-top: 0.15rem;
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+    accent-color: #28a745;
+    cursor: pointer;
+  }
+
+  .legalLink {
+    color: var(--link-color);
+    text-decoration: none;
+    font-weight: 500;
+  }
+
+  .legalLink:hover {
+    text-decoration: underline;
+  }
+
   .signInLink {
     margin-top: 1.5rem;
     font-size: 0.9rem;

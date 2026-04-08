@@ -2,8 +2,9 @@ import { getServerSession } from "next-auth/next";
 import prisma from '../../../../lib/prisma';
 import { authOptions } from '../../auth/[...nextauth]';
 import crypto from 'crypto';
+import { withCsrfProtection } from '../../../../lib/csrf';
 
-export default async function handler(req, res) {
+async function handler(req, res) {
     const session = await getServerSession(req, res, authOptions);
     const { assignmentId } = req.query;
 
@@ -58,9 +59,10 @@ export default async function handler(req, res) {
                 }
             });
 
-            // Construct the full link
-            const baseUrl = process.env.NEXTAUTH_URL || `${req.headers['x-forwarded-proto'] || 'http'}://${req.headers.host}`;
-            const testLink = `${baseUrl}/${updatedAssignment.testType}?assignmentId=${newAccessKey}`;
+            if (!process.env.NEXTAUTH_URL) {
+                return res.status(500).json({ message: 'Server configuration error: NEXTAUTH_URL is not set' });
+            }
+            const testLink = `${process.env.NEXTAUTH_URL}/${updatedAssignment.testType}?assignmentId=${newAccessKey}`;
 
             return res.status(200).json({
                 message: 'Assignment link regenerated successfully',
@@ -83,3 +85,5 @@ export default async function handler(req, res) {
         return res.status(405).json({ message: `Method ${req.method} Not Allowed` });
     }
 }
+
+export default withCsrfProtection(handler);

@@ -1,0 +1,422 @@
+/* styles/ModalShared.module.css — Shared styles for modal components */
+
+/* Container */
+.modalBody {
+  width: 100%;
+}
+
+/* Labels */
+.formLabel {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+/* Section titles */
+.sectionTitle {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  font-size: 1rem;
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+.sectionTitleSpaced {
+  margin-top: 1.5rem;
+  margin-bottom: 1rem;
+  font-size: 1rem;
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+/* Text inputs */
+.textInput {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  font-size: 0.9rem;
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
+.textInput:focus {
+  outline: none;
+  border-color: var(--link-color);
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15);
+}
+
+.textInput:disabled {
+  background-color: var(--bg-accent);
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.textareaInput {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  font-family: monospace;
+  font-size: 0.9rem;
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  resize: vertical;
+}
+
+.textareaInput:focus {
+  outline: none;
+  border-color: var(--link-color);
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15);
+}
+
+.textareaInput:disabled {
+  background-color: var(--bg-accent);
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.inputReadonly {
+  flex: 1;
+  padding: 0.75rem;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  font-family: monospace;
+  font-size: 0.9rem;
+  background-color: var(--bg-accent);
+  color: var(--text-primary);
+}
+
+.inputSmall {
+  padding: 0.5rem;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  font-size: 0.9rem;
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
+.inputSmall:focus {
+  outline: none;
+  border-color: var(--link-color);
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15);
+}
+
+.inputSmall:disabled {
+  background-color: var(--bg-accent);
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.inputDisabledLabel {
+  flex: 0 0 30%;
+  padding: 0.5rem;
+  border-radius: 4px;
+  border: 1px solid var(--border-color);
+  background-color: var(--bg-accent);
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.selectInput {
+  width: 100%;
+  padding: 0.5rem;
+  border-radius: 4px;
+  border: 1px solid var(--border-color);
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  font-size: 1rem;
+}
+
+.selectInput:focus {
+  outline: none;
+  border-color: var(--link-color);
+}
+
+/* Flex layouts */
+.flexRow {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.flexRowWrap {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.flexEnd {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+.flexCenter {
+  display: flex;
+  justify-content: center;
+}
+
+.flexBetween {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Spacing */
+.mb1 { margin-bottom: 1rem; }
+.mb15 { margin-bottom: 1.5rem; }
+.mb2 { margin-bottom: 2rem; }
+.mt1 { margin-top: 1rem; }
+.mt2 { margin-top: 2rem; }
+
+/* Status boxes */
+.errorBox {
+  padding: 0.75rem;
+  background-color: #fee2e2;
+  color: #dc3545;
+  border-radius: 4px;
+  margin-bottom: 1rem;
+  font-weight: 500;
+}
+
+.successBox {
+  padding: 1rem;
+  background-color: var(--bg-accent);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  margin-bottom: 1rem;
+  color: var(--text-primary);
+}
+
+.warningBox {
+  padding: 1rem;
+  background-color: var(--bg-accent);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  margin-bottom: 1rem;
+  color: var(--text-primary);
+}
+
+.infoBox {
+  padding: 0.75rem;
+  background-color: var(--bg-accent);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  font-size: 0.875rem;
+  color: var(--text-primary);
+}
+
+/* Buttons */
+.btnPrimary {
+  padding: 0.5rem 1rem;
+  background-color: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.btnPrimary:hover {
+  background-color: #2563eb;
+}
+
+.btnPrimary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btnSecondary {
+  padding: 0.5rem 1rem;
+  background-color: var(--bg-accent);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.btnSecondary:hover {
+  background-color: var(--bg-secondary);
+}
+
+.btnSecondary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btnSuccess {
+  padding: 0.5rem 1rem;
+  background-color: #22c55e;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.btnSuccess:hover {
+  background-color: #16a34a;
+}
+
+.btnSuccess:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btnDanger {
+  padding: 0.5rem 0.75rem;
+  background-color: #ef4444;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.btnDanger:hover {
+  background-color: #dc2626;
+}
+
+.btnDanger:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btnLarge {
+  padding: 0.75rem 1.5rem;
+}
+
+/* Result container */
+.resultContainer {
+  padding: 1.5rem;
+  text-align: center;
+}
+
+.resultTitle {
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
+  color: var(--text-primary);
+}
+
+/* Small / muted text */
+.smallText {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.smallTextBlock {
+  display: block;
+  margin-top: 0.5rem;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+/* Custom field rows (metadata editor) */
+.customFieldRow {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+  align-items: center;
+}
+
+.addFieldContainer {
+  background-color: var(--bg-accent);
+  padding: 1rem;
+  border-radius: 4px;
+  margin-bottom: 1rem;
+  border: 1px solid var(--border-color);
+}
+
+/* Radio / checkbox groups */
+.radioGroup {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.radioLabel {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  color: var(--text-primary);
+}
+
+.checkboxLabel {
+  display: block;
+  margin-bottom: 0.5rem;
+  cursor: pointer;
+  color: var(--text-primary);
+}
+
+.checkboxLabel input {
+  margin-right: 0.5rem;
+}
+
+/* QR code container — intentionally white for scanability */
+.qrContainer {
+  display: inline-block;
+  padding: 1rem;
+  background-color: white;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+}
+
+/* Scrollable content */
+.scrollableContent {
+  max-height: 500px;
+  overflow-y: auto;
+}
+
+/* Link button (looks like text link) */
+.linkButton {
+  color: var(--link-color);
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-decoration: underline;
+  font-size: 0.875rem;
+  padding: 0;
+}
+
+.linkButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Details/summary */
+.detailsSummary {
+  cursor: pointer;
+  color: var(--text-secondary);
+}
+
+.detailsList {
+  margin: 0.5rem 0;
+  padding-left: 1.5rem;
+  color: var(--text-primary);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .radioGroup {
+    flex-direction: column;
+  }
+
+  .customFieldRow {
+    flex-wrap: wrap;
+  }
+}

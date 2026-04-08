@@ -5,24 +5,22 @@ import Link from 'next/link';
 import Footer from '../../components/ui/footer';
 import { ThemeToggle } from '../ui/themeToggle';
 import Image from 'next/image';
+import { useTranslation } from 'next-i18next';
 import styles from '../../styles/DashboardLayout.module.css'; // Create this CSS file
 
 export default function DashboardLayout({ children }) {
   const { data: session, status } = useSession();
   const router = useRouter();
+  const { t } = useTranslation('dashboard');
 
   // Handle loading state
   if (status === 'loading') {
-    return <div className={styles.loading}>Loading dashboard...</div>;
+    return <div className={styles.loading}>{t('loading_dashboard')}</div>;
   }
 
   // Handle unauthenticated state (middleware should ideally redirect, but this is a fallback)
   if (status === 'unauthenticated') {
-    // Redirect to sign-in page
-    // Using router.push client-side after initial render might cause flashes.
-    // Middleware is the preferred way to handle this server-side.
-    // router.push('/auth/signin'); // Uncomment if not using middleware strictly
-    return <div className={styles.loading}>Redirecting to login...</div>; // Or a login prompt
+    return <div className={styles.loading}>{t('redirecting')}</div>;
   }
 
   // User is authenticated
@@ -34,7 +32,7 @@ export default function DashboardLayout({ children }) {
                           <div className={styles.logoLink}> {/* Link wrapping the image */}
                                 <Image
                                     src="/logo.png" // Path relative to the public folder
-                                    alt={'CogniSuite Logo'} // Add alt text key
+                                    alt={'psyKasten Logo'}
                                     width={50}     // Specify width (adjust as needed)
                                     height={50}    // Specify height (adjust aspect ratio)
                                 />
@@ -42,16 +40,19 @@ export default function DashboardLayout({ children }) {
                         </Link>
         </div>
         <nav className={styles.nav}>
-            <Link href="/dashboard"><div className={router.pathname === "/dashboard" ? styles.activeLink : ""}>Studies</div></Link>
-            <Link href="/dashboard/results"><div className={router.pathname === "/dashboard/results" ? styles.activeLink : ""}>Results</div></Link>
-            <Link href="/dashboard/proposals/new"><div className={router.pathname === "/dashboard/proposals/new" ? styles.activeLink : ""}>Propose</div></Link>
-            {/* Add more nav links as needed */}
+            <Link href="/dashboard"><div className={router.pathname === "/dashboard" ? styles.activeLink : ""}>{t('nav_studies')}</div></Link>
+            <Link href="/dashboard/results"><div className={router.pathname === "/dashboard/results" ? styles.activeLink : ""}>{t('nav_results')}</div></Link>
+            <Link href="/dashboard/proposals/new"><div className={router.pathname === "/dashboard/proposals/new" ? styles.activeLink : ""}>{t('nav_propose')}</div></Link>
+            <Link href="/dashboard/account"><div className={router.pathname === "/dashboard/account" ? styles.activeLink : ""}>{t('nav_account')}</div></Link>
+            {session.user?.role === 'ADMIN' && (
+                <Link href="/admin"><div className={router.pathname.startsWith("/admin") ? styles.activeLink : ""}>Admin</div></Link>
+            )}
         </nav>
         <div className={styles.userArea}>
           <ThemeToggle />
-          <span>{session.user?.name || session.user?.email}</span>
+          <span className={styles.userName}>{session.user?.name || session.user?.email}</span>
           <button onClick={() => signOut({ callbackUrl: '/' })} className={styles.logoutButton}>
-            Sign Out
+            {t('sign_out')}
           </button>
         </div>
       </header>

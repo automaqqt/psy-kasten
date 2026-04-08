@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useRouter } from 'next/router';
 import DashboardLayout from '../../../components/layouts/DashboardLayout';
 import Link from 'next/link';
@@ -9,17 +9,21 @@ import ShareLinkModal from '../../../components/ui/ShareLinkModal';
 import MetadataEditorModal from '../../../components/ui/MetadataEditorModal';
 import StudyAnalytics from '../../../components/analytics/StudyAnalytics';
 import { TEST_TYPES } from '../../../lib/testConfig';
+import { fetchWithCsrf } from '../../../lib/fetchWithCsrf';
+import { useTranslation } from 'next-i18next';
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 
 const ParticipantList = ({ participants, onDeleteParticipant, onEditParticipant, onEditMetadata, onAddParticipant, onRegenerateLink, onShareLink, testType, deletingParticipantId, regeneratingAssignmentId }) => {
     const [copiedLinkId, setCopiedLinkId] = React.useState(null);
+    const { t } = useTranslation('dashboard');
 
     if (!participants || participants.length === 0) {
         return (
             <div className={styles.emptyState}>
-                <h4>No Participants Yet</h4>
-                <p>Add participants to start collecting test data for this study.</p>
+                <h4>{t('no_participants_title')}</h4>
+                <p>{t('no_participants_text')}</p>
                 <button onClick={onAddParticipant} className={styles.addButton}>
-                    + Add First Participant
+                    {t('add_first_participant')}
                 </button>
             </div>
         );
@@ -43,11 +47,11 @@ const ParticipantList = ({ participants, onDeleteParticipant, onEditParticipant,
             <table className={styles.participantTable}>
                 <thead>
                     <tr>
-                        <th>Identifier</th>
-                        <th>Metadata</th>
-                        <th>Status</th>
-                        <th>Created</th>
-                        <th>Actions</th>
+                        <th>{t('col_identifier')}</th>
+                        <th>{t('col_metadata')}</th>
+                        <th>{t('col_status')}</th>
+                        <th>{t('col_created')}</th>
+                        <th>{t('col_actions')}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -69,23 +73,23 @@ const ParticipantList = ({ participants, onDeleteParticipant, onEditParticipant,
                                     <button
                                         onClick={() => onEditMetadata(p)}
                                         className={styles.metadataButton}
-                                        title="View/edit metadata"
+                                        title={t('col_metadata')}
                                     >
-                                        {metadataCount} field{metadataCount !== 1 ? 's' : ''}
+                                        {t('metadata_fields', { count: metadataCount })}
                                     </button>
                                 ) : (
                                     <button
                                         onClick={() => onEditMetadata(p)}
                                         className={styles.metadataButtonEmpty}
-                                        title="Add metadata"
+                                        title={t('add_metadata')}
                                     >
-                                        + Add
+                                        {t('add_metadata')}
                                     </button>
                                 )}
                             </td>
                             <td>
                                 <span className={`${styles.statusBadge} ${assignment?.completedAt ? styles.statusCompleted : (isExpired ? styles.statusExpired : styles.statusPending)}`}>
-                                    {status}
+                                    {assignment?.completedAt ? t('status_completed') : (isExpired ? t('status_expired') : t('status_pending'))}
                                 </span>
                             </td>
                             <td>{new Date(p.createdAt).toLocaleDateString()}</td>
@@ -95,21 +99,21 @@ const ParticipantList = ({ participants, onDeleteParticipant, onEditParticipant,
                                         <button
                                             onClick={() => onShareLink(testLink, p.identifier)}
                                             className={styles.actionButtonShare}
-                                            title="Share link (QR code, email, etc.)"
+                                            title={t('share')}
                                             disabled={deletingParticipantId === p.id}
                                         >
-                                            Share
+                                            {t('share')}
                                         </button>
-                                        <button onClick={() => handleOpenLink(testLink)} className={styles.actionButtonOpen} title="Open in new tab" disabled={deletingParticipantId === p.id}>
-                                            Open
+                                        <button onClick={() => handleOpenLink(testLink)} className={styles.actionButtonOpen} title={t('open')} disabled={deletingParticipantId === p.id}>
+                                            {t('open')}
                                         </button>
                                         <button
                                             onClick={() => handleCopyLink(testLink, p.id)}
                                             className={`${styles.actionButtonCopy} ${isCopied ? styles.actionButtonCopied : ''}`}
-                                            title={isCopied ? "Copied!" : "Copy to clipboard"}
+                                            title={isCopied ? t('copied') : t('copy')}
                                             disabled={deletingParticipantId === p.id}
                                         >
-                                            {isCopied ? 'Copied' : 'Copy'}
+                                            {isCopied ? t('copied') : t('copy')}
                                         </button>
                                     </>
                                 )}
@@ -117,20 +121,20 @@ const ParticipantList = ({ participants, onDeleteParticipant, onEditParticipant,
                                     <button
                                         onClick={() => onRegenerateLink(assignment.id)}
                                         className={styles.actionButtonRegenerate}
-                                        title="Generate new link"
+                                        title={t('regenerate')}
                                         disabled={regeneratingAssignmentId === assignment.id || deletingParticipantId === p.id}
                                     >
-                                        {regeneratingAssignmentId === assignment.id ? 'Regenerating...' : 'Regenerate'}
+                                        {regeneratingAssignmentId === assignment.id ? t('regenerating') : t('regenerate')}
                                     </button>
                                 )}
-                                <button onClick={() => onEditParticipant(p)} className={styles.actionButtonEdit} title="Edit participant" disabled={deletingParticipantId === p.id}>
-                                    Edit
+                                <button onClick={() => onEditParticipant(p)} className={styles.actionButtonEdit} title={t('edit')} disabled={deletingParticipantId === p.id}>
+                                    {t('edit')}
                                 </button>
-                                <button onClick={() => onDeleteParticipant(p.id)} className={styles.actionButtonDelete} title="Delete participant" disabled={deletingParticipantId === p.id}>
-                                    {deletingParticipantId === p.id ? 'Deleting...' : 'Delete'}
+                                <button onClick={() => onDeleteParticipant(p.id)} className={styles.actionButtonDelete} title={t('delete')} disabled={deletingParticipantId === p.id}>
+                                    {deletingParticipantId === p.id ? t('deleting') : t('delete')}
                                 </button>
                                 <Link href={`/dashboard/results?participantId=${p.id}`}>
-                                    <div className={styles.actionButtonView} title="View results">Results</div>
+                                    <div className={styles.actionButtonView} title={t('results')}>{t('results')}</div>
                                 </Link>
                             </td>
                         </tr>
@@ -143,9 +147,18 @@ const ParticipantList = ({ participants, onDeleteParticipant, onEditParticipant,
 };
 
 
+export async function getServerSideProps({ locale }) {
+    return {
+        props: {
+            ...(await serverSideTranslations(locale, ['common', 'dashboard'])),
+        },
+    };
+}
+
 export default function StudyDetailPage() {
   const router = useRouter();
   const { studyId } = router.query;
+  const { t } = useTranslation('dashboard');
   const [study, setStudy] = useState(null);
   const [participants, setParticipants] = useState([]);
   const [assignments, setAssignments] = useState([]);
@@ -178,6 +191,16 @@ export default function StudyDetailPage() {
   const [isEditStudyModalOpen, setIsEditStudyModalOpen] = useState(false);
   const [editStudyName, setEditStudyName] = useState('');
   const [editStudyDescription, setEditStudyDescription] = useState('');
+
+  // Public Link State
+  const [isTogglingPublicLink, setIsTogglingPublicLink] = useState(false);
+  const [copiedPublicLink, setCopiedPublicLink] = useState(false);
+
+  // Search, Filter & Pagination
+  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
+  const [participantPage, setParticipantPage] = useState(1);
+  const PARTICIPANTS_PER_PAGE = 20;
 
   const fetchStudyData = useCallback(async () => {
     if (!studyId) return;
@@ -213,7 +236,7 @@ export default function StudyDetailPage() {
       setIsSubmitting(true);
       setError(null);
        try {
-          const res = await fetch('/api/participants', {
+          const res = await fetchWithCsrf('/api/participants', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ studyId: studyId, identifier: newParticipantIdentifier }),
@@ -239,18 +262,18 @@ export default function StudyDetailPage() {
   };
 
   const handleRegenerateLink = async (assignmentId) => {
-      if (!window.confirm('Generate a new test link for this participant? The old link will no longer work.')) {
+      if (!window.confirm(t('confirm_regenerate'))) {
           return;
       }
       setRegeneratingAssignmentId(assignmentId);
       setError(null);
       try {
-          const res = await fetch(`/api/assignments/${assignmentId}/regenerate`, { method: 'POST' });
+          const res = await fetchWithCsrf(`/api/assignments/${assignmentId}/regenerate`, { method: 'POST' });
           const data = await res.json();
           if (!res.ok) {
               throw new Error(data.message || 'Failed to regenerate link');
           }
-          alert(`New link generated successfully! The old link is now invalid.`);
+          alert(t('regenerate_success'));
           fetchStudyData();
       } catch (err) {
           setError(err.message);
@@ -265,11 +288,11 @@ export default function StudyDetailPage() {
       const assignmentCount = participant?.assignments?.length || 0;
       const completedCount = participant?.assignments?.filter(a => a.completedAt).length || 0;
 
-      const confirmMessage = `Delete participant "${participant?.identifier}"?\n\n` +
-          `This will permanently delete:\n` +
-          `- ${assignmentCount} test assignment(s)\n` +
-          `- ${completedCount} completed result(s)\n\n` +
-          `This action cannot be undone.`;
+      const confirmMessage = t('confirm_delete_participant', {
+          identifier: participant?.identifier,
+          assignments: assignmentCount,
+          results: completedCount,
+      });
 
       if (!window.confirm(confirmMessage)) {
           return;
@@ -277,7 +300,7 @@ export default function StudyDetailPage() {
        setError(null);
        setDeletingParticipantId(participantId);
        try {
-          const res = await fetch(`/api/participants/${participantId}`, { method: 'DELETE' });
+          const res = await fetchWithCsrf(`/api/participants/${participantId}`, { method: 'DELETE' });
           if (!res.ok) {
                const errData = await res.json();
               throw new Error(errData.message || 'Failed to delete participant');
@@ -306,7 +329,7 @@ export default function StudyDetailPage() {
       setError(null);
       try {
           const participant = participants.find(p => p.id === participantId);
-          const res = await fetch(`/api/participants/${participantId}`, {
+          const res = await fetchWithCsrf(`/api/participants/${participantId}`, {
               method: 'PUT',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
@@ -331,7 +354,7 @@ export default function StudyDetailPage() {
       setIsSubmitting(true);
       setError(null);
       try {
-          const res = await fetch(`/api/participants/${editingParticipant.id}`, {
+          const res = await fetchWithCsrf(`/api/participants/${editingParticipant.id}`, {
               method: 'PUT',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ identifier: editParticipantIdentifier }),
@@ -364,7 +387,7 @@ export default function StudyDetailPage() {
       setIsSubmitting(true);
       setError(null);
       try {
-          const res = await fetch(`/api/studies/${studyId}`, {
+          const res = await fetchWithCsrf(`/api/studies/${studyId}`, {
               method: 'PUT',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
@@ -389,14 +412,13 @@ export default function StudyDetailPage() {
 
   const handleDuplicateStudy = async () => {
       const copyParticipants = window.confirm(
-          `Duplicate study "${study.name}"?\n\n` +
-          `Click OK to copy participants (without results), or Cancel to create an empty copy.`
+          t('confirm_duplicate_study', { name: study.name })
       );
 
       setIsDuplicating(true);
       setError(null);
       try {
-          const res = await fetch(`/api/studies/${studyId}/duplicate`, {
+          const res = await fetchWithCsrf(`/api/studies/${studyId}/duplicate`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ copyParticipants })
@@ -405,7 +427,7 @@ export default function StudyDetailPage() {
           if (!res.ok) {
               throw new Error(data.message || 'Failed to duplicate study');
           }
-          alert('Study duplicated successfully!');
+          alert(t('duplicate_success'));
           router.push(`/dashboard/studies/${data.study.id}`);
       } catch (err) {
           setError(err.message);
@@ -419,22 +441,21 @@ export default function StudyDetailPage() {
       const assignmentCount = study?._count?.testAssignments || 0;
       const completedCount = participants?.reduce((sum, p) => sum + (p.assignments?.filter(a => a.completedAt).length || 0), 0) || 0;
 
-      const confirmMessage = `Delete Study "${study.name}"?\n\n` +
-          `This will permanently delete:\n` +
-          `- ${participantCount} participant(s)\n` +
-          `- ${assignmentCount} test assignment(s)\n` +
-          `- ${completedCount} completed result(s)\n\n` +
-          `This action cannot be undone.\n\n` +
-          `Type "DELETE" to confirm.`;
+      const confirmMessage = t('confirm_delete_study_detail', {
+          name: study.name,
+          participants: participantCount,
+          assignments: assignmentCount,
+          results: completedCount,
+      });
 
       const userInput = window.prompt(confirmMessage);
-      if (userInput !== 'DELETE') {
+      if (userInput !== t('confirm_delete_keyword')) {
           return;
       }
       setError(null);
       setDeletingStudy(true);
       try {
-          const res = await fetch(`/api/studies/${studyId}`, { method: 'DELETE' });
+          const res = await fetchWithCsrf(`/api/studies/${studyId}`, { method: 'DELETE' });
           if (!res.ok) {
               const errData = await res.json();
               throw new Error(errData.message || 'Failed to delete study');
@@ -448,10 +469,103 @@ export default function StudyDetailPage() {
   };
 
 
+  // --- Public Link Handlers ---
+  const publicJoinUrl = study?.publicAccessKey
+      ? `${window.location.origin}/join/${study.publicAccessKey}`
+      : null;
+
+  const handleTogglePublicLink = async (enable) => {
+      setIsTogglingPublicLink(true);
+      setError(null);
+      try {
+          const res = await fetchWithCsrf(`/api/studies/${studyId}`, {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                  name: study.name,
+                  description: study.description || '',
+                  publicLinkEnabled: enable,
+              }),
+          });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.message || 'Failed to update public link');
+          fetchStudyData();
+      } catch (err) {
+          setError(err.message);
+      } finally {
+          setIsTogglingPublicLink(false);
+      }
+  };
+
+  const handleChangeNamingMode = async (mode) => {
+      setError(null);
+      try {
+          const res = await fetchWithCsrf(`/api/studies/${studyId}`, {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                  name: study.name,
+                  description: study.description || '',
+                  participantNaming: mode,
+              }),
+          });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.message || 'Failed to update naming mode');
+          fetchStudyData();
+      } catch (err) {
+          setError(err.message);
+      }
+  };
+
+  const handleCopyPublicLink = () => {
+      if (!publicJoinUrl) return;
+      navigator.clipboard.writeText(publicJoinUrl).then(() => {
+          setCopiedPublicLink(true);
+          setTimeout(() => setCopiedPublicLink(false), 2000);
+      });
+  };
+
+  // --- Search, Filter & Pagination ---
+  const filteredParticipants = useMemo(() => {
+    return participants.filter(p => {
+      if (searchQuery) {
+        const q = searchQuery.toLowerCase();
+        const matchesId = p.identifier.toLowerCase().includes(q);
+        const matchesMeta = p.metadata && JSON.stringify(p.metadata).toLowerCase().includes(q);
+        if (!matchesId && !matchesMeta) return false;
+      }
+      if (statusFilter) {
+        const assignment = p.assignments?.[0];
+        const isExpired = assignment?.expiresAt && new Date(assignment.expiresAt) < new Date();
+        const status = assignment?.completedAt ? 'completed' : (isExpired ? 'expired' : 'pending');
+        if (status !== statusFilter) return false;
+      }
+      return true;
+    });
+  }, [participants, searchQuery, statusFilter]);
+
+  const totalParticipantPages = Math.ceil(filteredParticipants.length / PARTICIPANTS_PER_PAGE);
+  const paginatedParticipants = filteredParticipants.slice(
+    (participantPage - 1) * PARTICIPANTS_PER_PAGE,
+    participantPage * PARTICIPANTS_PER_PAGE
+  );
+
+  // Reset page when filters change
+  useEffect(() => {
+    setParticipantPage(1);
+  }, [searchQuery, statusFilter]);
+
+  const getPageNumbers = (current, total) => {
+    if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
+    if (current <= 4) return [1, 2, 3, 4, 5, '...', total];
+    if (current >= total - 3) return [1, '...', total - 4, total - 3, total - 2, total - 1, total];
+    return [1, '...', current - 1, current, current + 1, '...', total];
+  };
+
   // --- Render ---
-  if (isLoading) return <DashboardLayout><p className={styles.loadingText}>Loading study data...</p></DashboardLayout>;
+  if (isLoading) return <DashboardLayout><p className={styles.loadingText}>{t('loading_study')}</p></DashboardLayout>;
   if (error && !study) return <DashboardLayout><p className={styles.errorTextPage}>Error: {error}</p></DashboardLayout>;
-   if (!study) return <DashboardLayout><p>Study not found.</p></DashboardLayout>;
+   if (!study) return <DashboardLayout><p>{t('result_not_found')}</p></DashboardLayout>;
 
 
   return (
@@ -459,19 +573,19 @@ export default function StudyDetailPage() {
       <div className={styles.pageHeader}>
         <h1>{study.name}</h1>
         <div className={styles.headerActions}>
-          <button onClick={handleDuplicateStudy} className={styles.secondaryButton} title="Duplicate study" disabled={deletingStudy || isDuplicating}>
-            {isDuplicating ? 'Duplicating...' : 'Duplicate'}
+          <button onClick={handleDuplicateStudy} className={styles.secondaryButton} title={t('duplicate')} disabled={deletingStudy || isDuplicating}>
+            {isDuplicating ? t('duplicating') : t('duplicate')}
           </button>
-          <button onClick={handleEditStudy} className={styles.editButton} title="Edit study" disabled={deletingStudy || isDuplicating}>
-            Edit
+          <button onClick={handleEditStudy} className={styles.editButton} title={t('edit')} disabled={deletingStudy || isDuplicating}>
+            {t('edit')}
           </button>
-          <button onClick={handleDeleteStudy} className={styles.deleteButton} title="Delete study" disabled={deletingStudy || isDuplicating}>
-            {deletingStudy ? 'Deleting...' : 'Delete'}
+          <button onClick={handleDeleteStudy} className={styles.deleteButton} title={t('delete')} disabled={deletingStudy || isDuplicating}>
+            {deletingStudy ? t('deleting') : t('delete')}
           </button>
         </div>
       </div>
       {error && <p className={styles.errorTextPage}>{error}</p>}
-      <p className={styles.studyDescription}>{study.description || 'No description provided.'}</p>
+      <p className={styles.studyDescription}>{study.description || t('no_description_provided')}</p>
 
        {/* Analytics Section */}
        {participants.length > 0 && (
@@ -480,90 +594,228 @@ export default function StudyDetailPage() {
            </section>
        )}
 
+       {/* Public Participation Link */}
        <section className={styles.section}>
            <div className={styles.sectionHeader}>
-               <h2>Participants ({participants.length})</h2>
+               <h2>{t('public_link_title')}</h2>
+           </div>
+
+           {study.publicAccessKey ? (
+               <div className={styles.publicLinkContainer}>
+                   <div className={styles.publicLinkRow}>
+                       <input
+                           type="text"
+                           value={publicJoinUrl || ''}
+                           readOnly
+                           className={styles.publicLinkInput}
+                       />
+                       <button
+                           onClick={handleCopyPublicLink}
+                           className={styles.actionButtonCopy}
+                       >
+                           {copiedPublicLink ? t('copied') : t('copy')}
+                       </button>
+                       <button
+                           onClick={() => handleTogglePublicLink(false)}
+                           className={styles.actionButtonDelete}
+                           disabled={isTogglingPublicLink}
+                       >
+                           {t('public_link_disable')}
+                       </button>
+                   </div>
+
+                   <div className={styles.publicLinkOptions}>
+                       <label className={styles.publicLinkLabel}>{t('public_link_naming_label')}</label>
+                       <select
+                           value={study.participantNaming || 'self'}
+                           onChange={(e) => handleChangeNamingMode(e.target.value)}
+                           className={styles.filterSelect}
+                       >
+                           <option value="self">{t('public_link_naming_self')}</option>
+                           <option value="random">{t('public_link_naming_random')}</option>
+                       </select>
+                   </div>
+               </div>
+           ) : (
+               <div className={styles.publicLinkContainer}>
+                   <p className={styles.publicLinkDescription}>
+                       {t('public_link_description')}
+                   </p>
+                   <button
+                       onClick={() => handleTogglePublicLink(true)}
+                       className={styles.addButton}
+                       disabled={isTogglingPublicLink}
+                   >
+                       {isTogglingPublicLink ? t('public_link_enabling') : t('public_link_enable')}
+                   </button>
+               </div>
+           )}
+       </section>
+
+       <section className={styles.section}>
+           <div className={styles.sectionHeader}>
+               <h2>{t('participants_section', { count: participants.length })}</h2>
                <div className={styles.sectionHeaderActions}>
                    <button onClick={() => setIsAddParticipantModalOpen(true)} className={styles.addButton}>
-                       + Add Participant
+                       {t('add_participant')}
                    </button>
-                   <button onClick={() => setIsBulkImportModalOpen(true)} className={styles.secondaryButton} title="Import multiple participants at once">
-                       Bulk Import
+                   <button onClick={() => setIsBulkImportModalOpen(true)} className={styles.secondaryButton} title={t('bulk_import_title')}>
+                       {t('bulk_import')}
                    </button>
                </div>
            </div>
-           <ParticipantList
-                participants={participants}
-                onDeleteParticipant={handleDeleteParticipant}
-                onEditParticipant={handleEditParticipant}
-                onEditMetadata={handleEditMetadata}
-                onAddParticipant={() => setIsAddParticipantModalOpen(true)}
-                onRegenerateLink={handleRegenerateLink}
-                onShareLink={handleShareLink}
-                testType={study.testType}
-                deletingParticipantId={deletingParticipantId}
-                regeneratingAssignmentId={regeneratingAssignmentId}
-            />
+
+           {participants.length > 0 && (
+               <div className={styles.searchFilterBar}>
+                   <input
+                       type="text"
+                       placeholder={t('search_participants')}
+                       value={searchQuery}
+                       onChange={(e) => setSearchQuery(e.target.value)}
+                       className={styles.searchInput}
+                   />
+                   <select
+                       value={statusFilter}
+                       onChange={(e) => setStatusFilter(e.target.value)}
+                       className={styles.filterSelect}
+                   >
+                       <option value="">{t('all_statuses')}</option>
+                       <option value="completed">{t('status_completed')}</option>
+                       <option value="pending">{t('status_pending')}</option>
+                       <option value="expired">{t('status_expired')}</option>
+                   </select>
+                   {filteredParticipants.length !== participants.length && (
+                       <span className={styles.filterCount}>
+                           {t('filter_count', { filtered: filteredParticipants.length, total: participants.length })}
+                       </span>
+                   )}
+               </div>
+           )}
+
+           {participants.length === 0 ? (
+               <ParticipantList
+                   participants={[]}
+                   onDeleteParticipant={handleDeleteParticipant}
+                   onEditParticipant={handleEditParticipant}
+                   onEditMetadata={handleEditMetadata}
+                   onAddParticipant={() => setIsAddParticipantModalOpen(true)}
+                   onRegenerateLink={handleRegenerateLink}
+                   onShareLink={handleShareLink}
+                   testType={study.testType}
+                   deletingParticipantId={deletingParticipantId}
+                   regeneratingAssignmentId={regeneratingAssignmentId}
+               />
+           ) : filteredParticipants.length === 0 ? (
+               <div className={styles.emptyFilterState}>
+                   {t('no_participants_match')}
+               </div>
+           ) : (
+               <>
+                   <ParticipantList
+                       participants={paginatedParticipants}
+                       onDeleteParticipant={handleDeleteParticipant}
+                       onEditParticipant={handleEditParticipant}
+                       onEditMetadata={handleEditMetadata}
+                       onAddParticipant={() => setIsAddParticipantModalOpen(true)}
+                       onRegenerateLink={handleRegenerateLink}
+                       onShareLink={handleShareLink}
+                       testType={study.testType}
+                       deletingParticipantId={deletingParticipantId}
+                       regeneratingAssignmentId={regeneratingAssignmentId}
+                   />
+                   {totalParticipantPages > 1 && (
+                       <div className={styles.pagination}>
+                           <button
+                               className={styles.pageButton}
+                               disabled={participantPage === 1}
+                               onClick={() => setParticipantPage(p => p - 1)}
+                           >
+                               {t('previous')}
+                           </button>
+                           {getPageNumbers(participantPage, totalParticipantPages).map((page, i) =>
+                               page === '...' ? (
+                                   <span key={`ellipsis-${i}`} className={styles.pageEllipsis}>...</span>
+                               ) : (
+                                   <button
+                                       key={page}
+                                       className={page === participantPage ? styles.pageButtonActive : styles.pageButton}
+                                       onClick={() => setParticipantPage(page)}
+                                   >
+                                       {page}
+                                   </button>
+                               )
+                           )}
+                           <button
+                               className={styles.pageButton}
+                               disabled={participantPage === totalParticipantPages}
+                               onClick={() => setParticipantPage(p => p + 1)}
+                           >
+                               {t('next')}
+                           </button>
+                       </div>
+                   )}
+               </>
+           )}
        </section>
 
        {/* Add Participant Modal */}
-       <Modal isOpen={isAddParticipantModalOpen} onClose={() => { setIsAddParticipantModalOpen(false); setError(null); }} title="Add New Participant">
+       <Modal isOpen={isAddParticipantModalOpen} onClose={() => { setIsAddParticipantModalOpen(false); setError(null); }} title={t('add_participant_modal_title')}>
             <form onSubmit={handleAddParticipantSubmit}>
                  {error && <p className={styles.errorTextModal}>{error}</p>}
                  <div className={styles.formGroup}>
-                     <label htmlFor="participantIdentifier">Participant Identifier *</label>
+                     <label htmlFor="participantIdentifier">{t('participant_identifier_label')}</label>
                      <input
                          type="text"
                          id="participantIdentifier"
                          value={newParticipantIdentifier}
                          onChange={(e) => setNewParticipantIdentifier(e.target.value)}
-                         placeholder="e.g., Email, Subject ID, Code"
+                         placeholder={t('participant_identifier_placeholder')}
                          required
                          disabled={isSubmitting}
                      />
-                      <small>Unique identifier for this participant within this study.</small>
+                      <small>{t('participant_identifier_help')}</small>
                  </div>
                   <div className={styles.modalActions}>
-                     <button type="button" onClick={() => setIsAddParticipantModalOpen(false)} disabled={isSubmitting} className={styles.secondaryButtonModal}>Cancel</button>
+                     <button type="button" onClick={() => setIsAddParticipantModalOpen(false)} disabled={isSubmitting} className={styles.secondaryButtonModal}>{t('cancel')}</button>
                      <button type="submit" disabled={isSubmitting || !newParticipantIdentifier.trim()} className={styles.primaryButtonModal}>
-                        {isSubmitting ? 'Adding...' : 'Add Participant'}
+                        {isSubmitting ? t('adding') : t('add_participant_btn')}
                     </button>
                 </div>
             </form>
        </Modal>
 
        {/* Edit Participant Modal */}
-       <Modal isOpen={isEditParticipantModalOpen} onClose={() => { setIsEditParticipantModalOpen(false); setError(null); }} title="Edit Participant">
+       <Modal isOpen={isEditParticipantModalOpen} onClose={() => { setIsEditParticipantModalOpen(false); setError(null); }} title={t('edit_participant_modal_title')}>
             <form onSubmit={handleEditParticipantSubmit}>
                  {error && <p className={styles.errorTextModal}>{error}</p>}
                  <div className={styles.formGroup}>
-                     <label htmlFor="editParticipantIdentifier">Participant Identifier *</label>
+                     <label htmlFor="editParticipantIdentifier">{t('participant_identifier_label')}</label>
                      <input
                          type="text"
                          id="editParticipantIdentifier"
                          value={editParticipantIdentifier}
                          onChange={(e) => setEditParticipantIdentifier(e.target.value)}
-                         placeholder="e.g., Email, Subject ID, Code"
+                         placeholder={t('participant_identifier_placeholder')}
                          required
                          disabled={isSubmitting}
                      />
-                      <small>Unique identifier for this participant within this study.</small>
+                      <small>{t('participant_identifier_help')}</small>
                  </div>
                   <div className={styles.modalActions}>
-                     <button type="button" onClick={() => setIsEditParticipantModalOpen(false)} disabled={isSubmitting} className={styles.secondaryButtonModal}>Cancel</button>
+                     <button type="button" onClick={() => setIsEditParticipantModalOpen(false)} disabled={isSubmitting} className={styles.secondaryButtonModal}>{t('cancel')}</button>
                      <button type="submit" disabled={isSubmitting || !editParticipantIdentifier.trim()} className={styles.primaryButtonModal}>
-                        {isSubmitting ? 'Updating...' : 'Update Participant'}
+                        {isSubmitting ? t('updating') : t('update_participant_btn')}
                     </button>
                 </div>
             </form>
        </Modal>
 
        {/* Edit Study Modal */}
-       <Modal isOpen={isEditStudyModalOpen} onClose={() => { setIsEditStudyModalOpen(false); setError(null); }} title="Edit Study">
+       <Modal isOpen={isEditStudyModalOpen} onClose={() => { setIsEditStudyModalOpen(false); setError(null); }} title={t('edit_study_title')}>
             <form onSubmit={handleEditStudySubmit}>
                  {error && <p className={styles.errorTextModal}>{error}</p>}
                  <div className={styles.formGroup}>
-                     <label htmlFor="editStudyName">Study Name *</label>
+                     <label htmlFor="editStudyName">{t('study_name_label')}</label>
                      <input
                          type="text"
                          id="editStudyName"
@@ -574,7 +826,7 @@ export default function StudyDetailPage() {
                      />
                  </div>
                  <div className={styles.formGroup}>
-                     <label htmlFor="editStudyDescription">Description (Optional)</label>
+                     <label htmlFor="editStudyDescription">{t('description_optional_label')}</label>
                      <textarea
                          id="editStudyDescription"
                          value={editStudyDescription}
@@ -584,9 +836,9 @@ export default function StudyDetailPage() {
                      />
                  </div>
                   <div className={styles.modalActions}>
-                     <button type="button" onClick={() => setIsEditStudyModalOpen(false)} disabled={isSubmitting} className={styles.secondaryButtonModal}>Cancel</button>
+                     <button type="button" onClick={() => setIsEditStudyModalOpen(false)} disabled={isSubmitting} className={styles.secondaryButtonModal}>{t('cancel')}</button>
                      <button type="submit" disabled={isSubmitting || !editStudyName.trim()} className={styles.primaryButtonModal}>
-                        {isSubmitting ? 'Updating...' : 'Update Study'}
+                        {isSubmitting ? t('updating') : t('update_study_btn')}
                     </button>
                 </div>
             </form>

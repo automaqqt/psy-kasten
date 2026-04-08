@@ -32,15 +32,17 @@ p {
   --text-primary: #333;
   --text-secondary: #555;
   --border-color: #e0e0e0;
-  --link-color: #007bff;
-  --link-hover-color: #0056b3;
+  --link-color: #d4982a;
+  --link-hover-color: #b8831f;
   --shadow-color: rgba(0, 0, 0, 0.05);
   --card-bg: #ffffff;
   --topbar-bg: rgba(255, 255, 255, 0);
   --topbar-scrolled-bg: rgba(255, 255, 255, 0.95);
   --icon-color: #555;
   --icon-hover-bg: rgba(0, 0, 0, 0.05);
-  /* ... other variables */
+  --focus-ring-color: #d4982a;
+  --focus-ring-width: 2px;
+  --focus-ring-offset: 2px;
 }
 
 /* Dark Theme Variables */
@@ -52,15 +54,15 @@ html[data-theme="dark"] {
   --text-primary: #e0e0e0;
   --text-secondary: #b0b0b0;
   --border-color: #444444;
-  --link-color: #58a6ff;
-  --link-hover-color: #80bfff;
+  --link-color: #efb72a;
+  --link-hover-color: #f5ca5c;
   --shadow-color: rgba(255, 255, 255, 0.05);
   --card-bg: #2c2c2c;
   --topbar-bg: rgba(30, 30, 30, 0);
   --topbar-scrolled-bg: rgba(30, 30, 30, 0.95);
   --icon-color: #b0b0b0;
   --icon-hover-bg: rgba(255, 255, 255, 0.08);
-   /* ... other variables */
+  --focus-ring-color: #efb72a;
 }
 
 /* Apply variables */
@@ -68,4 +70,37 @@ body {
   background-color: var(--bg-primary);
   color: var(--text-primary);
   transition: background-color 0.3s ease, color 0.3s ease; /* Smooth theme transition */
+}
+
+/* Skip navigation link — visible only on keyboard focus */
+.skip-link {
+  position: absolute;
+  top: -100%;
+  left: 1rem;
+  z-index: 9999;
+  padding: 0.75rem 1.5rem;
+  background-color: var(--bg-secondary, #ffffff);
+  color: var(--text-primary, #333);
+  border: var(--focus-ring-width) solid var(--focus-ring-color);
+  border-radius: 4px;
+  font-size: 1rem;
+  font-weight: 600;
+  text-decoration: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.skip-link:focus {
+  top: 1rem;
+}
+
+/* Disable animations and transitions for users who prefer reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

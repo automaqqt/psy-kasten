@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef } from 'react'; // Import useRef
-import Head from 'next/head';
 import Link from 'next/link';
 import Footer from '../components/ui/footer';
 import styles from '../styles/Landing.module.css';
@@ -9,8 +8,9 @@ import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { TEST_TYPES } from '../lib/testConfig';
 import { useSession } from 'next-auth/react';
-import { IoLanguage, IoSunnyOutline, IoMoonOutline } from 'react-icons/io5';
+import { IoLanguage } from 'react-icons/io5';
 import { ThemeToggle } from '../components/ui/themeToggle';
+import SeoHead from '../components/SeoHead';
 
 export async function getStaticProps({ locale }) {
   return {
@@ -126,26 +126,89 @@ const changeLocale = (newLocale) => {
       testsSectionRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  const toggleMobileTags = () => setIsMobileTagsExpanded(!isMobileTagsExpanded); // <-- New Handler
+  const toggleMobileTags = () => setIsMobileTagsExpanded(!isMobileTagsExpanded);
+
+  // Keyboard navigation for locale dropdown
+  const handleLocaleKeyDown = (e) => {
+    if (e.key === 'Escape') {
+      setIsLocaleDropdownOpen(false);
+      localeDropdownRef.current?.querySelector('button')?.focus();
+      return;
+    }
+    if (!isLocaleDropdownOpen) return;
+
+    const items = localeDropdownRef.current?.querySelectorAll('[role="menuitem"]');
+    if (!items || items.length === 0) return;
+    const currentIndex = Array.from(items).indexOf(document.activeElement);
+
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      const nextIndex = currentIndex < items.length - 1 ? currentIndex + 1 : 0;
+      items[nextIndex].focus();
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      const prevIndex = currentIndex > 0 ? currentIndex - 1 : items.length - 1;
+      items[prevIndex].focus();
+    }
+  };
+
+  // Focus active locale item when dropdown opens
+  useEffect(() => {
+    if (isLocaleDropdownOpen && localeDropdownRef.current) {
+      const activeItem = localeDropdownRef.current.querySelector(`.${styles.activeLocale}`)
+        || localeDropdownRef.current.querySelector('[role="menuitem"]');
+      activeItem?.focus();
+    }
+  }, [isLocaleDropdownOpen]);
 
   return (
     <div className={styles.container}>
-      <Head>
-        {/* ... (Head content using t() function) ... */}
-         <title>{t('landing_page_title', 'Cognitive Assessment Suite')}</title>
-         <meta name="description" content={t('landing_page_description', 'A suite of cognitive assessment tools...')} />
-         <link rel="icon" href="/favicon.ico" />
-      </Head>
+      <SeoHead
+        title={t('seo_landing_title', 'psyKasten | Cognitive Assessment Suite')}
+        description={t('seo_landing_description', t('landing_page_description'))}
+        keywords={t('seo_landing_keywords', '')}
+        path="/"
+        jsonLd={{
+          '@context': 'https://schema.org',
+          '@graph': [
+            {
+              '@type': 'WebSite',
+              name: 'psyKasten',
+              url: (process.env.NEXT_PUBLIC_SITE_URL || 'https://psykasten.de'),
+              description: t('seo_landing_description', t('landing_page_description')),
+              inLanguage: ['de', 'en', 'es'],
+            },
+            {
+              '@type': 'Organization',
+              name: 'psyKasten',
+              url: (process.env.NEXT_PUBLIC_SITE_URL || 'https://psykasten.de'),
+              logo: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://psykasten.de'}/logo.png`,
+            },
+            {
+              '@type': 'ItemList',
+              name: t('all_tests_section_title', 'All Tests'),
+              numberOfItems: allCognitiveTests.length,
+              itemListElement: allCognitiveTests.map((test, index) => ({
+                '@type': 'ListItem',
+                position: index + 1,
+                name: test.title,
+                description: test.description,
+                url: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://psykasten.de'}${test.route}`,
+              })),
+            },
+          ],
+        }}
+      />
 
         {/* --- Top Bar with Login/Dashboard Button --- */}
-        <div className={`${styles.topBar} ${isScrolled ? styles.topBarScrolled : ''}`}>
-            <div className={styles.topBarContent}>
+        <header className={`${styles.topBar} ${isScrolled ? styles.topBarScrolled : ''}`}>
+            <nav className={styles.topBarContent} aria-label={t('main_navigation', 'Main navigation')}>
             <div className={styles.logoContainer}> {/* Added container for layout */}
                         <Link href="/" passHref>
                           <div className={`${styles.logoLink} ${isScrolled ? styles.logoLinkScrolled : ''}`}> {/* Link wrapping the image */}
                                 <Image
                                     src="/logo.png" // Path relative to the public folder
-                                    alt={t('logo_alt_text', 'CogniSuite Logo')} // Add alt text key
+                                    alt={t('logo_alt_text', 'psyKasten Logo')}
                                     fill
                                     sizes="(max-width: 768px) 30vw, (max-width: 1200px) 23vw, 10vw"
                                 />
@@ -157,20 +220,26 @@ const changeLocale = (newLocale) => {
                         <ThemeToggle />
 
                         {/* Locale Switcher */}
-                        <div className={styles.localeSwitcherContainer} ref={localeDropdownRef}>
-                            <button onClick={toggleLocaleDropdown} className={styles.iconButton} title="Change Language">
-                                <IoLanguage />
+                        <div className={styles.localeSwitcherContainer} ref={localeDropdownRef} onKeyDown={handleLocaleKeyDown}>
+                            <button
+                              onClick={toggleLocaleDropdown}
+                              className={styles.iconButton}
+                              aria-label={t('change_language', 'Change Language')}
+                              aria-haspopup="true"
+                              aria-expanded={isLocaleDropdownOpen}
+                            >
+                                <IoLanguage aria-hidden="true" />
                             </button>
                             {isLocaleDropdownOpen && (
-                                <ul className={styles.localeDropdown}>
+                                <ul className={styles.localeDropdown} role="menu">
                                     {locales?.map((loc) => (
-                                        <li key={loc}>
+                                        <li key={loc} role="none">
                                             <button
+                                                role="menuitem"
                                                 onClick={() => changeLocale(loc)}
                                                 className={loc === currentLocale ? styles.activeLocale : ''}
                                             >
-                                                {/* Display full language name - requires mapping or another translation file */}
-                                                {loc.toUpperCase()} {/* Simple display */}
+                                                {loc.toUpperCase()}
                                             </button>
                                         </li>
                                     ))}
@@ -181,19 +250,19 @@ const changeLocale = (newLocale) => {
                          {/* Login/Dashboard Button */}
                         {!isLoadingSession && (
                              session ? (
-                                 <Link href="/dashboard"><div className={styles.dashboardButton}>{t('go_to_dashboard')}</div></Link>
+                                 <Link href="/dashboard" className={styles.dashboardButton}>{t('go_to_dashboard')}</Link>
                              ) : (
-                                 <Link href="/auth/signin"><div className={styles.loginButton}>{t('login_button')}</div></Link>
+                                 <Link href="/auth/signin" className={styles.loginButton}>{t('login_button')}</Link>
                              )
                          )}
-                        {isLoadingSession && <div className={styles.loadingSpinner}></div>}
+                        {isLoadingSession && <div className={styles.loadingSpinner} role="status" aria-label="Loading"></div>}
                     </div>
-            </div>
-        </div>
+            </nav>
+        </header>
         {/* --- End Top Bar --- */}
 
 
-      <main className={styles.main}>
+      <main className={styles.main} id="main-content">
         {/* --- Hero Section --- */}
         <section className={styles.heroSection}>
             <div className={styles.heroInner}>
@@ -208,12 +277,12 @@ const changeLocale = (newLocale) => {
                         </button>
                         {!isLoadingSession && (
                             session ? (
-                                <Link href="/dashboard">
-                                    <div className={styles.heroButtonSecondary}>{t('go_to_dashboard', 'Researcher Dashboard')}</div>
+                                <Link href="/dashboard" className={styles.heroButtonSecondary}>
+                                    {t('go_to_dashboard', 'Researcher Dashboard')}
                                 </Link>
                             ) : (
-                                <Link href="/auth/signin">
-                                    <div className={styles.heroButtonSecondary}>{t('login_button', 'Researcher Login')}</div>
+                                <Link href="/info" className={styles.heroButtonSecondary}>
+                                    {t('hero_learn_more', 'Learn More')}
                                 </Link>
                             )
                         )}
@@ -226,6 +295,13 @@ const changeLocale = (newLocale) => {
                                 <span>{test.icon}</span>
                             </div>
                             <span className={styles.miniCardTitle}>{test.title}</span>
+                        </Link>
+                    ))}
+                </div>
+                <div className={styles.heroIconStrip}>
+                    {allCognitiveTests.map((test) => (
+                        <Link href={test.route} key={test.id} className={styles.iconBubble} style={{ '--bubble-color': test.color }}>
+                            <span>{test.icon}</span>
                         </Link>
                     ))}
                 </div>
@@ -244,23 +320,27 @@ const changeLocale = (newLocale) => {
                     <input
                         type="text"
                         placeholder={t('search_tests_placeholder', 'Search tests...')}
+                        aria-label={t('search_tests_placeholder', 'Search tests...')}
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
                 </div>
                 <div className={styles.tagFilter}>
-                    <div className={styles.tagFilterHeader}> {/* New wrapper for label and toggle */}
-                        <span className={styles.filterLabel}>{t('filter_by_tag', 'Filter by Tag:')}</span>
+                    <div className={styles.tagFilterHeader}>
+                        <span className={styles.filterLabel} id="filter-by-tag-label">{t('filter_by_tag', 'Filter by Tag:')}</span>
                         {/* Mobile Toggle Button */}
-                        <button onClick={toggleMobileTags} className={styles.mobileTagToggle}>
+                        <button
+                          onClick={toggleMobileTags}
+                          className={styles.mobileTagToggle}
+                          aria-expanded={isMobileTagsExpanded}
+                          aria-controls="tag-list-wrapper"
+                        >
                             {isMobileTagsExpanded ? t('hide_tags', 'Hide') : t('show_tags', 'Show')}
-                             {/* Optional: Add Icon like ▼ or ▲ */}
-                             <span className={isMobileTagsExpanded ? styles.arrowUp : styles.arrowDown}></span>
+                             <span className={isMobileTagsExpanded ? styles.arrowUp : styles.arrowDown} aria-hidden="true"></span>
                         </button>
                     </div>
-                     {/* Apply conditional class for collapsing */}
-                    <div className={`${styles.tagListWrapper} ${isMobileTagsExpanded ? styles.tagListWrapperExpanded : ''}`}>
-                        <div className={styles.tagList}>
+                    <div id="tag-list-wrapper" className={`${styles.tagListWrapper} ${isMobileTagsExpanded ? styles.tagListWrapperExpanded : ''}`}>
+                        <div className={styles.tagList} role="group" aria-labelledby="filter-by-tag-label">
                         {allAvailableTags.map(tag => (
                             <button key={tag} onClick={() => handleTagClick(tag)} className={`${styles.tagButton} ${selectedTags.includes(tag) ? styles.tagButtonActive : ''}`}>
                                 {tag}
@@ -283,31 +363,30 @@ const changeLocale = (newLocale) => {
           {/* Map over the *filtered* tests */}
           {filteredTests.length > 0 ? (
              filteredTests.map((test) => (
-                <Link href={test.route} key={test.id}>
-                  <div className={styles.testLink}>
+                <Link href={test.route} key={test.id} className={styles.testCardLink}>
                     <div
                       className={`${styles.testCard} ${hoveredCard === test.id ? styles.wiggle : ''}`}
                       style={{ '--card-color': test.color, '--card-color-light': `${test.color}22` }}
                       onMouseEnter={() => handleCardHover(test.id)}
                       onMouseLeave={handleCardLeave}
+                      onFocus={() => handleCardHover(test.id)}
+                      onBlur={handleCardLeave}
                     >
                       <div className={styles.cardIconContainer}>
                         <span className={styles.cardIcon}>{test.icon}</span>
                       </div>
-                      <h2 className={styles.cardTitle}>{test.title}</h2>
+                      <h3 className={styles.cardTitle}>{test.title}</h3>
                       <p className={styles.cardDescription}>{test.description}</p>
                       <div className={styles.cardTags}>
-                        {/* Display translated tags */}
                         {test.translatedTags.map((tag, index) => (
                           <span key={index} className={`${styles.tag} ${selectedTags.includes(tag) ? styles.tagHighlight : ''}`}>{tag}</span>
                         ))}
                       </div>
                       <div className={styles.cardFooter}>
                         <span className={styles.startTest}>{t('start_test_button', 'Start Test')}</span>
-                        <span className={styles.arrowIcon}>→</span>
+                        <span className={styles.arrowIcon} aria-hidden="true">→</span>
                       </div>
                     </div>
-                  </div>
                 </Link>
               ))
           ) : (
@@ -319,6 +398,19 @@ const changeLocale = (newLocale) => {
         </section>
         {/* --- End Tests Overview Section --- */}
 
+        {/* --- Researcher CTA Banner --- */}
+        <section className={styles.researcherBanner}>
+            <div className={styles.researcherBannerInner}>
+                <div className={styles.researcherBannerText}>
+                    <h2>{t('res_banner_title', 'Built for Researchers')}</h2>
+                    <p>{t('res_banner_text', 'Create studies, assign tests to participants, and export structured data — all from one dashboard.')}</p>
+                </div>
+                <Link href="/info" className={styles.researcherBannerBtn}>
+                    {t('res_banner_btn', 'Learn More')}
+                </Link>
+            </div>
+        </section>
+
         <section className={styles.ctaSection}>
                 <div className={styles.ctaContent}>
                     <h2 className={styles.ctaTitle}>
@@ -327,19 +419,26 @@ const changeLocale = (newLocale) => {
                     <p className={styles.ctaText}>
                         {t('cta_add_own_text', 'Contribute to the suite! Researchers can sign up to add and manage their own cognitive tests within this platform.')}
                     </p>
-                    {/* Conditional Button: Show Signup if not logged in, different message/link if logged in */}
                     {!session && status !== "loading" && (
-                        <Link href="/auth/signup">
-                            <div className={styles.ctaButton}>{t('cta_signup_button', 'Sign Up to Contribute')}</div>
+                        <Link href="/auth/signup" className={styles.ctaButton}>
+                            {t('cta_signup_button', 'Sign Up to Contribute')}
                         </Link>
                     )}
                      {session && (
-                          // Optionally link to where they would add tests in their dashboard
-                         <Link href="/dashboard/proposals/new">
-                            <div className={styles.ctaButton}>{t('cta_manage_tests_button', 'Manage Your Tests')}</div>
+                         <Link href="/dashboard/proposals/new" className={styles.ctaButton}>
+                            {t('cta_manage_tests_button', 'Manage Your Tests')}
                          </Link>
                      )}
                 </div>
+           </section>
+
+           <section className={styles.contactSection}>
+              <p className={styles.contactText}>
+                {t('contact_cta_text', 'Questions, ideas, or collaboration? Reach out to us.')}
+              </p>
+              <a href="mailto:kontakt@psykasten.de" className={styles.contactButton}>
+                kontakt@psykasten.de
+              </a>
            </section>
       </main>
 

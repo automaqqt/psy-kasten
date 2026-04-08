@@ -2,14 +2,26 @@
 import { useState } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
-import styles from '../../styles/signup.module.css'; // Import the CSS module
+import { useTranslation } from 'next-i18next';
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import styles from '../../styles/signup.module.css';
+
+export async function getServerSideProps({ locale }) {
+  return {
+    props: {
+      ...(await serverSideTranslations(locale ?? 'en', ['common'])),
+    },
+  };
+}
 
 export default function SignUp() {
   const router = useRouter();
+  const { t } = useTranslation('common');
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -21,16 +33,20 @@ export default function SignUp() {
 
     // --- Client-side Validation ---
     if (password !== confirmPassword) {
-      setError("Passwords do not match.");
+      setError(t('auth_signup_error_passwords_mismatch'));
       return;
     }
     if (password.length < 8) {
-      setError("Password must be at least 8 characters long.");
+      setError(t('auth_signup_error_password_length'));
       return;
     }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-        setError("Please enter a valid email address.");
+        setError(t('auth_signup_error_invalid_email'));
         return;
+    }
+    if (!acceptedTerms) {
+      setError(t('auth_signup_error_accept_terms'));
+      return;
     }
 
     setLoading(true);
@@ -48,17 +64,14 @@ export default function SignUp() {
         throw new Error(data.message || `Error: ${res.status}`);
       }
 
-      setSuccess(data.message || 'Signup successful! Redirecting to sign in...');
+      setSuccess(data.message || t('auth_signup_success_verify'));
       setName('');
-      setEmail('');
       setPassword('');
       setConfirmPassword('');
-      setTimeout(() => {
-        router.push('/auth/signin?message=signup_success');
-      }, 2000);
+      // Keep email visible so user knows where to check
 
     } catch (err) {
-      setError(err.message || 'An unexpected error occurred.');
+      setError(err.message || t('auth_signup_error_default'));
     } finally {
       setLoading(false);
     }
@@ -67,15 +80,15 @@ export default function SignUp() {
   return (
     <div className={styles.signupContainer}>
       <div className={styles.signupBox}>
-          <h1>Create Account</h1>
-          <p>Sign up to manage your research studies.</p>
+          <h1>{t('auth_signup_title')}</h1>
+          <p>{t('auth_signup_subtitle')}</p>
 
           {error && <div className={styles.errorMessage}>{error}</div>}
           {success && <div className={styles.successMessage}>{success}</div>}
 
           <form onSubmit={handleSubmit}>
             <div className={styles.formGroup}>
-              <label htmlFor="name">Name (Optional)</label>
+              <label htmlFor="name">{t('auth_signup_name_label')}</label>
               <input
                 id="name"
                 name="name"
@@ -87,7 +100,7 @@ export default function SignUp() {
               />
             </div>
             <div className={styles.formGroup}>
-              <label htmlFor="email-signup">Email</label>
+              <label htmlFor="email-signup">{t('auth_signup_email_label')}</label>
               <input
                 id="email-signup"
                 name="email"
@@ -100,7 +113,7 @@ export default function SignUp() {
               />
             </div>
             <div className={styles.formGroup}>
-              <label htmlFor="password-signup">Password (min. 8 characters)</label>
+              <label htmlFor="password-signup">{t('auth_signup_password_label')}</label>
               <input
                 id="password-signup"
                 name="password"
@@ -114,7 +127,7 @@ export default function SignUp() {
               />
             </div>
              <div className={styles.formGroup}>
-              <label htmlFor="confirmPassword">Confirm Password</label>
+              <label htmlFor="confirmPassword">{t('auth_signup_confirm_password_label')}</label>
               <input
                 id="confirmPassword"
                 name="confirmPassword"
@@ -127,13 +140,29 @@ export default function SignUp() {
                 disabled={loading}
               />
             </div>
-            <button type="submit" disabled={loading} className={styles.submitButton}>
-              {loading ? 'Creating Account...' : 'Sign Up'}
+            <div className={styles.checkboxGroup}>
+              <label className={styles.checkboxLabel}>
+                <input
+                  type="checkbox"
+                  checked={acceptedTerms}
+                  onChange={(e) => setAcceptedTerms(e.target.checked)}
+                  disabled={loading}
+                />
+                <span>
+                  {t('auth_signup_agree_prefix')}{' '}
+                  <Link href="/datenschutz" target="_blank" className={styles.legalLink}>{t('footer_privacy')}</Link>
+                  {' '}{t('auth_signup_agree_and')}{' '}
+                  <Link href="/nutzungsbedingungen" target="_blank" className={styles.legalLink}>{t('footer_terms')}</Link>
+                </span>
+              </label>
+            </div>
+            <button type="submit" disabled={loading || !acceptedTerms} className={styles.submitButton}>
+              {loading ? t('auth_signup_submitting') : t('auth_signup_submit')}
             </button>
           </form>
 
           <div className={styles.signInLink}>
-            Already have an account? <Link href="/auth/signin"><div>Sign In</div></Link>
+            {t('auth_signup_has_account')} <Link href="/auth/signin"><div>{t('auth_signup_signin_link')}</div></Link>
           </div>
       </div>
     </div>

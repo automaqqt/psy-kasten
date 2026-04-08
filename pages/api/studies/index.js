@@ -1,15 +1,14 @@
 // pages/api/studies/index.js
-import { getSession } from 'next-auth/react'; // or getServerSession
 import prisma from '../../../lib/prisma';
-import { authOptions } from '../auth/[...nextauth]'; // If using getServerSession
+import { authOptions } from '../auth/[...nextauth]';
 import { getServerSession } from "next-auth/next";
 import { sanitizeText, sanitizeRichText } from '../../../lib/sanitize';
+import { withCsrfProtection } from '../../../lib/csrf';
+import { TEST_TYPES } from '../../../lib/testConfig';
 
 
-export default async function handler(req, res) {
-  // Use getServerSession for Server Components/Route Handlers if possible
-  // Otherwise, use getSession for traditional API routes called by client
-  const session = await getServerSession(req, res, authOptions); // Or await getSession({ req });
+async function handler(req, res) {
+  const session = await getServerSession(req, res, authOptions);
 
   if (!session?.user?.id) {
     return res.status(401).json({ message: 'Unauthorized' });
@@ -55,6 +54,13 @@ export default async function handler(req, res) {
       return res.status(400).json({ message: 'At least one test type is required' });
     }
 
+    // Validate all test types against configured tests
+    const validTestTypes = TEST_TYPES.map(t => t.id);
+    const invalidTypes = typesArray.filter(t => !validTestTypes.includes(t));
+    if (invalidTypes.length > 0) {
+      return res.status(400).json({ message: `Invalid test type(s): ${invalidTypes.join(', ')}. Valid types: ${validTestTypes.join(', ')}` });
+    }
+
     try {
       // Sanitize inputs to prevent XSS
       const sanitizedName = sanitizeText(name);
@@ -85,3 +91,5 @@ export default async function handler(req, res) {
     return res.status(405).json({ message: `Method ${req.method} Not Allowed` });
   }
 }
+
+export default withCsrfProtection(handler);

@@ -1,4 +1,3 @@
-import { getSession } from 'next-auth/react'; // or getServerSession
 import prisma from '../../../lib/prisma';
 import { authOptions } from '../auth/[...nextauth]';
 import { getServerSession } from "next-auth/next";
@@ -9,7 +8,7 @@ export default async function handler(req, res) {
         return res.status(405).json({ message: `Method ${req.method} Not Allowed` });
     }
 
-    const session = await getServerSession(req, res, authOptions); // Or getSession({ req });
+    const session = await getServerSession(req, res, authOptions);
 
     if (!session?.user?.id) {
         return res.status(401).json({ message: 'Unauthorized' });

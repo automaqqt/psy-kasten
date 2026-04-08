@@ -1,22 +1,20 @@
 import { useState, useEffect } from 'react';
 import { useTheme } from 'next-themes';
+import { useTranslation } from 'next-i18next';
 import { IoSunnyOutline, IoMoonOutline } from 'react-icons/io5';
-import styles from '../../styles/ThemeToggle.module.css'; // Create styles for the button
+import styles from '../../styles/ThemeToggle.module.css';
 
 export const ThemeToggle = () => {
   const [mounted, setMounted] = useState(false);
   const { theme, setTheme, systemTheme } = useTheme();
+  const { t } = useTranslation('common');
 
-  // Ensure component is mounted before rendering UI that depends on theme
-  // Prevents hydration mismatch errors
   useEffect(() => setMounted(true), []);
 
   if (!mounted) {
-    // Render nothing or a placeholder on the server/before mount
-    return <button className={styles.iconButton} disabled aria-label="Loading Theme"></button>;
+    return <button className={styles.iconButton} disabled aria-label={t('switch_to_dark_mode', 'Switch to Dark Mode')}></button>;
   }
 
-  // Determine the current effective theme (handling 'system' preference)
   const currentTheme = theme === 'system' ? systemTheme : theme;
 
   const toggleTheme = () => {
@@ -26,11 +24,12 @@ export const ThemeToggle = () => {
   return (
     <button
       onClick={toggleTheme}
-      className={styles.iconButton} // Use same style as other icon buttons
-      title={currentTheme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-      aria-label="Toggle Dark/Light Mode"
+      className={styles.iconButton}
+      aria-label={currentTheme === 'dark'
+        ? t('switch_to_light_mode', 'Switch to Light Mode')
+        : t('switch_to_dark_mode', 'Switch to Dark Mode')}
     >
-      {currentTheme === 'dark' ? <IoSunnyOutline /> : <IoMoonOutline />}
+      {currentTheme === 'dark' ? <IoSunnyOutline aria-hidden="true" /> : <IoMoonOutline aria-hidden="true" />}
     </button>
   );
 };

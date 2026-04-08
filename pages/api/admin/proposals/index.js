@@ -1,16 +1,17 @@
 // pages/api/admin/proposals.js
-import { getSession } from 'next-auth/react'; // or getServerSession
 import prisma from '../../../../lib/prisma';
 import { authOptions } from '../../auth/[...nextauth]';
 import { getServerSession } from "next-auth/next";
 import fs from 'fs';
 import path from 'path';
 import { UserRole } from '@prisma/client'; // Import enum if not auto-imported
+import { withCsrfProtection } from '../../../../lib/csrf';
+import { sanitizeText } from '../../../../lib/sanitize';
 
 const UPLOAD_DIR = path.join(process.cwd(), '/uploads/proposals');
 
-export default async function handler(req, res) {
-    const session = await getServerSession(req, res, authOptions); // Or getSession({ req });
+async function handler(req, res) {
+    const session = await getServerSession(req, res, authOptions);
 
     // --- Authorization: ADMIN ONLY ---
     if (!session?.user?.id) {
@@ -72,10 +73,9 @@ export default async function handler(req, res) {
                  data: {
                      isReviewed: true,
                      reviewedAt: new Date(),
-                     adminNotes: adminNotes || null,
+                     adminNotes: adminNotes ? sanitizeText(adminNotes) : null,
                  }
              });
-             console.log(`Proposal ${proposalId} marked as reviewed by admin ${session.user.id}`);
              return res.status(200).json(updatedProposal);
          } catch (error) {
               console.error(`Admin: Error updating proposal ${proposalId}:`, error);
@@ -93,3 +93,5 @@ export default async function handler(req, res) {
         return res.status(405).json({ message: `Method ${req.method} Not Allowed` });
     }
 }
+
+export default withCsrfProtection(handler);

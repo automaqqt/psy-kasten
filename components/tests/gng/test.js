@@ -641,7 +641,20 @@ export default function GNGTest({ assignmentId, onComplete, isStandalone, t }) {
 
                     {/* Playing/Practice Area */}
                     {(gameState === 'playing' || gameState === 'practice') && (
-                        <div className={styles.stimulusContainer}>
+                        <div
+                            className={styles.stimulusContainer}
+                            onTouchStart={(e) => {
+                                e.preventDefault();
+                                if (responseAllowed.current) {
+                                    handleResponse(RESPONSE_KEY, performance.now());
+                                }
+                            }}
+                            onClick={() => {
+                                if (responseAllowed.current) {
+                                    handleResponse(RESPONSE_KEY, performance.now());
+                                }
+                            }}
+                        >
                             {isFixationVisible && <div className={styles.fixationCross}>+</div>}
                             {!isFixationVisible && (
                                 <StimulusDisplay

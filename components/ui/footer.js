@@ -1,26 +1,37 @@
-// components/layout/Footer.js
+// components/ui/footer.js
 import React from 'react';
 import Link from 'next/link';
-import styles from '../../styles/Footer.module.css'; // Create a new CSS Module for the footer
+import { useTranslation } from 'next-i18next';
+import styles from '../../styles/Footer.module.css';
 
 export default function Footer() {
-  // Optional: Use translation if footer text needs it
-  // const { t } = useTranslation('common');
-  // const footerText = t('footer_text', 'Cognitive Assessment Suite • Built with Next.js');
-  // const madeWithText = t('made_with_love', 'made with ❤️ by');
+  const { t } = useTranslation('common');
 
   return (
     <footer className={styles.footer}>
-      {/* Use your desired text */}
-      psyKasten - made with ❤️ by{' '}
-      <Link href="https://vidsoft.net">
-          {/* Apply link style via className */}
-          <div className={styles.link} target="_blank" rel="noopener noreferrer">
-              vidsoft
-          </div>
+      <Link href="/about" className={styles.link}>
+        {t('footer_about', 'About')}
       </Link>
-      {/* Or use translated text: */}
-      {/* {footerText} */}
+      <span className={styles.separator}>|</span>
+      <Link href="/info" className={styles.link}>
+        {t('footer_researchers', 'For Researchers')}
+      </Link>
+      <span className={styles.separator}>|</span>
+      <a href="mailto:kontakt@psykasten.de" className={styles.link}>
+        {t('footer_contact', 'Contact')}
+      </a>
+      <span className={styles.separator}>|</span>
+      <Link href="/datenschutz" className={styles.link}>
+        {t('footer_privacy', 'Privacy Policy')}
+      </Link>
+      <span className={styles.separator}>|</span>
+      <Link href="/nutzungsbedingungen" className={styles.link}>
+        {t('footer_terms', 'Terms of Use')}
+      </Link>
+      <span className={styles.separator}>|</span>
+      <Link href="/impressum" className={styles.link}>
+        {t('footer_impressum', 'Impressum')}
+      </Link>
     </footer>
   );
 }

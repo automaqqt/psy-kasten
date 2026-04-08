@@ -54,6 +54,7 @@ export const config = {
       "/api/proposals/upload", // Protect researcher upload route
       "/api/proposals/mine",   // Protect researcher status route
       "/api/admin/:path*",    // Protect ALL admin API routes
+      "/api/user/:path*",     // Protect user account routes
       // Exclude public routes like /api/auth, /api/results (POST), /api/test-session
     ],
 };

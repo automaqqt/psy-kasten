@@ -1,0 +1,33 @@
+// components/tests/{{TEST_ID}}/data.js
+
+// TODO: Define default settings for your test
+export const DEFAULT_SETTINGS = {
+  testDuration: 300,        // Test duration in seconds (5 min)
+  trialCount: 20,           // Number of trials
+  countdownTimer: 3,        // Countdown before test starts (seconds)
+  stimulusDuration: 1000,   // How long stimulus is shown (ms)
+  minInterval: 1000,        // Minimum inter-stimulus interval (ms)
+  maxInterval: 2000,        // Maximum inter-stimulus interval (ms)
+  stimulusColor: '#ff0000', // Stimulus color
+  backgroundColor: '#ffffff', // Background color
+  // TODO: Add test-specific settings here
+};
+
+// Practice settings (shorter/easier version for familiarization)
+export const PRACTICE_SETTINGS = {
+  testDuration: 60,         // 1 minute practice
+  trialCount: 5,            // Fewer trials
+  countdownTimer: 3,
+  stimulusDuration: 1000,
+  minInterval: 1000,
+  maxInterval: 1500,
+  stimulusColor: '#ff0000',
+  backgroundColor: '#ffffff',
+  // TODO: Match structure of DEFAULT_SETTINGS
+};
+
+// Theme color for this test (used in UI accents)
+export const THEME_COLOR = '{{THEME_COLOR}}';
+
+// Primary response key
+export const RESPONSE_KEY = ' '; // Spacebar — TODO: change if your test uses a different key

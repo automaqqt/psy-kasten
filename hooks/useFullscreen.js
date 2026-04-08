@@ -4,6 +4,14 @@ import { useState, useEffect, useCallback } from 'react';
 export function useFullscreen(elementRef) {
   const [isFullscreen, setIsFullscreen] = useState(false);
 
+  // Detect if the Fullscreen API is available (not supported on iOS Safari)
+  const isFullscreenSupported = typeof document !== 'undefined' && !!(
+    document.fullscreenEnabled ??
+    document.webkitFullscreenEnabled ??
+    document.mozFullScreenEnabled ??
+    document.msFullscreenEnabled
+  );
+
   // Check fullscreen status when it changes
   const handleFullscreenChange = useCallback(() => {
     if (document.fullscreenElement || 
@@ -35,7 +43,13 @@ export function useFullscreen(elementRef) {
   // Function to enter fullscreen
   const enterFullscreen = useCallback(async () => {
     if (!elementRef.current) return;
-    
+
+    // On unsupported devices (e.g. iOS), simulate fullscreen via CSS
+    if (!isFullscreenSupported) {
+      setIsFullscreen(true);
+      return;
+    }
+
     try {
       if (elementRef.current.requestFullscreen) {
         await elementRef.current.requestFullscreen();
@@ -49,24 +63,27 @@ export function useFullscreen(elementRef) {
     } catch (error) {
       console.error('Failed to enter fullscreen mode:', error);
     }
-  }, [elementRef]);
+  }, [elementRef, isFullscreenSupported]);
 
   // Function to exit fullscreen
   const exitFullscreen = useCallback(() => {
+    if (!isFullscreenSupported) {
+      setIsFullscreen(false);
+      return;
+    }
+
     try {
-      if (document.exitFullscreen) {
-        document.exitFullscreen();
-      } else if (document.mozCancelFullScreen) { // Firefox
-        document.mozCancelFullScreen();
-      } else if (document.webkitExitFullscreen) { // Chrome, Safari & Opera
-        document.webkitExitFullscreen();
-      } else if (document.msExitFullscreen) { // IE/Edge
-        document.msExitFullscreen();
+      const promise = document.exitFullscreen?.()
+        || document.mozCancelFullScreen?.()
+        || document.webkitExitFullscreen?.()
+        || document.msExitFullscreen?.();
+      if (promise && promise.catch) {
+        promise.catch(() => {});
       }
     } catch (error) {
-      console.error('Failed to exit fullscreen mode:', error);
+      // Ignore — document may not be active
     }
-  }, []);
+  }, [isFullscreenSupported]);
 
   // Toggle fullscreen
   const toggleFullscreen = useCallback(() => {
@@ -79,6 +96,7 @@ export function useFullscreen(elementRef) {
 
   return {
     isFullscreen,
+    isFullscreenSupported,
     enterFullscreen,
     exitFullscreen,
     toggleFullscreen

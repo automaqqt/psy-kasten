@@ -4,12 +4,24 @@ import Link from 'next/link';
 import styles from '../../styles/DashboardPage.module.css'; // Create this CSS file
 import Modal from '../../components/ui/modal';
 import { TEST_TYPES } from '../../lib/testConfig';
+import { fetchWithCsrf } from '../../lib/fetchWithCsrf';
+import { useTranslation } from 'next-i18next';
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 
 // Basic Modal Component (can be extracted to its own file)
 
 
 
+export async function getServerSideProps({ locale }) {
+    return {
+        props: {
+            ...(await serverSideTranslations(locale, ['common', 'dashboard'])),
+        },
+    };
+}
+
 export default function DashboardHome() {
+  const { t } = useTranslation('dashboard');
   const [studies, setStudies] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -67,17 +79,17 @@ export default function DashboardHome() {
   const handleCreateStudySubmit = async (e) => {
       e.preventDefault();
       if (!newStudyName.trim()) {
-          setError('Study name cannot be empty.');
+          setError(t('error_study_name_empty'));
           return;
       }
       if (!selectedTestTypes || selectedTestTypes.length === 0) {
-          setError('Please select at least one test type.');
+          setError(t('error_select_test'));
           return;
       }
       setIsSubmitting(true);
       setError(null);
       try {
-          const res = await fetch('/api/studies', {
+          const res = await fetchWithCsrf('/api/studies', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
@@ -117,7 +129,7 @@ export default function DashboardHome() {
       setIsSubmitting(true);
       setError(null);
       try {
-          const res = await fetch(`/api/studies/${editingStudy.id}`, {
+          const res = await fetchWithCsrf(`/api/studies/${editingStudy.id}`, {
               method: 'PUT',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
@@ -146,22 +158,20 @@ export default function DashboardHome() {
       const participantCount = study?._count?.participants || 0;
       const assignmentCount = study?._count?.testAssignments || 0;
 
-      const confirmMessage = `Delete Study "${studyName}"?\n\n` +
-          `This will permanently delete:\n` +
-          `- ${participantCount} participant(s)\n` +
-          `- ${assignmentCount} test assignment(s)\n` +
-          `- All associated results\n\n` +
-          `This action cannot be undone.\n\n` +
-          `Type "DELETE" to confirm.`;
+      const confirmMessage = t('confirm_delete_study', {
+          name: studyName,
+          participants: participantCount,
+          assignments: assignmentCount,
+      });
 
       const userInput = window.prompt(confirmMessage);
-      if (userInput !== 'DELETE') {
-          return; // User canceled or didn't type DELETE
+      if (userInput !== t('confirm_delete_keyword')) {
+          return;
       }
       setError(null);
       setDeletingStudyId(studyId); // Set loading state
       try {
-          const res = await fetch(`/api/studies/${studyId}`, { method: 'DELETE' });
+          const res = await fetchWithCsrf(`/api/studies/${studyId}`, { method: 'DELETE' });
           if (!res.ok) {
               const errData = await res.json();
               throw new Error(errData.message || 'Failed to delete study');
@@ -178,9 +188,9 @@ export default function DashboardHome() {
   return (
     <DashboardLayout>
       <div className={styles.pageHeader}>
-        <h1>My Studies</h1>
+        <h1>{t('my_studies')}</h1>
         <button onClick={() => setIsCreateModalOpen(true)} className={styles.primaryButton}>
-           + Create New Study
+           {t('create_new_study')}
         </button>
       </div>
 
@@ -188,38 +198,38 @@ export default function DashboardHome() {
       {!isLoading && !error && stats && (
         <div className={styles.statsGrid}>
           <div className={`${styles.statCard} ${styles.statBlue}`}>
-            <div className={styles.statLabel}>Total Studies</div>
+            <div className={styles.statLabel}>{t('stat_total_studies')}</div>
             <div className={styles.statValue}>{stats.totalStudies}</div>
           </div>
           <div className={`${styles.statCard} ${styles.statGreen}`}>
-            <div className={styles.statLabel}>Total Participants</div>
+            <div className={styles.statLabel}>{t('stat_total_participants')}</div>
             <div className={styles.statValue}>{stats.totalParticipants}</div>
           </div>
           <div className={`${styles.statCard} ${styles.statAmber}`}>
-            <div className={styles.statLabel}>Total Assignments</div>
+            <div className={styles.statLabel}>{t('stat_total_assignments')}</div>
             <div className={styles.statValue}>{stats.totalAssignments}</div>
           </div>
         </div>
       )}
 
-      {isLoading && <p className={styles.loadingText}>Loading studies...</p>}
+      {isLoading && <p className={styles.loadingText}>{t('loading_studies')}</p>}
       {error && <p className={styles.errorText}>Error: {error}</p>}
 
       {!isLoading && !error && studies.length === 0 && (
         <div className={styles.emptyState}>
           <div className={styles.emptyStateIcon}></div>
-          <h3>No Studies Yet</h3>
-          <p>Create your first study to start collecting cognitive test data.</p>
+          <h3>{t('no_studies_title')}</h3>
+          <p>{t('no_studies_text')}</p>
           <button onClick={() => setIsCreateModalOpen(true)} className={styles.primaryButton}>
-            + Create Your First Study
+            {t('create_first_study')}
           </button>
           <div className={styles.emptyStateHelp}>
-            <p><strong>Quick Start:</strong></p>
+            <p><strong>{t('quick_start_title')}</strong></p>
             <ol>
-              <li>Create a study and select a test type</li>
-              <li>Add participants to your study</li>
-              <li>Share test links with participants</li>
-              <li>View and export results</li>
+              <li>{t('quick_start_1')}</li>
+              <li>{t('quick_start_2')}</li>
+              <li>{t('quick_start_3')}</li>
+              <li>{t('quick_start_4')}</li>
             </ol>
           </div>
         </div>
@@ -248,11 +258,11 @@ export default function DashboardHome() {
                           ))}
                         </div>
                       </div>
-                      <p>{study.description || 'No description'}</p>
+                      <p>{study.description || t('no_description')}</p>
                       <div className={styles.listItemMeta}>
-                          <span>Participants: {study._count?.participants ?? 0}</span>
-                          <span>Assignments: {study._count?.testAssignments ?? 0}</span>
-                          <span>Created: {new Date(study.createdAt).toLocaleDateString()}</span>
+                          <span>{t('participants_meta')} {study._count?.participants ?? 0}</span>
+                          <span>{t('assignments_meta')} {study._count?.testAssignments ?? 0}</span>
+                          <span>{t('created_meta')} {new Date(study.createdAt).toLocaleDateString()}</span>
                       </div>
                   </div>
                 </Link>
@@ -260,18 +270,18 @@ export default function DashboardHome() {
                   <button
                     onClick={(e) => { e.stopPropagation(); handleEditStudy(study); }}
                     className={styles.editButton}
-                    title="Edit study"
+                    title={t('edit')}
                     disabled={deletingStudyId === study.id}
                   >
-                    Edit
+                    {t('edit')}
                   </button>
                   <button
                     onClick={(e) => { e.stopPropagation(); handleDeleteStudy(study.id, study.name); }}
                     className={styles.deleteButton}
-                    title="Delete study"
+                    title={t('delete')}
                     disabled={deletingStudyId === study.id}
                   >
-                    {deletingStudyId === study.id ? 'Deleting...' : 'Delete'}
+                    {deletingStudyId === study.id ? t('deleting') : t('delete')}
                   </button>
                 </div>
               </div>
@@ -280,12 +290,20 @@ export default function DashboardHome() {
         </div>
       )}
 
+      {/* Researcher Guide Banner */}
+      <Link href="/info" className={styles.guideBanner}>
+        <span className={styles.guideBannerText}>
+          {t('dashboard_guide_text', 'New here? Check out the researcher guide for tips on studies, exports, and more.')}
+        </span>
+        <span className={styles.guideBannerArrow}>&rarr;</span>
+      </Link>
+
        {/* Create Study Modal */}
-       <Modal isOpen={isCreateModalOpen} onClose={() => { setIsCreateModalOpen(false); setError(null); }} title="Create New Study">
+       <Modal isOpen={isCreateModalOpen} onClose={() => { setIsCreateModalOpen(false); setError(null); }} title={t('create_study_title')}>
             <form onSubmit={handleCreateStudySubmit}>
                  {error && <p className={styles.errorTextModal}>{error}</p>}
                 <div className={styles.formGroup}>
-                    <label htmlFor="studyName">Study Name *</label>
+                    <label htmlFor="studyName">{t('study_name_label')}</label>
                     <input
                         type="text"
                         id="studyName"
@@ -296,7 +314,7 @@ export default function DashboardHome() {
                     />
                 </div>
                 <div className={styles.formGroup}>
-                    <label htmlFor="studyDescription">Description (Optional)</label>
+                    <label htmlFor="studyDescription">{t('description_optional_label')}</label>
                     <textarea
                         id="studyDescription"
                         value={newStudyDescription}
@@ -306,7 +324,7 @@ export default function DashboardHome() {
                     />
                 </div>
                 <div className={styles.formGroup}>
-                    <label>Select Tests * (one or more)</label>
+                    <label>{t('select_tests_label')}</label>
                     <div className={styles.checkboxGroup}>
                         {TEST_TYPES.map(test => (
                             <label key={test.id} className={styles.checkboxLabel}>
@@ -317,7 +335,7 @@ export default function DashboardHome() {
                                         if (e.target.checked) {
                                             setSelectedTestTypes([...selectedTestTypes, test.id]);
                                         } else {
-                                            setSelectedTestTypes(selectedTestTypes.filter(t => t !== test.id));
+                                            setSelectedTestTypes(selectedTestTypes.filter(type => type !== test.id));
                                         }
                                     }}
                                     disabled={isSubmitting}
@@ -328,23 +346,23 @@ export default function DashboardHome() {
                             </label>
                         ))}
                     </div>
-                    <small>Selected tests will be automatically assigned to all participants in this study.</small>
+                    <small>{t('select_tests_help')}</small>
                 </div>
                  <div className={styles.modalActions}>
-                     <button type="button" onClick={() => setIsCreateModalOpen(false)} disabled={isSubmitting} className={styles.secondaryButtonModal}>Cancel</button>
+                     <button type="button" onClick={() => setIsCreateModalOpen(false)} disabled={isSubmitting} className={styles.secondaryButtonModal}>{t('cancel')}</button>
                      <button type="submit" disabled={isSubmitting || !newStudyName.trim()} className={styles.primaryButtonModal}>
-                        {isSubmitting ? 'Creating...' : 'Create Study'}
+                        {isSubmitting ? t('creating') : t('create_study_btn')}
                     </button>
                 </div>
             </form>
        </Modal>
 
        {/* Edit Study Modal */}
-       <Modal isOpen={isEditModalOpen} onClose={() => { setIsEditModalOpen(false); setError(null); }} title="Edit Study">
+       <Modal isOpen={isEditModalOpen} onClose={() => { setIsEditModalOpen(false); setError(null); }} title={t('edit_study_title')}>
             <form onSubmit={handleEditStudySubmit}>
                  {error && <p className={styles.errorTextModal}>{error}</p>}
                 <div className={styles.formGroup}>
-                    <label htmlFor="editStudyName">Study Name *</label>
+                    <label htmlFor="editStudyName">{t('study_name_label')}</label>
                     <input
                         type="text"
                         id="editStudyName"
@@ -355,7 +373,7 @@ export default function DashboardHome() {
                     />
                 </div>
                 <div className={styles.formGroup}>
-                    <label htmlFor="editStudyDescription">Description (Optional)</label>
+                    <label htmlFor="editStudyDescription">{t('description_optional_label')}</label>
                     <textarea
                         id="editStudyDescription"
                         value={editStudyDescription}
@@ -365,9 +383,9 @@ export default function DashboardHome() {
                     />
                 </div>
                  <div className={styles.modalActions}>
-                     <button type="button" onClick={() => setIsEditModalOpen(false)} disabled={isSubmitting} className={styles.secondaryButtonModal}>Cancel</button>
+                     <button type="button" onClick={() => setIsEditModalOpen(false)} disabled={isSubmitting} className={styles.secondaryButtonModal}>{t('cancel')}</button>
                      <button type="submit" disabled={isSubmitting || !editStudyName.trim()} className={styles.primaryButtonModal}>
-                        {isSubmitting ? 'Updating...' : 'Update Study'}
+                        {isSubmitting ? t('updating') : t('update_study_btn')}
                     </button>
                 </div>
             </form>

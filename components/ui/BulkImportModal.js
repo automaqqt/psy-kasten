@@ -1,15 +1,19 @@
 import React, { useState } from 'react';
 import Modal from './modal';
+import s from '../../styles/ModalShared.module.css';
+import { fetchWithCsrf } from '../../lib/fetchWithCsrf';
+import { useTranslation } from 'next-i18next';
 
 export default function BulkImportModal({ isOpen, onClose, studyId, onImportComplete }) {
   const [importText, setImportText] = useState('');
   const [isImporting, setIsImporting] = useState(false);
   const [error, setError] = useState(null);
   const [result, setResult] = useState(null);
+  const { t } = useTranslation('dashboard');
 
   const handleImport = async () => {
     if (!importText.trim()) {
-      setError('Please enter at least one participant identifier');
+      setError(t('error_min_one'));
       return;
     }
 
@@ -18,29 +22,26 @@ export default function BulkImportModal({ isOpen, onClose, studyId, onImportComp
     setResult(null);
 
     try {
-      // Parse input - split by newlines, commas, or semicolons
       const identifiers = importText
         .split(/[\n,;]+/)
         .map(id => id.trim())
         .filter(id => id.length > 0);
 
       if (identifiers.length === 0) {
-        setError('No valid identifiers found');
+        setError(t('error_no_valid'));
         setIsImporting(false);
         return;
       }
 
       if (identifiers.length > 500) {
-        setError('Maximum 500 participants per import');
+        setError(t('error_max_500'));
         setIsImporting(false);
         return;
       }
 
-      // Create participants array
       const participants = identifiers.map(id => ({ identifier: id }));
 
-      // Call bulk API
-      const res = await fetch('/api/participants/bulk', {
+      const res = await fetchWithCsrf('/api/participants/bulk', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ studyId, participants }),
@@ -49,12 +50,11 @@ export default function BulkImportModal({ isOpen, onClose, studyId, onImportComp
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.message || 'Failed to import participants');
+        throw new Error(data.message || t('error_import_failed'));
       }
 
       setResult(data);
 
-      // Auto-close after 2 seconds if fully successful
       if (data.skipped === 0) {
         setTimeout(() => {
           handleClose();
@@ -69,7 +69,7 @@ export default function BulkImportModal({ isOpen, onClose, studyId, onImportComp
 
   const handleClose = () => {
     if (result && result.created > 0) {
-      onImportComplete(); // Refresh participant list
+      onImportComplete();
     }
     setImportText('');
     setError(null);
@@ -78,91 +78,65 @@ export default function BulkImportModal({ isOpen, onClose, studyId, onImportComp
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={handleClose} title="Bulk Import Participants">
-      <div style={{ minWidth: '500px' }}>
+    <Modal isOpen={isOpen} onClose={handleClose} title={t('bulk_import_modal_title')}>
+      <div className={s.modalBody}>
         {!result ? (
           <>
-            <div style={{ marginBottom: '1rem' }}>
-              <label htmlFor="importText" style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
-                Participant Identifiers
+            <div className={s.mb1}>
+              <label htmlFor="importText" className={s.formLabel}>
+                {t('identifiers_label')}
               </label>
               <textarea
                 id="importText"
                 value={importText}
                 onChange={(e) => setImportText(e.target.value)}
-                placeholder="Enter participant identifiers (one per line)&#10;Example:&#10;participant001&#10;participant002&#10;participant003&#10;&#10;You can also paste comma or semicolon-separated values."
+                placeholder={t('identifiers_placeholder')}
                 rows={12}
                 disabled={isImporting}
-                style={{
-                  width: '100%',
-                  padding: '0.75rem',
-                  border: '1px solid #ccc',
-                  borderRadius: '4px',
-                  fontFamily: 'monospace',
-                  fontSize: '0.9rem'
-                }}
+                className={s.textareaInput}
               />
-              <small style={{ color: '#6c757d' }}>
-                Supported formats: One per line, comma-separated, or semicolon-separated. Maximum 500 participants.
+              <small className={s.smallText}>
+                {t('identifiers_help')}
               </small>
             </div>
 
             {error && (
-              <div style={{ padding: '0.75rem', backgroundColor: '#f8d7da', color: '#721c24', borderRadius: '4px', marginBottom: '1rem' }}>
-                {error}
-              </div>
+              <div className={s.errorBox}>{error}</div>
             )}
 
-            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem' }}>
+            <div className={s.flexEnd}>
               <button
                 type="button"
                 onClick={handleClose}
                 disabled={isImporting}
-                style={{
-                  padding: '0.5rem 1rem',
-                  backgroundColor: '#6c757d',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '4px',
-                  cursor: isImporting ? 'not-allowed' : 'pointer'
-                }}
+                className={s.btnSecondary}
               >
-                Cancel
+                {t('cancel')}
               </button>
               <button
                 type="button"
                 onClick={handleImport}
                 disabled={isImporting || !importText.trim()}
-                style={{
-                  padding: '0.5rem 1rem',
-                  backgroundColor: isImporting ? '#ccc' : '#007bff',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '4px',
-                  cursor: isImporting || !importText.trim() ? 'not-allowed' : 'pointer'
-                }}
+                className={s.btnPrimary}
               >
-                {isImporting ? 'Importing...' : 'Import Participants'}
+                {isImporting ? t('importing') : t('import_btn')}
               </button>
             </div>
           </>
         ) : (
           <>
-            <div style={{ padding: '1.5rem', textAlign: 'center' }}>
-              <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>
-                {result.skipped === 0 ? '✅' : '⚠️'}
-              </div>
-              <h3 style={{ marginBottom: '1rem' }}>Import Complete</h3>
-              <div style={{ backgroundColor: '#d4edda', padding: '1rem', borderRadius: '4px', marginBottom: '1rem' }}>
-                <strong>{result.created}</strong> participant(s) successfully created
+            <div className={s.resultContainer}>
+              <h3 className={s.resultTitle}>{t('import_complete_title')}</h3>
+              <div className={s.successBox}>
+                {t('import_created', { count: result.created })}
               </div>
               {result.skipped > 0 && (
-                <div style={{ backgroundColor: '#fff3cd', padding: '1rem', borderRadius: '4px', marginBottom: '1rem' }}>
-                  <strong>{result.skipped}</strong> duplicate(s) skipped
+                <div className={s.warningBox}>
+                  {t('import_skipped', { count: result.skipped })}
                   {result.duplicates && result.duplicates.length > 0 && (
-                    <details style={{ marginTop: '0.5rem', textAlign: 'left' }}>
-                      <summary style={{ cursor: 'pointer' }}>Show duplicates</summary>
-                      <ul style={{ margin: '0.5rem 0', paddingLeft: '1.5rem' }}>
+                    <details className={s.mt1}>
+                      <summary className={s.detailsSummary}>{t('show_duplicates')}</summary>
+                      <ul className={s.detailsList}>
                         {result.duplicates.map((dup, idx) => (
                           <li key={idx}>{dup}</li>
                         ))}
@@ -172,20 +146,13 @@ export default function BulkImportModal({ isOpen, onClose, studyId, onImportComp
                 </div>
               )}
             </div>
-            <div style={{ display: 'flex', justifyContent: 'center' }}>
+            <div className={s.flexCenter}>
               <button
                 type="button"
                 onClick={handleClose}
-                style={{
-                  padding: '0.5rem 1.5rem',
-                  backgroundColor: '#007bff',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '4px',
-                  cursor: 'pointer'
-                }}
+                className={s.btnPrimary}
               >
-                Close
+                {t('close')}
               </button>
             </div>
           </>

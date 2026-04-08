@@ -1,26 +1,48 @@
 /* styles/Footer.module.css */
 .footer {
     text-align: center;
-    padding: 1.5rem 1rem; /* Slightly more padding */
-    
-    font-size: 0.9rem;
-    color: var(--text-secondary, #eef2f7); /* Slightly darker grey */
-    background-color: var(--bg-primary, #eef2f7); /* Light background */
-    border-top: 1px solid var(--bg-primary, #eef2f7); /* Subtle top border */
-    display:flex;
+    padding: 1.25rem 1rem;
+    font-size: 0.8rem;
+    color: var(--text-secondary, #888);
+    background: transparent;
+    display: flex;
     align-items: center;
     justify-content: center;
+    gap: 0.25rem;
+    flex-wrap: wrap;
+}
+
+.separator {
+    color: var(--text-secondary, #666);
+    margin: 0 0.3rem;
+    opacity: 0.5;
 }
 
 .link {
-  color: #007bff; /* Standard link blue */
-  text-decoration: none; /* No underline by default */
-  font-weight: 500; /* Slightly bolder */
-  padding-left: 0.2rem;
-  transition: color 0.2s ease, text-decoration 0.2s ease;
+  color: var(--text-secondary, #888);
+  text-decoration: none;
+  font-weight: 400;
+  transition: color 0.2s ease;
 }
 
 .link:hover {
-  color: #0056b3; /* Darker blue on hover */
-  text-decoration: underline; /* Underline on hover */
+  color: var(--link-color, #007bff);
+  text-decoration: none;
+}
+
+.link:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }

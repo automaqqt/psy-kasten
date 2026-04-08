@@ -2,8 +2,9 @@ import { getServerSession } from "next-auth/next";
 import prisma from '../../../../lib/prisma';
 import { authOptions } from '../../auth/[...nextauth]';
 import crypto from 'crypto';
+import { withCsrfProtection } from '../../../../lib/csrf';
 
-export default async function handler(req, res) {
+async function handler(req, res) {
     const session = await getServerSession(req, res, authOptions);
     const { studyId } = req.query;
 
@@ -96,3 +97,5 @@ export default async function handler(req, res) {
         return res.status(405).json({ message: `Method ${req.method} Not Allowed` });
     }
 }
+
+export default withCsrfProtection(handler);

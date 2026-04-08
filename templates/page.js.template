@@ -1,0 +1,9 @@
+import TestPageWrapper from '../components/TestPageWrapper';
+import { createGetStaticProps } from '../lib/getStaticProps';
+import {{TEST_ID_PASCAL}}Test from '../components/tests/{{TEST_ID}}/test';
+
+export const getStaticProps = createGetStaticProps('{{TEST_ID}}');
+
+export default function {{TEST_ID_PASCAL}}Page() {
+  return <TestPageWrapper TestComponent={{{TEST_ID_PASCAL}}Test} testId="{{TEST_ID}}" namespace="{{TEST_ID}}" route="/{{TEST_ID}}" />;
+}

@@ -2,8 +2,9 @@ import { getServerSession } from "next-auth/next";
 import prisma from '../../../lib/prisma';
 import { authOptions } from '../auth/[...nextauth]';
 import crypto from 'crypto';
+import { withCsrfProtection } from '../../../lib/csrf';
 
-export default async function handler(req, res) {
+async function handler(req, res) {
   const session = await getServerSession(req, res, authOptions);
 
   if (!session?.user?.id) {
@@ -13,7 +14,8 @@ export default async function handler(req, res) {
 
   // --- POST: Bulk create participants ---
   if (req.method === 'POST') {
-    const { studyId, participants } = req.body;
+    const { studyId } = req.body;
+    let { participants } = req.body;
 
     // Validation
     if (!studyId || !Array.isArray(participants) || participants.length === 0) {
@@ -23,6 +25,21 @@ export default async function handler(req, res) {
     if (participants.length > 500) {
       return res.status(400).json({ message: 'Maximum 500 participants per batch' });
     }
+
+    // Deduplicate identifiers within the batch (keep first occurrence)
+    const seen = new Set();
+    const deduplicatedParticipants = [];
+    const withinBatchDuplicates = [];
+    for (const p of participants) {
+      const trimmed = (p.identifier || '').trim();
+      if (seen.has(trimmed)) {
+        withinBatchDuplicates.push(trimmed);
+      } else {
+        seen.add(trimmed);
+        deduplicatedParticipants.push(p);
+      }
+    }
+    participants = deduplicatedParticipants;
 
     // Validate each participant has an identifier and valid metadata
     const invalidParticipants = participants.filter(p => {
@@ -122,7 +139,7 @@ export default async function handler(req, res) {
       return res.status(201).json({
         message: `Successfully created ${results.participants.length} participants`,
         created: results.participants.length,
-        skipped: duplicates.length,
+        skipped: duplicates.length + withinBatchDuplicates.length,
         duplicates: duplicates.length > 0 ? duplicates.map(p => p.identifier) : undefined,
         participants: results.participants
       });
@@ -138,3 +155,5 @@ export default async function handler(req, res) {
     return res.status(405).json({ message: `Method ${req.method} Not Allowed` });
   }
 }
+
+export default withCsrfProtection(handler);

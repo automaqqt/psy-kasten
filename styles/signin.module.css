@@ -72,19 +72,19 @@
   .submitButton {
     width: 100%;
     padding: 0.8rem;
-    background-color: #007bff;
-    color: white;
+    background-color: #efb72a;
+    color: #2a2318;
     border: none;
     border-radius: 5px;
     font-size: 1rem;
     font-weight: 600;
     cursor: pointer;
-    transition: background-color 0.2s ease;
+    transition: background-color 0.15s ease;
     margin-top: 0.5rem;
   }
 
   .submitButton:hover {
-    background-color: #0056b3;
+    background-color: #dda820;
   }
 
   .separator {
@@ -136,6 +136,22 @@
   }
 
   .signUpLink a:hover, .signUpLink div:hover {
+    text-decoration: underline;
+  }
+
+  .forgotPasswordLink {
+    margin-top: 0.75rem;
+    text-align: right;
+    font-size: 0.85rem;
+  }
+
+  .forgotPasswordLink a {
+    color: var(--text-secondary);
+    text-decoration: none;
+  }
+
+  .forgotPasswordLink a:hover {
+    color: var(--link-color);
     text-decoration: underline;
   }
 

@@ -1,4 +1,3 @@
-import { getSession } from 'next-auth/react'; // or getServerSession
 import prisma from '../../../lib/prisma';
 import { authOptions } from '../auth/[...nextauth]';
 import { getServerSession } from "next-auth/next";
@@ -92,7 +91,6 @@ export default async function handler(req, res) {
             return newResult;
           });
     
-          console.log(`Result submitted successfully for assignment ${assignmentId}`);
           return res.status(201).json({ message: 'Results submitted successfully.', resultId: result.id });
     
         } catch (error) {
@@ -115,7 +113,7 @@ export default async function handler(req, res) {
 
   // --- GET: Fetch results list (Protected for Researchers) ---
   else if (req.method === 'GET') {
-    const session = await getServerSession(req, res, authOptions); // Or getSession({ req });
+    const session = await getServerSession(req, res, authOptions);
 
     if (!session?.user?.id) {
       return res.status(401).json({ message: 'Unauthorized' });
