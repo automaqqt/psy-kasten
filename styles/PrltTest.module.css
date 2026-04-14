@@ -1,0 +1,560 @@
+/* styles/PrltTest.module.css */
+.container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: var(--bg-primary, #eef2f7);
+}
+
+.testContainer {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  padding: 1rem;
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
+  height: 90%;
+}
+
+.gameMetrics {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.trialIndicator {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text-secondary, #666);
+}
+
+.metricValue {
+  font-weight: 700;
+  color: #607d8b;
+}
+
+.iconButton {
+  background: none;
+  border: none;
+  color: var(--text-secondary, #666);
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.iconButton:hover {
+  background-color: #607d8b1a;
+  color: #607d8b;
+}
+
+.gameArea {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  position: relative;
+  padding: 1rem;
+  min-height: 400px;
+}
+
+/* Welcome Card Styles */
+.welcomeCard {
+  background-color: var(--bg-secondary, #ffffff);
+  border-radius: 15px;
+  padding: 2rem;
+  max-width: 700px;
+  width: 100%;
+  box-shadow: 0 5px 20px var(--shadow-color, rgba(0, 0, 0, 0.1));
+  z-index: 10;
+  animation: appear 0.5s ease;
+}
+
+.welcomeCard h2 {
+  color: #607d8b;
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.welcomeCard p {
+  margin-bottom: 1.5rem;
+  line-height: 1.6;
+  color: var(--text-primary, #333);
+}
+
+/* Tutorial Styles */
+.tutorialContent {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin: 1.5rem 0;
+}
+
+.tutorialStep {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+  padding: 1rem;
+  background-color: #607d8b0d;
+  border-radius: 10px;
+  border-left: 4px solid #607d8b;
+  transition: all 0.3s ease;
+}
+
+.tutorialStep:hover {
+  background-color: #607d8b1a;
+  transform: translateX(5px);
+}
+
+.stepNumber {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #607d8b 0%, #526a76 100%);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 1.2rem;
+  box-shadow: 0 4px 10px #607d8b4d;
+}
+
+.stepText {
+  flex: 1;
+}
+
+.stepText h3 {
+  margin: 0 0 0.5rem 0;
+  color: #607d8b;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.stepText p {
+  margin: 0;
+  color: var(--text-secondary, #666);
+  line-height: 1.5;
+}
+
+/* Button Styles */
+.buttonContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+  width: 100%;
+}
+
+.primaryButton,
+.secondaryButton,
+.tertiaryButton {
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+}
+
+.primaryButton {
+  background-color: #607d8b;
+  color: white;
+}
+
+.primaryButton:hover:not(:disabled) {
+  filter: brightness(0.9);
+  transform: translateY(-1px);
+  box-shadow: 0 5px 15px #607d8b4d;
+}
+
+.secondaryButton {
+  background-color: var(--bg-accent, #f0f0f0);
+  color: var(--text-primary, #333);
+}
+
+.secondaryButton:hover:not(:disabled) {
+  background-color: var(--border-color, #e0e0e0);
+  transform: translateY(-1px);
+}
+
+.tertiaryButton {
+  background-color: transparent;
+  color: var(--text-secondary, #666);
+  border: 1px solid var(--border-color, #e0e0e0);
+}
+
+.tertiaryButton:hover:not(:disabled) {
+  background-color: var(--bg-accent, #f5f5f5);
+  border-color: var(--text-secondary, #666);
+  transform: translateY(-1px);
+}
+
+.primaryButton:disabled,
+.secondaryButton:disabled,
+.tertiaryButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Demo Styles */
+.demoIntro {
+  font-size: 1rem;
+  color: var(--text-secondary, #666);
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.demoStepText {
+  min-height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 1rem 0;
+  padding: 1rem;
+  background-color: #607d8b0d;
+  border-radius: 8px;
+  border-left: 4px solid #607d8b;
+}
+
+.demoStepText p {
+  margin: 0;
+  font-size: 1rem;
+  color: var(--text-primary, #333);
+  font-weight: 500;
+  text-align: center;
+}
+
+.demoContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+  margin: 2rem 0;
+  width: 100%;
+  min-height: 200px;
+  justify-content: center;
+}
+
+/* Practice Stats Styles */
+.practiceStats {
+  background-color: #607d8b0d;
+  border-radius: 10px;
+  padding: 1.5rem;
+  margin: 1.5rem 0;
+  border: 2px solid #607d8b33;
+}
+
+.practiceStats h3 {
+  margin: 0 0 1rem 0;
+  color: #607d8b;
+  font-size: 1.1rem;
+  text-align: center;
+}
+
+.statRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #607d8b1a;
+}
+
+.statRow:last-child {
+  border-bottom: none;
+}
+
+.statRow span:first-child {
+  color: var(--text-secondary, #666);
+  font-weight: 500;
+}
+
+.statValue {
+  color: #607d8b;
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.linkContainer {
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.link {
+  color: #607d8b;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.link:hover {
+  color: #526a76;
+  text-decoration: underline;
+}
+
+/* ── Playing Area ── */
+.playingArea {
+  width: 100%;
+  max-width: 700px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+  animation: appear 0.3s ease;
+}
+
+.promptText {
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: var(--text-primary, #333);
+  text-align: center;
+  min-height: 2rem;
+}
+
+/* Option Cards */
+.optionRow {
+  display: flex;
+  gap: 2rem;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+.optionCard {
+  width: 180px;
+  height: 220px;
+  border-radius: 16px;
+  background-color: var(--bg-secondary, #ffffff);
+  box-shadow: 0 6px 20px var(--shadow-color, rgba(0, 0, 0, 0.1));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  transition: all 0.2s ease;
+  border: 3px solid transparent;
+  user-select: none;
+}
+
+.optionClickable {
+  cursor: pointer;
+}
+
+.optionClickable:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 30px var(--shadow-color, rgba(0, 0, 0, 0.15));
+  border-color: #607d8b66;
+}
+
+.optionClickable:active {
+  transform: translateY(0);
+}
+
+.optionIcon {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: white;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Feedback states */
+.optionReward {
+  border-color: #4caf50;
+  box-shadow: 0 0 20px #4caf5055;
+  animation: rewardPulse 0.5s ease;
+}
+
+.optionNoReward {
+  border-color: #f44336;
+  box-shadow: 0 0 20px #f4433655;
+  animation: noRewardShake 0.4s ease;
+}
+
+.feedbackBadge {
+  position: absolute;
+  top: -12px;
+  right: -12px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  font-weight: 800;
+  z-index: 2;
+}
+
+.rewardIcon {
+  color: white;
+  background-color: #4caf50;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  box-shadow: 0 2px 8px #4caf5055;
+}
+
+.noRewardIcon {
+  color: white;
+  background-color: #f44336;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  box-shadow: 0 2px 8px #f4433655;
+}
+
+.bottomInstructions {
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--text-secondary, #666);
+  text-align: center;
+}
+
+.bottomInstructions p {
+  margin: 0;
+}
+
+/* Animations */
+@keyframes appear {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes rewardPulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+@keyframes noRewardShake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-6px); }
+  75% { transform: translateX(6px); }
+}
+
+/* Dark mode */
+html[data-theme="dark"] .welcomeCard {
+  background-color: var(--card-bg, #1e1e1e);
+  border-color: var(--border-color, #333);
+}
+
+html[data-theme="dark"] .welcomeCard h2,
+html[data-theme="dark"] .practiceStats h3 {
+  color: #90a4ae;
+}
+
+html[data-theme="dark"] .welcomeCard p,
+html[data-theme="dark"] .stepText p {
+  color: var(--text-secondary, #bbb);
+}
+
+html[data-theme="dark"] .optionCard {
+  background-color: var(--card-bg, #1e1e1e);
+}
+
+html[data-theme="dark"] .metricValue,
+html[data-theme="dark"] .statValue {
+  color: #90a4ae;
+}
+
+html[data-theme="dark"] .link {
+  color: #90a4ae;
+}
+
+/* Responsive */
+@media (min-width: 768px) {
+  .buttonContainer {
+    flex-direction: row;
+  }
+
+  .primaryButton,
+  .secondaryButton,
+  .tertiaryButton {
+    flex: 1;
+  }
+}
+
+@media (max-width: 600px) {
+  .optionCard {
+    width: 140px;
+    height: 180px;
+  }
+
+  .optionIcon {
+    width: 80px;
+    height: 80px;
+    font-size: 2rem;
+  }
+
+  .optionRow {
+    gap: 1rem;
+  }
+
+  .promptText {
+    font-size: 1.1rem;
+  }
+
+  .gameMetrics {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .tutorialStep {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .stepNumber {
+    margin-bottom: 0.5rem;
+  }
+}
+
+/* Accessibility */
+.optionClickable:focus {
+  outline: 3px solid #607d8b;
+  outline-offset: 3px;
+}
+
+.primaryButton:focus,
+.secondaryButton:focus,
+.tertiaryButton:focus,
+.link:focus,
+.iconButton:focus {
+  outline: 3px solid #607d8b;
+  outline-offset: 3px;
+}
+
+/* Performance */
+.optionCard,
+.feedbackBadge {
+  will-change: transform, opacity;
+}

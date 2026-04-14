@@ -383,5 +383,20 @@
   "impressum_copyright_title": "Derechos de autor",
   "impressum_copyright_text": "Los contenidos y obras creados por el operador del sitio en estas páginas están sujetos a la ley de derechos de autor. El software es de código abierto. La reproducción, edición, distribución o cualquier forma de uso comercial fuera del ámbito del derecho de autor requiere el consentimiento previo por escrito del autor o creador respectivo.",
   "wcst_title": "Wisconsin Card Sorting Test",
-  "wcst_description": "Prueba la flexibilidad cognitiva clasificando tarjetas segun reglas cambiantes"
+  "wcst_description": "Prueba la flexibilidad cognitiva clasificando tarjetas segun reglas cambiantes",
+  "mot_title": "Multiple Object Tracking",
+  "mot_description": "Siga múltiples objetos en movimiento para medir la atención visual y la velocidad de procesamiento",
+  "prlt_title": "Tarea de Aprendizaje de Inversión Probabilística",
+  "prlt_description": "Aprenda qué opción da recompensa y adáptese cuando las reglas cambien para medir la flexibilidad cognitiva",
+  "nback_title": "Test N-Back",
+  "nback_description": "Mida la memoria de trabajo identificando letras que coinciden con N pasos atrás en una secuencia",
+  "pal_title": "Aprendizaje de Asociaciones Pareadas",
+  "pal_description": "Una prueba de memoria visual que mide la capacidad de aprender asociaciones patrón-ubicación en niveles de dificultad creciente.",
+  "stb_title": "Tarea de Memoria de Trabajo de Sternberg",
+  "stb_description": "Memorice letras e identifique si una letra de prueba estaba en su conjunto memorizado — mide la velocidad de escaneo de la memoria de trabajo.",
+  "verified_badge": "Verificado",
+  "tmt_title": "Trail Making Test",
+  "tmt_description": "Conecte números (Parte A) o alternando números y letras (Parte B) en orden. Mide la exploración visual, la velocidad de procesamiento y la flexibilidad cognitiva.",
+  "bart_title": "Tarea del Globo (BART)",
+  "bart_description": "Medida conductual de la propensión a la toma de riesgos. Infle globos para ganar dinero, pero deténgase antes de que estallen."
 }

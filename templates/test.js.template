@@ -1,5 +1,6 @@
 // components/tests/{{TEST_ID}}/test.js
 import { useState, useEffect, useRef, useCallback } from 'react';
+import Link from 'next/link';
 import styles from '../../../styles/{{TEST_ID_PASCAL}}Test.module.css';
 import {{TEST_ID_PASCAL}}Results from '../../results/{{TEST_ID}}';
 import {{TEST_ID_PASCAL}}Settings from '../../settings/{{TEST_ID}}';
@@ -384,9 +385,9 @@ export default function {{TEST_ID_PASCAL}}Test({ assignmentId, onComplete, isSta
               </div>
               <div className={styles.linkContainer}>
                 {isStandalone && (
-                  <a href="/">
+                  <Link href="/">
                     <div className={styles.link}>{translate('common:back_to_home')}</div>
-                  </a>
+                  </Link>
                 )}
               </div>
             </div>

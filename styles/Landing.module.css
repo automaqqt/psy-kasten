@@ -113,7 +113,30 @@
     z-index: 1;
     position: relative;
   }
-  
+
+  .verifiedBadge {
+    position: absolute;
+    top: 1.5rem;
+    right: 0.9rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.35rem 0.75rem;
+    border-radius: 999px;
+    background-color: #4caf50;
+    color: white;
+    font-size: 0.9rem;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    z-index: 2;
+    line-height: 1;
+  }
+
+  .verifiedBadge svg {
+    width: 12px;
+    height: 12px;
+  }
+
   .cardDescription {
     margin-bottom: 1.5rem;
     color: var(--text-secondary, #555);

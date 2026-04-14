@@ -375,6 +375,14 @@ const changeLocale = (newLocale) => {
                       <div className={styles.cardIconContainer}>
                         <span className={styles.cardIcon}>{test.icon}</span>
                       </div>
+                      {test.verified && (
+                        <span className={styles.verifiedBadge}>
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                            <polyline points="20 6 9 17 4 12" />
+                          </svg>
+                          {t('verified_badge', 'Verified')}
+                        </span>
+                      )}
                       <h3 className={styles.cardTitle}>{test.title}</h3>
                       <p className={styles.cardDescription}>{test.description}</p>
                       <div className={styles.cardTags}>

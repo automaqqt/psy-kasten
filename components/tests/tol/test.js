@@ -67,8 +67,26 @@ export default function TOLTest({ assignmentId, onComplete, isStandalone, t }) {
   const gameArea = useRef(null);
   const { isFullscreen, enterFullscreen, exitFullscreen } = useFullscreen(gameArea);
 
+  // Guard against submitting results more than once per run
+  const hasSubmittedRef = useRef(false);
+
   // Derived state - memoize if performance becomes an issue
   const currentProblem = PROBLEMS[currentProblemIndex];
+
+  // Submit results exactly once when the real test transitions to 'results'.
+  // Runs after state has flushed so `problemResults` is current.
+  useEffect(() => {
+    if (
+      gameState === 'results' &&
+      !isPractice &&
+      !isStandalone &&
+      onComplete &&
+      !hasSubmittedRef.current
+    ) {
+      hasSubmittedRef.current = true;
+      onComplete(problemResults);
+    }
+  }, [gameState, isPractice, isStandalone, onComplete, problemResults]);
 
   // --- Game Logic ---
 
@@ -446,6 +464,7 @@ export default function TOLTest({ assignmentId, onComplete, isStandalone, t }) {
     setTrialStartTime(null);
     setFirstMoveTime(null);
     setLastMoveTime(null);
+    hasSubmittedRef.current = false;
   };
 
   const endTestEarly = () => {

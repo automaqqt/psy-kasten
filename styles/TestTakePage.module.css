@@ -48,3 +48,57 @@
     margin-bottom: 1rem;
     font-size: 1.8rem;
 }
+
+.countdownOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.75);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.countdownContent {
+    text-align: center;
+    color: #ffffff;
+}
+
+.countdownContent h2 {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    color: #ffffff;
+}
+
+.countdownContent p {
+    margin-top: 1rem;
+    font-size: 1.1rem;
+    color: #ffffff;
+}
+
+.countdownNumber {
+    font-size: 8rem;
+    font-weight: 700;
+    line-height: 1;
+    margin: 1rem 0;
+    color: #ffffff;
+    animation: countdownPulse 1s infinite;
+}
+
+@keyframes countdownPulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.1); opacity: 0.85; }
+}
+
+@media (max-width: 600px) {
+    .countdownNumber {
+        font-size: 6rem;
+    }
+    .countdownContent h2 {
+        font-size: 1.5rem;
+    }
+}

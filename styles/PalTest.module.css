@@ -1,0 +1,556 @@
+/* styles/PalTest.module.css */
+.container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: var(--bg-primary, #eef2f7);
+}
+
+.testContainer {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  padding: 1rem;
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
+  height: 90%;
+}
+
+.gameMetrics {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.trialIndicator {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text-secondary, #666);
+}
+
+.metricValue {
+  font-weight: 700;
+  color: #8e44ad;
+}
+
+.iconButton {
+  background: none;
+  border: none;
+  color: var(--text-secondary, #666);
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.iconButton:hover {
+  background-color: #8e44ad1a;
+  color: #8e44ad;
+}
+
+.gameArea {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  position: relative;
+  padding: 1rem;
+  min-height: 400px;
+}
+
+/* Welcome Card */
+.welcomeCard {
+  background-color: var(--bg-secondary, #ffffff);
+  border-radius: 15px;
+  padding: 2rem;
+  max-width: 700px;
+  width: 100%;
+  box-shadow: 0 5px 20px var(--shadow-color, rgba(0, 0, 0, 0.1));
+  z-index: 10;
+  animation: appear 0.5s ease;
+}
+
+.welcomeCard h2 {
+  color: #8e44ad;
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.welcomeCard p {
+  margin-bottom: 1.5rem;
+  line-height: 1.6;
+  color: var(--text-primary, #333);
+}
+
+/* Tutorial */
+.tutorialContent {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin: 1.5rem 0;
+}
+
+.tutorialStep {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+  padding: 1rem;
+  background-color: #8e44ad0d;
+  border-radius: 10px;
+  border-left: 4px solid #8e44ad;
+  transition: all 0.3s ease;
+}
+
+.tutorialStep:hover {
+  background-color: #8e44ad1a;
+  transform: translateX(5px);
+}
+
+.stepNumber {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #8e44ad 0%, #793a93 100%);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 1.2rem;
+  box-shadow: 0 4px 10px #8e44ad4d;
+}
+
+.stepText {
+  flex: 1;
+}
+
+.stepText h3 {
+  margin: 0 0 0.5rem 0;
+  color: #8e44ad;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.stepText p {
+  margin: 0;
+  color: var(--text-secondary, #666);
+  line-height: 1.5;
+}
+
+/* Buttons */
+.buttonContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+  width: 100%;
+}
+
+.primaryButton,
+.secondaryButton,
+.tertiaryButton {
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+}
+
+.primaryButton {
+  background-color: #8e44ad;
+  color: white;
+}
+
+.primaryButton:hover:not(:disabled) {
+  filter: brightness(0.9);
+  transform: translateY(-1px);
+  box-shadow: 0 5px 15px #8e44ad4d;
+}
+
+.secondaryButton {
+  background-color: var(--bg-accent, #f0f0f0);
+  color: var(--text-primary, #333);
+}
+
+.secondaryButton:hover:not(:disabled) {
+  background-color: var(--border-color, #e0e0e0);
+  transform: translateY(-1px);
+}
+
+.tertiaryButton {
+  background-color: transparent;
+  color: var(--text-secondary, #666);
+  border: 1px solid var(--border-color, #e0e0e0);
+}
+
+.tertiaryButton:hover:not(:disabled) {
+  background-color: var(--bg-accent, #f5f5f5);
+  border-color: var(--text-secondary, #666);
+  transform: translateY(-1px);
+}
+
+.primaryButton:disabled,
+.secondaryButton:disabled,
+.tertiaryButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Demo */
+.demoIntro {
+  font-size: 1rem;
+  color: var(--text-secondary, #666);
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.demoStepText {
+  min-height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 1rem 0;
+  padding: 1rem;
+  background-color: #8e44ad0d;
+  border-radius: 8px;
+  border-left: 4px solid #8e44ad;
+}
+
+.demoStepText p {
+  margin: 0;
+  font-size: 1rem;
+  color: var(--text-primary, #333);
+  font-weight: 500;
+  text-align: center;
+}
+
+.demoContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  margin: 1.5rem 0;
+  width: 100%;
+  min-height: 200px;
+  justify-content: center;
+}
+
+.demoBoxGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 60px);
+  grid-template-rows: repeat(2, 60px);
+  gap: 8px;
+}
+
+.demoBox {
+  width: 60px;
+  height: 60px;
+  background-color: var(--bg-accent, #e0e0e0);
+  border: 2px solid var(--border-color, #ccc);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.demoBoxOpen {
+  background-color: var(--bg-secondary, #fff);
+  border-color: #8e44ad;
+  box-shadow: 0 0 12px #8e44ad4d;
+}
+
+/* Practice Stats */
+.practiceStats {
+  background-color: #8e44ad0d;
+  border-radius: 10px;
+  padding: 1.5rem;
+  margin: 1.5rem 0;
+  border: 2px solid #8e44ad33;
+}
+
+.practiceStats h3 {
+  margin: 0 0 1rem 0;
+  color: #8e44ad;
+  font-size: 1.1rem;
+  text-align: center;
+}
+
+.statRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #8e44ad1a;
+}
+
+.statRow:last-child {
+  border-bottom: none;
+}
+
+.statRow span:first-child {
+  color: var(--text-secondary, #666);
+  font-weight: 500;
+}
+
+.statValue {
+  color: #8e44ad;
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.linkContainer {
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.link {
+  color: #8e44ad;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.link:hover {
+  color: #793a93;
+  text-decoration: underline;
+}
+
+/* ====== PAL-specific: Box Circle & Stimulus ====== */
+
+.stimulusContainer {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  animation: appear 0.3s ease;
+}
+
+.phaseLabel {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #8e44ad;
+  margin: 0;
+  text-align: center;
+}
+
+.bottomInstructionsText {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--text-secondary, #666);
+  text-align: center;
+  margin: 0;
+}
+
+/* Box circle layout */
+.boxCircle {
+  margin: 0.5rem auto;
+  flex-shrink: 0;
+}
+
+/* Individual box */
+.box {
+  background-color: var(--bg-accent, #d5d5d5);
+  border: 3px solid var(--border-color, #aaa);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px var(--shadow-color, rgba(0,0,0,0.1));
+}
+
+.boxOpen {
+  background-color: var(--bg-secondary, #fff);
+  border-color: #8e44ad;
+  box-shadow: 0 0 16px #8e44ad66;
+  transform: scale(1.08);
+}
+
+.boxClickable {
+  cursor: pointer;
+}
+
+.boxClickable:hover {
+  border-color: #8e44ad;
+  box-shadow: 0 0 12px #8e44ad4d;
+  transform: scale(1.05);
+}
+
+.boxCorrect {
+  border-color: #43a047;
+  background-color: #43a04722;
+  box-shadow: 0 0 14px #43a04766;
+}
+
+.boxIncorrect {
+  border-color: #e53935;
+  background-color: #e5393522;
+  box-shadow: 0 0 14px #e5393566;
+  animation: shake 0.4s ease;
+}
+
+.boxCorrectHighlight {
+  border-color: #43a047;
+  background-color: #43a04722;
+  box-shadow: 0 0 14px #43a04766;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+/* Recall prompt — pattern shown in center */
+.recallPrompt {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem;
+  background-color: var(--bg-secondary, #fff);
+  border: 2px solid #8e44ad33;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px var(--shadow-color, rgba(0,0,0,0.08));
+}
+
+.recallLabel {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-secondary, #666);
+}
+
+/* Dark mode */
+html[data-theme="dark"] .welcomeCard {
+  background-color: #1e1e1e;
+  border-color: #333;
+}
+
+html[data-theme="dark"] .welcomeCard h2,
+html[data-theme="dark"] .practiceStats h3,
+html[data-theme="dark"] .phaseLabel {
+  color: #b07cc6;
+}
+
+html[data-theme="dark"] .welcomeCard p,
+html[data-theme="dark"] .stepText p {
+  color: #bbb;
+}
+
+html[data-theme="dark"] .secondaryButton {
+  background-color: #333;
+  color: #fff;
+}
+
+html[data-theme="dark"] .secondaryButton:hover {
+  background-color: #444;
+}
+
+html[data-theme="dark"] .link {
+  color: #b07cc6;
+}
+
+html[data-theme="dark"] .metricValue,
+html[data-theme="dark"] .statValue {
+  color: #b07cc6;
+}
+
+html[data-theme="dark"] .box {
+  background-color: #2a2a2a;
+  border-color: #555;
+}
+
+html[data-theme="dark"] .demoBox {
+  background-color: #2a2a2a;
+  border-color: #555;
+}
+
+html[data-theme="dark"] .recallPrompt {
+  background-color: #1e1e1e;
+  border-color: #8e44ad55;
+}
+
+/* Responsive */
+@media (min-width: 768px) {
+  .buttonContainer {
+    flex-direction: row;
+  }
+
+  .primaryButton,
+  .secondaryButton,
+  .tertiaryButton {
+    flex: 1;
+  }
+}
+
+@media (max-width: 768px) {
+  .welcomeCard {
+    padding: 1.5rem;
+  }
+
+  .tutorialStep {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .stepNumber {
+    margin-bottom: 0.5rem;
+  }
+}
+
+@media (max-width: 600px) {
+  .gameMetrics {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .boxCircle {
+    transform: scale(0.8);
+    transform-origin: center;
+  }
+}
+
+/* Animations */
+@keyframes appear {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Focus styles */
+.box:focus {
+  outline: 3px solid #8e44ad;
+  outline-offset: 3px;
+}
+
+.primaryButton:focus,
+.secondaryButton:focus,
+.tertiaryButton:focus,
+.link:focus,
+.iconButton:focus {
+  outline: 3px solid #8e44ad;
+  outline-offset: 3px;
+}
+
+.stimulus,
+.boxCircle {
+  will-change: transform, opacity;
+}

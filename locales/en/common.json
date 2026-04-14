@@ -383,5 +383,20 @@
   "impressum_copyright_title": "Copyright",
   "impressum_copyright_text": "The content and works on this website created by the site operator are subject to copyright law. The software is open source. Duplication, processing, distribution, or any form of commercial use beyond the scope of copyright law requires the prior written consent of the respective author or creator.",
   "wcst_title": "Wisconsin Card Sorting Test",
-  "wcst_description": "Test cognitive flexibility by sorting cards according to changing rules"
+  "wcst_description": "Test cognitive flexibility by sorting cards according to changing rules",
+  "mot_title": "Multiple Object Tracking",
+  "mot_description": "Track multiple moving objects to measure visual attention and processing speed",
+  "prlt_title": "Probabilistic Reversal Learning Task",
+  "prlt_description": "Learn which option is rewarding and adapt when the rules change to measure cognitive flexibility",
+  "nback_title": "N-Back Test",
+  "nback_description": "Measure working memory by identifying letters that match N steps back in a sequence",
+  "pal_title": "Paired Associates Learning",
+  "pal_description": "A visual memory test measuring the ability to learn pattern-location associations across increasing difficulty levels.",
+  "stb_title": "Sternberg Working Memory Task",
+  "stb_description": "Memorize letters and identify whether a probe was in your memory set — measures working memory scanning speed.",
+  "verified_badge": "Verified",
+  "tmt_title": "Trail Making Test",
+  "tmt_description": "Connect numbers (Part A) or alternating numbers and letters (Part B) in order. Measures visual scanning, processing speed, and cognitive flexibility.",
+  "bart_title": "Balloon Analogue Risk Task",
+  "bart_description": "Behavioral measure of risk-taking propensity. Pump up balloons to earn money, but stop before they pop."
 }

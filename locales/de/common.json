@@ -383,5 +383,20 @@
   "impressum_copyright_title": "Urheberrecht",
   "impressum_copyright_text": "Die durch den Seitenbetreiber erstellten Inhalte und Werke auf diesen Seiten unterliegen dem deutschen Urheberrecht. Die Software ist Open Source. Die Vervielfältigung, Bearbeitung, Verbreitung und jede Art der Verwertung außerhalb der Grenzen des Urheberrechts bedürfen der schriftlichen Zustimmung des jeweiligen Autors bzw. Erstellers.",
   "wcst_title": "Wisconsin Card Sorting Test",
-  "wcst_description": "Kognitive Flexibilität testen durch Kartensortierung nach wechselnden Regeln"
+  "wcst_description": "Kognitive Flexibilität testen durch Kartensortierung nach wechselnden Regeln",
+  "mot_title": "Multiple Object Tracking",
+  "mot_description": "Verfolgen Sie mehrere bewegte Objekte zur Messung visueller Aufmerksamkeit und Verarbeitungsgeschwindigkeit",
+  "prlt_title": "Probabilistischer Umkehrlerntest",
+  "prlt_description": "Lernen Sie, welche Option belohnt wird, und passen Sie sich an, wenn die Regeln wechseln, um kognitive Flexibilität zu messen",
+  "nback_title": "N-Back-Test",
+  "nback_description": "Arbeitsgedächtnis messen, indem Buchstaben erkannt werden, die N Schritte zuvor in einer Sequenz gezeigt wurden",
+  "pal_title": "Gepaarte Assoziationen Lernen",
+  "pal_description": "Ein visueller Gedächtnistest, der die Fähigkeit misst, Muster-Positions-Zuordnungen über steigende Schwierigkeitsgrade zu lernen.",
+  "stb_title": "Sternberg-Arbeitsgedächtnisaufgabe",
+  "stb_description": "Buchstaben merken und erkennen, ob ein Testbuchstabe in der gemerkten Menge war — misst die Abrufgeschwindigkeit des Arbeitsgedächtnisses.",
+  "verified_badge": "Geprüft",
+  "tmt_title": "Trail Making Test",
+  "tmt_description": "Verbinden Sie Zahlen (Teil A) oder abwechselnd Zahlen und Buchstaben (Teil B) in der richtigen Reihenfolge. Misst visuelle Suche, Verarbeitungsgeschwindigkeit und kognitive Flexibilität.",
+  "bart_title": "Balloon Analogue Risk Task",
+  "bart_description": "Behaviorales Maß für Risikobereitschaft. Pumpen Sie Ballons auf, um Geld zu verdienen — aber hören Sie auf, bevor sie platzen."
 }
