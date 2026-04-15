@@ -398,5 +398,13 @@
   "tmt_title": "Trail Making Test",
   "tmt_description": "Conecte números (Parte A) o alternando números y letras (Parte B) en orden. Mide la exploración visual, la velocidad de procesamiento y la flexibilidad cognitiva.",
   "bart_title": "Tarea del Globo (BART)",
-  "bart_description": "Medida conductual de la propensión a la toma de riesgos. Infle globos para ganar dinero, pero deténgase antes de que estallen."
+  "bart_description": "Medida conductual de la propensión a la toma de riesgos. Infle globos para ganar dinero, pero deténgase antes de que estallen.",
+  "igt_title": "Iowa Gambling Task",
+  "igt_description": "Tarea de toma de decisiones: elija cartas de cuatro mazos para maximizar sus ganancias y descubrir qué mazos son rentables a largo plazo.",
+  "iat_title": "Test de Asociación Implícita",
+  "iat_description": "Un test de tiempo de reacción que mide la fuerza de las asociaciones mentales automáticas entre categorías (flores/insectos + agradable/desagradable).",
+  "eft_title": "Tarea de Flancos de Eriksen",
+  "eft_description": "Una medida clásica de atención selectiva e inhibición de respuesta. Responda a la letra central ignorando las letras flanqueantes.",
+  "pcp_title": "Posner Cuing Paradigm",
+  "pcp_description": "TODO: Add Posner Cuing Paradigm description"
 }

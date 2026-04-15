@@ -1,0 +1,172 @@
+// components/settings/eft.js
+import React, { useEffect, useRef } from 'react';
+import styles from '../../styles/Settings.module.css';
+import { DEFAULT_SETTINGS } from '../tests/eft/data';
+
+const EftSettings = ({ settings, setSettings, onClose, t }) => {
+  const panelRef = useRef(null);
+  const translate = t || ((key) => key);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (panelRef.current && !panelRef.current.contains(event.target)) onClose();
+    };
+    const handleEscape = (event) => { if (event.key === 'Escape') onClose(); };
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('keydown', handleEscape);
+    document.body.classList.add('modal-open');
+    panelRef.current?.querySelector('input, select, button')?.focus();
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleEscape);
+      document.body.classList.remove('modal-open');
+    };
+  }, [onClose]);
+
+  const handleChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    let processedValue = value;
+    if (type === 'checkbox') processedValue = checked;
+    else if (type === 'number' || type === 'range') processedValue = parseFloat(value);
+    setSettings(prev => ({ ...prev, [name]: processedValue }));
+  };
+
+  const resetToDefaults = () => setSettings(DEFAULT_SETTINGS);
+
+  return (
+    <div className={styles.modalOverlay} role="dialog" aria-modal="true">
+      <div className={styles.settingsPanel} ref={panelRef}>
+        <div className={styles.panelHeader}>
+          <h2 className={styles.settingsTitle}>
+            {translate('settings_title')}
+          </h2>
+          <button className={styles.closeButton} onClick={onClose} aria-label="Close settings">&times;</button>
+        </div>
+
+        <div className={styles.panelContent}>
+          <div className={styles.settingGroup}>
+            <label htmlFor="totalTrials">
+              {translate('settings_total_trials')}: {settings.totalTrials}
+            </label>
+            <input
+              type="range"
+              id="totalTrials"
+              name="totalTrials"
+              min="12"
+              max="180"
+              step="6"
+              value={settings.totalTrials}
+              onChange={handleChange}
+              className={styles.slider}
+            />
+            <div className={styles.rangeLabels}><span>12</span><span>180</span></div>
+            <div className={styles.settingDescription}>{translate('settings_total_trials_desc')}</div>
+          </div>
+
+          <div className={styles.settingGroup}>
+            <label htmlFor="flankersPerSide">
+              {translate('settings_flankers_per_side')}: {settings.flankersPerSide}
+            </label>
+            <input
+              type="range"
+              id="flankersPerSide"
+              name="flankersPerSide"
+              min="1"
+              max="4"
+              step="1"
+              value={settings.flankersPerSide}
+              onChange={handleChange}
+              className={styles.slider}
+            />
+            <div className={styles.rangeLabels}><span>1</span><span>4</span></div>
+            <div className={styles.settingDescription}>{translate('settings_flankers_per_side_desc')}</div>
+          </div>
+
+          <div className={styles.settingGroup}>
+            <label htmlFor="fixationDuration">
+              {translate('settings_fixation_duration')}: {settings.fixationDuration} ms
+            </label>
+            <input
+              type="range"
+              id="fixationDuration"
+              name="fixationDuration"
+              min="200"
+              max="1500"
+              step="50"
+              value={settings.fixationDuration}
+              onChange={handleChange}
+              className={styles.slider}
+            />
+            <div className={styles.rangeLabels}><span>200 ms</span><span>1500 ms</span></div>
+            <div className={styles.settingDescription}>{translate('settings_fixation_duration_desc')}</div>
+          </div>
+
+          <div className={styles.settingGroup}>
+            <label htmlFor="responseWindow">
+              {translate('settings_response_window')}: {settings.responseWindow} ms
+            </label>
+            <input
+              type="range"
+              id="responseWindow"
+              name="responseWindow"
+              min="1000"
+              max="5000"
+              step="100"
+              value={settings.responseWindow}
+              onChange={handleChange}
+              className={styles.slider}
+            />
+            <div className={styles.rangeLabels}><span>1000 ms</span><span>5000 ms</span></div>
+            <div className={styles.settingDescription}>{translate('settings_response_window_desc')}</div>
+          </div>
+
+          <div className={styles.settingGroup}>
+            <label htmlFor="interTrialInterval">
+              {translate('settings_iti')}: {settings.interTrialInterval} ms
+            </label>
+            <input
+              type="range"
+              id="interTrialInterval"
+              name="interTrialInterval"
+              min="300"
+              max="2000"
+              step="100"
+              value={settings.interTrialInterval}
+              onChange={handleChange}
+              className={styles.slider}
+            />
+            <div className={styles.rangeLabels}><span>300 ms</span><span>2000 ms</span></div>
+            <div className={styles.settingDescription}>{translate('settings_iti_desc')}</div>
+          </div>
+
+          <div className={styles.settingGroup}>
+            <label htmlFor="stimulusColor">{translate('settings_stimulus_color')}:</label>
+            <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+              <input
+                type="color"
+                id="stimulusColor"
+                name="stimulusColor"
+                value={settings.stimulusColor}
+                onChange={handleChange}
+                style={{ width: '60px', height: '40px', cursor: 'pointer' }}
+              />
+              <span>{settings.stimulusColor}</span>
+            </div>
+            <div className={styles.settingDescription}>{translate('settings_stimulus_color_desc')}</div>
+          </div>
+        </div>
+
+        <div className={styles.buttonGroup}>
+          <button className={`${styles.button} ${styles.defaultButton}`} onClick={resetToDefaults}>
+            {translate('settings_reset_defaults')}
+          </button>
+          <button className={`${styles.button} ${styles.primaryButton}`} onClick={onClose}>
+            {translate('settings_save_close')}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default EftSettings;

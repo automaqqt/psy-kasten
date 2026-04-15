@@ -398,5 +398,13 @@
   "tmt_title": "Trail Making Test",
   "tmt_description": "Verbinden Sie Zahlen (Teil A) oder abwechselnd Zahlen und Buchstaben (Teil B) in der richtigen Reihenfolge. Misst visuelle Suche, Verarbeitungsgeschwindigkeit und kognitive Flexibilität.",
   "bart_title": "Balloon Analogue Risk Task",
-  "bart_description": "Behaviorales Maß für Risikobereitschaft. Pumpen Sie Ballons auf, um Geld zu verdienen — aber hören Sie auf, bevor sie platzen."
+  "bart_description": "Behaviorales Maß für Risikobereitschaft. Pumpen Sie Ballons auf, um Geld zu verdienen — aber hören Sie auf, bevor sie platzen.",
+  "igt_title": "Iowa Gambling Task",
+  "igt_description": "Entscheidungstest: Ziehen Sie Karten aus vier Stapeln, um Ihren Gewinn zu maximieren und herauszufinden, welche Stapel sich langfristig lohnen.",
+  "iat_title": "Impliziter Assoziationstest",
+  "iat_description": "Ein Reaktionszeittest, der die Stärke automatischer mentaler Assoziationen zwischen Kategorien misst (Blumen/Insekten + angenehm/unangenehm).",
+  "eft_title": "Eriksen-Flanker-Aufgabe",
+  "eft_description": "Ein klassisches Maß für selektive Aufmerksamkeit und Antworthemmung. Reagieren Sie auf den mittleren Buchstaben und ignorieren Sie die flankierenden Buchstaben.",
+  "pcp_title": "Posner Cuing Paradigm",
+  "pcp_description": "TODO: Add Posner Cuing Paradigm description"
 }
